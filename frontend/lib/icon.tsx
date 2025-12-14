@@ -186,9 +186,9 @@ export const Icons = {
 				<g
 					id="Icons"
 					stroke="none"
-					stroke-width="1"
+					strokeWidth="1"
 					fill="none"
-					fill-rule="evenodd"
+					fillRule="evenodd"
 				>
 					{" "}
 					<g
@@ -213,8 +213,8 @@ export const Icons = {
 			<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
 			<g
 				id="SVGRepo_tracerCarrier"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			></g>
 			<g id="SVGRepo_iconCarrier">
 				{" "}

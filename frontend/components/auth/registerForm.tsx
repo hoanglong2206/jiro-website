@@ -4,7 +4,6 @@ import type React from "react";
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,9 +28,15 @@ export function RegisterForm() {
 	return (
 		<Card className="w-full max-w-md">
 			<CardHeader className="space-y-1 text-center">
-				<div className="flex items-center justify-center">
-					<Image src="/logo_l.svg" alt="Logo" width={100} height={100} />
-				</div>
+				<Link href="/" className="flex items-center justify-center">
+					<Image
+						src="/logo_l.svg"
+						alt="Logo"
+						loading="eager"
+						width={100}
+						height={100}
+					/>
+				</Link>
 				<CardTitle className="text-2xl font-bold">Create an account</CardTitle>
 			</CardHeader>
 			<form onSubmit={onSubmit}>

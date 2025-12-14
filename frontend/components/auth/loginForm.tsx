@@ -28,9 +28,15 @@ export function LoginForm() {
 	return (
 		<Card className="w-full max-w-md">
 			<CardHeader className="space-y-1 text-center">
-				<div className="flex items-center justify-center">
-					<Image src="/logo_l.svg" alt="Logo" width={100} height={100} />
-				</div>
+				<Link href="/" className="flex items-center justify-center">
+					<Image
+						src="/logo_l.svg"
+						alt="Logo"
+						width={100}
+						height={100}
+						loading="eager"
+					/>
+				</Link>
 				<CardTitle className="text-2xl font-bold">
 					Sign in to your account
 				</CardTitle>

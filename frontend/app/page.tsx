@@ -17,14 +17,11 @@ import {
 	Users,
 	Zap,
 	ArrowRight,
-	Linkedin,
-	Facebook,
-	Twitter,
-	Youtube,
 	X,
 	SearchIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { Icons } from "@/lib/icon";
 
 export default function Home() {
 	const [showBanner, setShowBanner] = useState<boolean>(true);
@@ -156,7 +153,7 @@ export default function Home() {
 				<div className="container px-4 pt-12 mx-auto">
 					<div className="text-center max-w-4xl mx-auto mb-10 md:mb-14">
 						<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6">
-							The AI-powered Jira:
+							The AI-powered Jira
 							<br />
 							from{" "}
 							<span className="relative inline-block">
@@ -219,7 +216,7 @@ export default function Home() {
 						results.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-						<Link href="/sign-in">
+						<Link href="/login">
 							<Button
 								size="lg"
 								className="border-2 border-white h-12 px-8 text-base font-semibold cursor-pointer hover:bg-white/10 rounded-full"
@@ -266,10 +263,10 @@ export default function Home() {
 						<p> &copy; 2024 Demo App, Inc. All rights reserved. </p>
 						<div className="flex gap-4 sm:justify-center">
 							<div className="flex items-center justify-between gap-x-5 ">
-								<Facebook className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
-								<Linkedin className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
-								<Twitter className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
-								<Youtube className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
+								<Icons.facebook className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
+								<Icons.linkedin className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
+								<Icons.twitter className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
+								<Icons.youtube className="h-5 w-5 cursor-pointer hover:opacity-75 transition-opacity" />
 							</div>
 						</div>
 					</div>
