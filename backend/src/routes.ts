@@ -1,9 +1,8 @@
-import express, { Router } from "express";
+import { Application } from "express";
 
-const router: Router = express.Router();
-
-router.get("/health", (_req, res) => {
-	res.json({ status: "ok" });
-});
-
-export default router;
+const BASE_API = "/api";
+export const appRoutes = (app: Application) => {
+	app.use("", (_req, res) => {
+		res.status(200).send("API is running...");
+	});
+};

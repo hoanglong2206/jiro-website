@@ -2,49 +2,77 @@ import express, { Application, Request, Response, NextFunction } from "express";
 import helmet from "helmet";
 import compression from "compression";
 import morgan from "morgan";
+import session from "express-session";
 import cors from "cors";
-import routes from "./routes";
-import { StatusCodes } from "http-status-codes";
 import { config } from "./config";
+import { appRoutes } from "./routes";
+import http from "http";
 
-const app: Application = express();
+export class App {
+	private app: Application;
 
-// CORS
-app.use(
-	cors({
-		origin: config.CORS_ORIGIN || "*",
-		optionsSuccessStatus: 200,
-		credentials: true,
-	}),
-);
+	constructor(app: Application) {
+		this.app = app;
+	}
 
-// Security & Compression
-app.use(helmet({ contentSecurityPolicy: false }));
-app.use(morgan("combined"));
-app.use(compression());
+	public start(): void {
+		this.securityMiddleware(this.app);
+		this.standardMiddleware(this.app);
+		this.routesMiddleware(this.app);
+		this.errorHandler(this.app);
+		this.startServer(this.app);
+	}
 
-// Body parsers
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+	private securityMiddleware(app: Application): void {
+		app.set("trust proxy", 1);
+		app.use(
+			session({
+				secret: config.SESSION_SECRET || "default_session_secret",
+				resave: false,
+				saveUninitialized: true,
+				cookie: {
+					maxAge: 1000 * 60 * 60 * 24, // 1 day
+					secure: config.NODE_ENV === "production",
+				},
+			}),
+		);
+		app.use(helmet());
+		app.use(
+			cors({
+				origin: config.CORS_ORIGIN || "*",
+				credentials: true,
+				methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+			}),
+		);
+		if (config.NODE_ENV === "development") {
+			app.use(morgan("dev"));
+		}
+	}
 
-// Routes
-app.use("/api", routes);
+	private standardMiddleware(app: Application): void {
+		// Standard middlewares
+		app.use(compression());
+		app.use(express.json({ limit: "50mb" }));
+		app.use(express.urlencoded({ limit: "50mb", extended: true }));
+	}
 
-app.use("/", (_req: Request, res: Response) => {
-	res.send("Hello, World!");
-});
+	private routesMiddleware(app: Application): void {
+		appRoutes(app);
+	}
 
-// 404 handler
-app.use((_req: Request, res: Response) => {
-	res.status(StatusCodes.NOT_FOUND).json({ message: "Route not found" });
-});
+	private errorHandler(app: Application): void {}
 
-// Error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-	console.error(err.stack);
-	res
-		.status(StatusCodes.INTERNAL_SERVER_ERROR)
-		.json({ message: "Internal Server Error" });
-});
+	private startServer(app: Application): void {
+		try {
+			const httpServer: http.Server = new http.Server(app);
 
-export default app;
+			httpServer.listen(config.PORT, () => {
+				console.log(
+					`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`,
+				);
+			});
+		} catch (error) {
+			console.error("Failed to start server:", error);
+		}
+	}
+}
