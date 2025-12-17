@@ -4,7 +4,7 @@ import { IAuth } from "../types/auth.interface";
 
 export const authTable = pgTable("auth", {
 	id: serial("id").primaryKey(),
-	username: varchar("username", { length: 50 }).notNull(),
+	username: varchar("username", { length: 50 }).notNull().unique(),
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	password: varchar("password", { length: 255 }).notNull(),
 	profilePicture: text("profile_picture"),

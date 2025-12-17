@@ -26,6 +26,15 @@ class AuthService {
 		return rows[0];
 	}
 
+	async findByUsername(username: string): Promise<AuthRecord | undefined> {
+		const rows = await db
+			.select()
+			.from(authTable)
+			.where(eq(authTable.username, username))
+			.limit(1);
+		return rows[0];
+	}
+
 	async register(payload: {
 		username: string;
 		email: string;

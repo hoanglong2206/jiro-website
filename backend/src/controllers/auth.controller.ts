@@ -37,6 +37,10 @@ class AuthController {
 		}
 	}
 
+	async logout(_req: Request, res: Response) {
+		return res.status(StatusCodes.OK).json({ message: "Logged out" });
+	}
+
 	async me(req: Request, res: Response) {
 		if (!req.currentUser) {
 			return res
@@ -46,8 +50,26 @@ class AuthController {
 		return res.status(StatusCodes.OK).json({ user: req.currentUser });
 	}
 
-	async logout(_req: Request, res: Response) {
-		return res.status(StatusCodes.OK).json({ message: "Logged out" });
+	async refreshToken(req: Request, res: Response) {
+		try {
+			const username = req.params.username;
+			const user = await authService.findByUsername(username);
+			if (!user) {
+				return res
+					.status(StatusCodes.UNAUTHORIZED)
+					.json({ message: "Unauthorized" });
+			}
+			const token = authService.signToken({
+				id: user.id!,
+				username: user.username!,
+				email: user.email!,
+			});
+			return res.status(StatusCodes.OK).json({ token });
+		} catch (error: any) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: error?.message || "Unauthorized" });
+		}
 	}
 }
 

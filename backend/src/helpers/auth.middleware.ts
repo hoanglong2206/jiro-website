@@ -20,3 +20,14 @@ export function verifyJWT(req: Request, res: Response, next: NextFunction) {
 		return res.status(401).json({ message: "Unauthorized" });
 	}
 }
+
+export function checkAuthenticated(
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) {
+	if (!req.currentUser) {
+		return res.status(401).json({ message: "Unauthorized" });
+	}
+	return next();
+}

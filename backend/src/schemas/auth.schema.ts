@@ -1,6 +1,6 @@
 import Joi, { ObjectSchema } from "joi";
 
-class authScheme {
+class authSchema {
 	registerSchema(): ObjectSchema {
 		return Joi.object({
 			username: Joi.string().alphanum().min(3).max(30).required(),
@@ -17,4 +17,4 @@ class authScheme {
 	}
 }
 
-export default new authScheme();
+export default new authSchema();
