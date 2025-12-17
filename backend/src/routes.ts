@@ -1,8 +1,11 @@
 import { Application } from "express";
+import { authRoutes } from "./routes/auth.route";
 
 const BASE_API = "/api";
 export const appRoutes = (app: Application) => {
-	app.use("", (_req, res) => {
+	app.get("/", (_req, res) => {
 		res.status(200).send("API is running...");
 	});
+
+	app.use(`${BASE_API}/auth`, authRoutes.routes());
 };
