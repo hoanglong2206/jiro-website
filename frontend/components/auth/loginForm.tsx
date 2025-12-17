@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,12 +17,40 @@ import {
 } from "@/components/ui/card";
 import { Icons } from "@/lib/icon";
 import Image from "next/image";
+import { useLoginMutation } from "@/services/auth.service";
+import { useAppDispatch } from "@/store/store";
+import { addAuthUser } from "@/store/reducers/auth.reducer";
+import { useRouter } from "next/navigation";
+import { saveToSessionStorage } from "@/services/utils.service";
+import { updateLogout } from "@/store/reducers/logout.reducer";
 
 export function LoginForm() {
-	const [showPassword, setShowPassword] = useState(false);
+	const [showPassword, setShowPassword] = useState<boolean>(false);
+	const [email, setEmail] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [login, { isLoading }] = useLoginMutation();
+	const dispatch = useAppDispatch();
+	const router = useRouter();
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+
+		try {
+			const result = await login({ email, password }).unwrap();
+
+			if (result.user) {
+				dispatch(
+					addAuthUser({
+						authInfo: result.user,
+					}),
+				);
+				dispatch(updateLogout(false));
+				saveToSessionStorage(result.token, result.user.username);
+			}
+			router.push("/for-you");
+		} catch (error) {
+			console.error("Login failed:", error);
+		}
 	}
 
 	return (
@@ -49,6 +77,8 @@ export function LoginForm() {
 							id="email"
 							type="email"
 							placeholder="name@example.com"
+							value={email}
+							onChange={(event) => setEmail(event.target.value)}
 							required
 						/>
 					</div>
@@ -61,9 +91,12 @@ export function LoginForm() {
 								id="password"
 								type={showPassword ? "text" : "password"}
 								placeholder="Enter your password"
+								value={password}
+								onChange={(event) => setPassword(event.target.value)}
 								required
 							/>
 							<Button
+								type="button"
 								variant="ghost"
 								size="icon"
 								className="absolute right-0 top-0 h-full px-3 hover:bg-transparent cursor-pointer"
@@ -112,8 +145,19 @@ export function LoginForm() {
 					</div>
 				</CardContent>
 				<CardFooter className="flex flex-col gap-4">
-					<Button type="submit" className="w-full cursor-pointer">
-						Sign in
+					<Button
+						type="submit"
+						className="w-full cursor-pointer"
+						disabled={isLoading}
+					>
+						{isLoading ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								Signing in...
+							</>
+						) : (
+							"Sign In"
+						)}
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						Don&apos;t have an account?{" "}

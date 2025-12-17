@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,12 +17,45 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import { Icons } from "@/lib/icon";
+import { useRegisterMutation } from "@/services/auth.service";
+import { useAppDispatch } from "@/store/store";
+import { addAuthUser } from "@/store/reducers/auth.reducer";
+import { useRouter } from "next/navigation";
+import { saveToSessionStorage } from "@/services/utils.service";
+import { updateLogout } from "@/store/reducers/logout.reducer";
 
 export function RegisterForm() {
-	const [showPassword, setShowPassword] = useState(false);
+	const [showPassword, setShowPassword] = useState<boolean>(false);
+	const [username, setUsername] = useState<string>("");
+	const [email, setEmail] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [register, { isLoading }] = useRegisterMutation();
+	const dispatch = useAppDispatch();
+	const router = useRouter();
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+		try {
+			const result = await register({
+				username,
+				email,
+				password,
+			}).unwrap();
+
+			if (result.user) {
+				dispatch(
+					addAuthUser({
+						authInfo: result.user,
+					}),
+				);
+				dispatch(updateLogout(false));
+				saveToSessionStorage(result.token, result.user.username ?? "");
+			}
+
+			router.push("/for-you");
+		} catch (err) {
+			console.error("Registration failed:", err);
+		}
 	}
 
 	return (
@@ -42,8 +75,14 @@ export function RegisterForm() {
 			<form onSubmit={onSubmit}>
 				<CardContent className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="name">Full Name</Label>
-						<Input id="name" placeholder="John Doe" required />
+						<Label htmlFor="name">Username</Label>
+						<Input
+							id="name"
+							placeholder="Your username"
+							value={username}
+							onChange={(e) => setUsername(e.target.value)}
+							required
+						/>
 					</div>
 					<div className="space-y-2">
 						<Label htmlFor="email">Email</Label>
@@ -51,6 +90,8 @@ export function RegisterForm() {
 							id="email"
 							type="email"
 							placeholder="name@example.com"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
 							required
 						/>
 					</div>
@@ -61,6 +102,8 @@ export function RegisterForm() {
 								id="password"
 								type={showPassword ? "text" : "password"}
 								placeholder="Create a password"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
 								required
 							/>
 							<Button
@@ -107,8 +150,19 @@ export function RegisterForm() {
 					</div>
 				</CardContent>
 				<CardFooter className="flex flex-col gap-4">
-					<Button type="submit" className="w-full cursor-pointer">
-						Create Account
+					<Button
+						type="submit"
+						disabled={isLoading}
+						className="w-full cursor-pointer"
+					>
+						{isLoading ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								Signing in...
+							</>
+						) : (
+							"Create Account"
+						)}
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						Already have an account?{" "}
