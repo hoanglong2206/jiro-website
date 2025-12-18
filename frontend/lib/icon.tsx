@@ -30,11 +30,11 @@ export const Icons = {
 	),
 	twitter: (props: IconProps) => (
 		<svg viewBox="0 -4 48 48" fill="#000000" {...props}>
-			<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 			<g
 				id="SVGRepo_tracerCarrier"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			></g>
 			<g id="SVGRepo_iconCarrier">
 				{" "}
@@ -43,9 +43,9 @@ export const Icons = {
 				<g
 					id="Icons"
 					stroke="none"
-					stroke-width="1"
+					strokeWidth="1"
 					fill="none"
-					fill-rule="evenodd"
+					fillRule="evenodd"
 				>
 					{" "}
 					<g
@@ -173,11 +173,11 @@ export const Icons = {
 	),
 	youtube: (props: IconProps) => (
 		<svg viewBox="0 -7 48 48" fill="#000000" {...props}>
-			<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 			<g
 				id="SVGRepo_tracerCarrier"
-				stroke-linecap="round"
-				stroke-linejoin="round"
+				strokeLinecap="round"
+				strokeLinejoin="round"
 			></g>
 			<g id="SVGRepo_iconCarrier">
 				{" "}
@@ -210,7 +210,7 @@ export const Icons = {
 	),
 	facebook: (props: IconProps) => (
 		<svg viewBox="0 0 455.73 455.73" fill="#000000" {...props}>
-			<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+			<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 			<g
 				id="SVGRepo_tracerCarrier"
 				strokeLinecap="round"
