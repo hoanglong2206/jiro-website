@@ -34,6 +34,7 @@ import { useLogoutMutation } from "@/services/auth.service";
 import { useAppDispatch } from "@/store/store";
 import { deleteFromSessionStorage } from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
+import { toast } from "sonner";
 
 export function Header() {
 	const router = useRouter();
@@ -47,8 +48,10 @@ export function Header() {
 			dispatch(updateLogout(true));
 			deleteFromSessionStorage();
 			router.push("/login");
+			toast.success("Đăng xuất thành công");
 		} catch (error) {
 			console.error("Logout failed:", error);
+			toast.error("Đăng xuất thất bại. Vui lòng thử lại.");
 		}
 	};
 	return (

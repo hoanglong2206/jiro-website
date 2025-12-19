@@ -17,14 +17,13 @@ import { useChangePasswordMutation } from "@/services/auth.service";
 import { saveToSessionStorage } from "@/services/utils.service";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { addAuthUser } from "@/store/reducers/auth.reducer";
+import { toast } from "sonner";
 
 export default function SecurityPage() {
 	const [showCurrentPassword, setShowCurrentPassword] = useState(false);
 	const [showNewPassword, setShowNewPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 	const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-	const [statusMessage, setStatusMessage] = useState<string | null>(null);
-	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const dispatch = useAppDispatch();
 	const authUser = useAppSelector((state) => state.auth);
 	const [changePassword, { isLoading }] = useChangePasswordMutation();
@@ -37,16 +36,14 @@ export default function SecurityPage() {
 
 	const handleUpdatePassword = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setStatusMessage(null);
-		setErrorMessage(null);
 
 		if (!passwords.current || !passwords.new || !passwords.confirm) {
-			setErrorMessage("All fields are required");
+			toast.error("Vui lòng điền đầy đủ thông tin");
 			return;
 		}
 
 		if (passwords.new !== passwords.confirm) {
-			setErrorMessage("Passwords do not match");
+			toast.error("Mật khẩu xác nhận không khớp");
 			return;
 		}
 
@@ -73,11 +70,10 @@ export default function SecurityPage() {
 					JSON.stringify(result.token),
 				);
 			}
-
-			setStatusMessage("Password updated successfully.");
+			toast.success("Đổi mật khẩu thành công");
 			setPasswords({ current: "", new: "", confirm: "" });
 		} catch (error) {
-			let message = "Failed to update password.";
+			let message = "Đổi mật khẩu thất bại";
 			if (
 				error &&
 				typeof error === "object" &&
@@ -91,7 +87,7 @@ export default function SecurityPage() {
 					message = maybeMessage;
 				}
 			}
-			setErrorMessage(message);
+			toast.error(message);
 		}
 	};
 
@@ -126,7 +122,7 @@ export default function SecurityPage() {
 								<button
 									type="button"
 									onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showCurrentPassword ? (
 										<EyeOff className="h-4 w-4" />
@@ -152,7 +148,7 @@ export default function SecurityPage() {
 								<button
 									type="button"
 									onClick={() => setShowNewPassword(!showNewPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showNewPassword ? (
 										<EyeOff className="h-4 w-4" />
@@ -178,7 +174,7 @@ export default function SecurityPage() {
 								<button
 									type="button"
 									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showConfirmPassword ? (
 										<EyeOff className="h-4 w-4" />
@@ -189,12 +185,6 @@ export default function SecurityPage() {
 							</div>
 						</div>
 
-						{statusMessage && (
-							<p className="text-sm text-emerald-600">{statusMessage}</p>
-						)}
-						{errorMessage && (
-							<p className="text-sm text-destructive">{errorMessage}</p>
-						)}
 						<Button className="mt-2" type="submit" disabled={isLoading}>
 							{isLoading ? "Updating..." : "Update Password"}
 						</Button>

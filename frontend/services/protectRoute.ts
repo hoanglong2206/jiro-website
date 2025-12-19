@@ -3,14 +3,10 @@
 import { useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import {
-	deleteFromSessionStorage,
-	getDataFromSessionStorage,
-	saveToSessionStorage,
-} from "@/services/utils.service";
+import { deleteFromSessionStorage } from "@/services/utils.service";
 import { useGetCurrentUserQuery } from "@/services/auth.service";
 import { useAppDispatch } from "@/store/store";
-import { addAuthUser, clearAuthUser } from "@/store/reducers/auth.reducer";
+import { clearAuthUser } from "@/store/reducers/auth.reducer";
 import { updateLogout } from "@/store/reducers/logout.reducer";
 
 /**
@@ -23,27 +19,11 @@ import { updateLogout } from "@/store/reducers/logout.reducer";
 export const useProtectRoute = (redirectTo = "/login"): void => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
-	const { data, isError, isFetching, isSuccess } = useGetCurrentUserQuery(
-		undefined,
-		{ skip: typeof window === "undefined" },
-	);
+	const { isError, isFetching } = useGetCurrentUserQuery(undefined, {
+		skip: typeof window === "undefined",
+	});
 
 	const enforceAuthentication = useCallback(() => {
-		if (isSuccess && data?.user) {
-			dispatch(
-				addAuthUser({
-					authInfo: data.user,
-				}),
-			);
-			const storedToken = getDataFromSessionStorage("token");
-			saveToSessionStorage(
-				JSON.stringify(true),
-				JSON.stringify(data.user.username),
-				typeof storedToken === "string" ? storedToken : undefined,
-			);
-			return;
-		}
-
 		if (isError) {
 			console.warn("Session expired. Redirecting to login.");
 			dispatch(clearAuthUser(undefined));
@@ -51,7 +31,7 @@ export const useProtectRoute = (redirectTo = "/login"): void => {
 			deleteFromSessionStorage();
 			router.replace(redirectTo);
 		}
-	}, [isSuccess, data, isError, dispatch, router, redirectTo]);
+	}, [isError, dispatch, router, redirectTo]);
 
 	useEffect(() => {
 		if (isFetching) {

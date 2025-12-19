@@ -23,6 +23,7 @@ import { addAuthUser } from "@/store/reducers/auth.reducer";
 import { useRouter } from "next/navigation";
 import { saveToSessionStorage } from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
+import { toast } from "sonner";
 
 export function LoginForm() {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -51,9 +52,11 @@ export function LoginForm() {
 					result.token ? JSON.stringify(result.token) : undefined,
 				);
 			}
+			toast.success("Đăng nhập thành công");
 			router.push("/demo");
 		} catch (error) {
 			console.error("Login failed:", error);
+			toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
 		}
 	}
 

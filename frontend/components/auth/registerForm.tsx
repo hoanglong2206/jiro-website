@@ -23,6 +23,7 @@ import { addAuthUser } from "@/store/reducers/auth.reducer";
 import { useRouter } from "next/navigation";
 import { saveToSessionStorage } from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
+import { toast } from "sonner";
 
 export function RegisterForm() {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -55,10 +56,11 @@ export function RegisterForm() {
 					result.token ? JSON.stringify(result.token) : undefined,
 				);
 			}
-
+			toast.success("Tạo tài khoản thành công");
 			router.push("/demo");
 		} catch (err) {
 			console.error("Registration failed:", err);
+			toast.error("Đăng ký thất bại. Vui lòng thử lại.");
 		}
 	}
 
