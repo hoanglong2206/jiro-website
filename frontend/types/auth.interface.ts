@@ -2,11 +2,7 @@ export interface IAuthUser {
 	id: number | null;
 	username: string | null;
 	email: string | null;
-	passwordResetExpires: Date | null;
-	passwordResetToken: string | null;
 	profilePicture: string | null;
-	createdAt: Date | null;
-	updatedAt: Date | null;
 }
 
 export interface IAuthDocument {

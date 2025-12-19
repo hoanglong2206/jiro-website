@@ -49,10 +49,14 @@ export function RegisterForm() {
 					}),
 				);
 				dispatch(updateLogout(false));
-				saveToSessionStorage(result.token, result.user.username ?? "");
+				saveToSessionStorage(
+					JSON.stringify(true),
+					JSON.stringify(result.user.username),
+					result.token ? JSON.stringify(result.token) : undefined,
+				);
 			}
 
-			router.push("/for-you");
+			router.push("/demo");
 		} catch (err) {
 			console.error("Registration failed:", err);
 		}

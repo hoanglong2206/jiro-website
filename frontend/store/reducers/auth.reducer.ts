@@ -6,11 +6,7 @@ const initialValue: IAuthUser = {
 	id: null,
 	username: null,
 	email: null,
-	passwordResetExpires: null,
-	passwordResetToken: null,
 	profilePicture: null,
-	createdAt: null,
-	updatedAt: null,
 };
 
 const authSlice: Slice = createSlice({
@@ -24,10 +20,6 @@ const authSlice: Slice = createSlice({
 				state.username = authInfo.username ?? null;
 				state.email = authInfo.email ?? null;
 				state.profilePicture = authInfo.profilePicture ?? null;
-				state.passwordResetToken = authInfo.passwordResetToken ?? null;
-				state.passwordResetExpires = authInfo.passwordResetExpires ?? null;
-				state.createdAt = authInfo.createdAt ?? null;
-				state.updatedAt = authInfo.updatedAt ?? null;
 			}
 		},
 		clearAuthUser: () => {

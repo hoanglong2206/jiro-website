@@ -71,17 +71,32 @@ export const bytesToSize = (bytes: number): string => {
 
 // Auth utilities
 
-export const saveToSessionStorage = (token: string, username: string): void => {
-	window.sessionStorage.setItem("token", token);
+export const saveToSessionStorage = (
+	data: string,
+	username: string,
+	token?: string,
+): void => {
+	window.sessionStorage.setItem("data", data);
 	window.sessionStorage.setItem("username", username);
+	if (token) {
+		window.sessionStorage.setItem("token", token);
+	}
 };
 
 export const getDataFromSessionStorage = (key: string) => {
 	const data = window.sessionStorage.getItem(key);
-	return data;
+	if (data === null) {
+		return null;
+	}
+	try {
+		return JSON.parse(data);
+	} catch {
+		return data;
+	}
 };
 
 export const deleteFromSessionStorage = (): void => {
-	window.sessionStorage.removeItem("token");
+	window.sessionStorage.removeItem("data");
 	window.sessionStorage.removeItem("username");
+	window.sessionStorage.removeItem("token");
 };

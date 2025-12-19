@@ -6,7 +6,10 @@ import {
 	FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 
-import { getDataFromSessionStorage } from "@/services/utils.service";
+import {
+	deleteFromSessionStorage,
+	getDataFromSessionStorage,
+} from "@/services/utils.service";
 
 const BASE_ENDPOINT =
 	process.env.NEXT_PUBLIC_API_ENDPOINT || "http://localhost:5001";
@@ -16,10 +19,14 @@ const baseQuery = fetchBaseQuery({
 	prepareHeaders: (headers) => {
 		headers.set("Content-Type", "application/json");
 		headers.set("Accept", "application/json");
-		const token = getDataFromSessionStorage("token");
-		if (token) {
-			headers.set("Authorization", `Bearer ${token}`);
+
+		if (typeof window !== "undefined") {
+			const token = getDataFromSessionStorage("token");
+			if (token && typeof token === "string") {
+				headers.set("Authorization", `Bearer ${token}`);
+			}
 		}
+
 		return headers;
 	},
 	credentials: "include",
@@ -30,11 +37,29 @@ const baseQueryWithReAuth: BaseQueryFn<
 	unknown,
 	FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-	const result = await baseQuery(args, api, extraOptions);
+	let result = await baseQuery(args, api, extraOptions);
+	const username = getDataFromSessionStorage("username");
 
-	if (result.error && result.error.status === 401) {
-		const username = getDataFromSessionStorage("username");
-		await baseQuery(`auth/refresh-token/${username}`, api, extraOptions);
+	if (username) {
+		if (result.error && result.error.status === 401) {
+			const refreshResult = await baseQuery(
+				`auth/refresh-token/${username}`,
+				api,
+				extraOptions,
+			);
+
+			if (refreshResult.data && typeof window !== "undefined") {
+				const { token: newToken } = refreshResult.data as { token?: string };
+				if (newToken) {
+					sessionStorage.setItem("token", JSON.stringify(newToken));
+					result = await baseQuery(args, api, extraOptions);
+				} else {
+					deleteFromSessionStorage();
+				}
+			} else if (typeof window !== "undefined") {
+				deleteFromSessionStorage();
+			}
+		}
 	}
 
 	return result;
