@@ -1,5 +1,9 @@
 import { api } from "@/store/api";
-import { ISignInPayload, ISignUpPayload } from "@/types/auth.interface";
+import {
+	IChangePasswordPayload,
+	ISignInPayload,
+	ISignUpPayload,
+} from "@/types/auth.interface";
 
 export const authApi = api.injectEndpoints({
 	endpoints: (build) => ({
@@ -30,6 +34,14 @@ export const authApi = api.injectEndpoints({
 			query: () => "auth/me",
 			providesTags: ["Auth"],
 		}),
+		changePassword: build.mutation({
+			query: (body: IChangePasswordPayload) => ({
+				url: "auth/change-password",
+				method: "PUT",
+				body,
+			}),
+			invalidatesTags: ["Auth"],
+		}),
 	}),
 });
 
@@ -38,4 +50,5 @@ export const {
 	useLoginMutation,
 	useLogoutMutation,
 	useGetCurrentUserQuery,
+	useChangePasswordMutation,
 } = authApi;

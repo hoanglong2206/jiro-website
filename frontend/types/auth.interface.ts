@@ -30,6 +30,12 @@ export interface ISignInPayload {
 	password: string;
 }
 
+export interface IChangePasswordPayload {
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
+}
+
 export interface IReduxAuthPayload {
 	authInfo?: IAuthDocument;
 }
