@@ -21,13 +21,23 @@ export function verifyJWT(req: Request, res: Response, next: NextFunction) {
 	}
 }
 
-export function checkAuthenticated(
+export function verifyRefreshJWT(
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) {
-	if (!req.currentUser) {
+	try {
+		const refreshToken = req.cookies?.refreshToken;
+		if (!refreshToken) {
+			return res.status(401).json({ message: "Unauthorized" });
+		}
+		const payload = jwt.verify(
+			refreshToken,
+			config.JWT_SECRET as string,
+		) as IAuthPayload;
+		req.currentUser = payload;
+		return next();
+	} catch (error) {
 		return res.status(401).json({ message: "Unauthorized" });
 	}
-	return next();
 }

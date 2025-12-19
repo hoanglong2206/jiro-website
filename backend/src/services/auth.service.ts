@@ -39,7 +39,11 @@ class AuthService {
 		username: string;
 		email: string;
 		password: string;
-	}): Promise<{ user: Omit<AuthRecord, "password">; token: string }> {
+	}): Promise<{
+		user: Omit<AuthRecord, "password">;
+		token: string;
+		refreshToken: string;
+	}> {
 		const existing = await this.findByEmail(payload.email);
 		if (existing) {
 			throw new Error("Email already in use");
@@ -58,14 +62,22 @@ class AuthService {
 			username: user.username!,
 			email: user.email!,
 		});
+
+		const refreshToken = this.signRefreshToken({
+			id: user.id!,
+			username: user.username!,
+			email: user.email!,
+		});
+
 		const { password, ...safe } = user;
-		return { user: safe, token };
+		return { user: safe, token, refreshToken };
 	}
 
-	async login(payload: {
-		email: string;
-		password: string;
-	}): Promise<{ user: Omit<AuthRecord, "password">; token: string }> {
+	async login(payload: { email: string; password: string }): Promise<{
+		user: Omit<AuthRecord, "password">;
+		token: string;
+		refreshToken: string;
+	}> {
 		const user = await this.findByEmail(payload.email);
 		if (!user) {
 			throw new Error("Invalid credentials");
@@ -82,12 +94,25 @@ class AuthService {
 			username: user.username!,
 			email: user.email!,
 		});
+
+		const refreshToken = this.signRefreshToken({
+			id: user.id!,
+			username: user.username!,
+			email: user.email!,
+		});
+
 		const { password, ...safe } = user;
-		return { user: safe, token };
+		return { user: safe, token, refreshToken };
 	}
 
 	signToken(payload: IAuthPayload): string {
-		return jwt.sign(payload, config.JWT_SECRET as string, { expiresIn: "7d" });
+		return jwt.sign(payload, config.JWT_SECRET as string, { expiresIn: "2m" });
+	}
+
+	signRefreshToken(payload: IAuthPayload): string {
+		return jwt.sign(payload, config.JWT_SECRET as string, {
+			expiresIn: "3m",
+		});
 	}
 }
 

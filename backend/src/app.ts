@@ -1,4 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from "express";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import compression from "compression";
 import morgan from "morgan";
@@ -25,6 +26,7 @@ export class App {
 
 	private securityMiddleware(app: Application): void {
 		app.set("trust proxy", 1);
+		app.use(cookieParser());
 		app.use(
 			session({
 				secret: config.SESSION_SECRET || "default_session_secret",

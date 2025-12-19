@@ -1,12 +1,21 @@
 import { StatusCodes } from "http-status-codes";
-import { Request, Response } from "express";
+import { CookieOptions, Request, Response } from "express";
 import { authService } from "../services/auth.service";
+import { config } from "../config";
+
+const refreshCookieOptions: CookieOptions = {
+	httpOnly: true,
+	sameSite: "lax",
+	secure: config.NODE_ENV === "production",
+	maxAge: 1000 * 60 * 3,
+};
 
 class AuthController {
 	async register(req: Request, res: Response) {
 		try {
 			const { username, email, password } = req.body;
 			const result = await authService.register({ username, email, password });
+			res.cookie("refreshToken", result.refreshToken, refreshCookieOptions);
 			return res.status(StatusCodes.CREATED).json({
 				message: "Registered successfully",
 				user: result.user,
@@ -25,6 +34,7 @@ class AuthController {
 		try {
 			const { email, password } = req.body;
 			const result = await authService.login({ email, password });
+			res.cookie("refreshToken", result.refreshToken, refreshCookieOptions);
 			return res.status(StatusCodes.OK).json({
 				message: "Logged in successfully",
 				user: result.user,
@@ -38,6 +48,11 @@ class AuthController {
 	}
 
 	async logout(_req: Request, res: Response) {
+		res.clearCookie("refreshToken", {
+			httpOnly: true,
+			sameSite: "lax",
+			secure: config.NODE_ENV === "production",
+		});
 		return res.status(StatusCodes.OK).json({ message: "Logged out" });
 	}
 
