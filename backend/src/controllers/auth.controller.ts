@@ -86,6 +86,33 @@ class AuthController {
 				.json({ message: error?.message || "Unauthorized" });
 		}
 	}
+
+	async changePassword(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { currentPassword, newPassword } = req.body;
+			await authService.changePassword({
+				userId: req.currentUser.id,
+				currentPassword,
+				newPassword,
+			});
+
+			return res.status(StatusCodes.OK).json({
+				message: "Password updated successfully",
+			});
+		} catch (error: any) {
+			const message = error?.message || "Unable to update password";
+			const status = message.includes("Unauthorized")
+				? StatusCodes.UNAUTHORIZED
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
 }
 
 export default new AuthController();

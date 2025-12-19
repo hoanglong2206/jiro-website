@@ -28,6 +28,12 @@ class AuthRoutes {
 			verifyRefreshJWT,
 			authController.refreshToken.bind(authController),
 		);
+		this.router.put(
+			"/change-password",
+			verifyJWT,
+			validate(scheme.changePasswordSchema()),
+			authController.changePassword.bind(authController),
+		);
 		return this.router;
 	}
 }
