@@ -1,13 +1,12 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
-import { Reducer } from "redux";
 
 import { api } from "./api";
 import authReducer from "./reducers/auth.reducer";
 import logoutReducer from "./reducers/logout.reducer";
 
-const rootReducer: Reducer = combineReducers({
+const rootReducer = combineReducers({
 	[api.reducerPath]: api.reducer,
 	auth: authReducer,
 	logout: logoutReducer,
