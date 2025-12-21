@@ -11,7 +11,15 @@ export interface Task {
 	title: string;
 	description?: string;
 	status: "todo" | "in-progress" | "in-review" | "done";
-	priority: "low" | "medium" | "high" | "urgent";
+	priority:
+		| "low"
+		| "medium"
+		| "high"
+		| "urgent"
+		| "lowest"
+		| "highest"
+		| "none";
+	type: "task" | "epic" | "story" | "subtask" | "bug";
 	labels: string[];
 	assignee?: User;
 	reporter?: User;
@@ -145,6 +153,7 @@ export const tasks: Task[] = [
 			"Implement push notifications system for user alerts.\n\nThis task includes:\n• Setting up Firebase Cloud Messaging\n• Creating notification templates\n• Implementing notification preferences",
 		status: "todo",
 		priority: "high",
+		type: "task",
 		labels: ["IMPLEMENT USER AUTHENTICATION"],
 		assignee: users[0],
 		reporter: users[1],
@@ -178,6 +187,7 @@ export const tasks: Task[] = [
 			"Create a comprehensive transaction history view with filtering and export capabilities.",
 		status: "todo",
 		priority: "medium",
+		type: "task",
 		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
 		assignee: users[1],
 		reporter: users[0],
@@ -187,7 +197,7 @@ export const tasks: Task[] = [
 		projectId: "1",
 		parentTask: {
 			id: "parent-1",
-			key: "BSD-0",
+			key: "SAM1-2",
 			title: "Implement Market Analysis Tools",
 		},
 	},
@@ -199,6 +209,7 @@ export const tasks: Task[] = [
 			"Improve loading times and reduce bundle size.\n\nFocus areas:\n• Code splitting\n• Image optimization\n• Caching strategies",
 		status: "todo",
 		priority: "high",
+		type: "task",
 		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
 		assignee: users[2],
 		reporter: users[0],
@@ -208,7 +219,7 @@ export const tasks: Task[] = [
 		projectId: "1",
 		parentTask: {
 			id: "parent-1",
-			key: "BSD-0",
+			key: "SAM1-2",
 			title: "Implement Market Analysis Tools",
 		},
 	},
@@ -220,6 +231,7 @@ export const tasks: Task[] = [
 			"Integrating a cryptocurrency wallet is essential for users to manage their assets. This task includes:\n\n• Researching wallet APIs.\n• Implementing wallet connection features.\n• Testing wallet transactions.\n\nThe integration should support multiple cryptocurrencies and ensure that transactions are secure and efficient.",
 		status: "in-progress",
 		priority: "urgent",
+		type: "task",
 		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
 		assignee: undefined,
 		reporter: users[1],
@@ -229,7 +241,7 @@ export const tasks: Task[] = [
 		projectId: "1",
 		parentTask: {
 			id: "parent-1",
-			key: "BSD-0",
+			key: "SAM1-2",
 			title: "Implement Market Analysis Tools",
 		},
 		subtasks: [],
@@ -242,6 +254,7 @@ export const tasks: Task[] = [
 		description: "Complete all technical and user documentation",
 		status: "in-review",
 		priority: "medium",
+		type: "story",
 		labels: ["POST-LAUNCH REVIEW AND FEEDBACK"],
 		assignee: users[0],
 		reporter: users[2],
@@ -257,6 +270,7 @@ export const tasks: Task[] = [
 		description: "Set up Stripe integration for payments",
 		status: "done",
 		priority: "urgent",
+		type: "task",
 		labels: ["PAYMENT INTEGRATION"],
 		assignee: users[1],
 		reporter: users[0],
@@ -272,6 +286,7 @@ export const tasks: Task[] = [
 		description: "Create mockups for the main dashboard",
 		status: "done",
 		priority: "high",
+		type: "story",
 		labels: ["UI/UX DESIGN"],
 		assignee: users[3],
 		reporter: users[2],
@@ -287,6 +302,7 @@ export const tasks: Task[] = [
 		description: "Configure GitHub Actions for automated deployments",
 		status: "in-progress",
 		priority: "high",
+		type: "task",
 		labels: ["DEVOPS"],
 		assignee: users[0],
 		reporter: users[1],
@@ -294,6 +310,39 @@ export const tasks: Task[] = [
 		createdAt: "2025-12-10",
 		updatedAt: "2025-12-15",
 		projectId: "2",
+	},
+	{
+		id: "epic-1",
+		key: "SAM1-1",
+		title: "Implement User Authentication",
+		description: "Complete user authentication system with OAuth and 2FA",
+		status: "done",
+		priority: "highest",
+		type: "epic",
+		labels: ["IMPLEMENT USER AUTHENTICATION"],
+		assignee: users[0],
+		reporter: users[0],
+		dueDate: "2025-12-15",
+		createdAt: "2025-11-01",
+		updatedAt: "2025-12-15",
+		projectId: "1",
+	},
+	{
+		id: "epic-2",
+		key: "SAM1-2",
+		title: "Implement Market Analysis Tools",
+		description:
+			"Build comprehensive market analysis dashboard with charts and data visualization",
+		status: "in-progress",
+		priority: "highest",
+		type: "epic",
+		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
+		assignee: users[1],
+		reporter: users[0],
+		dueDate: "2025-12-30",
+		createdAt: "2025-11-10",
+		updatedAt: "2025-12-14",
+		projectId: "1",
 	},
 ];
 

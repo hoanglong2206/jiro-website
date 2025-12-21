@@ -57,9 +57,15 @@ export function Header() {
 	return (
 		<header className="flex h-14 items-center justify-between border-b border-border bg-card px-8 gap-16">
 			<div className="flex flex-1 items-center justify-between gap-x-2">
-				<div className="lg:flex items-center hidden">
-					<Image src="/logo_l.svg" alt="Logo" width={100} height={100} />
-				</div>
+				<Link href="/for-you" className="lg:flex items-center hidden">
+					<Image
+						src="/logo_l.svg"
+						alt="Logo"
+						width={100}
+						height={100}
+						loading="eager"
+					/>
+				</Link>
 				<div className="flex flex-1 items-center justify-center gap-2 max-w-2xl">
 					<div className="relative w-full hidden lg:flex">
 						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -135,7 +141,7 @@ export function Header() {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
-							<Link href="/profile" className="cursor-pointer">
+							<Link href="/profile/me" className="cursor-pointer">
 								<User className="mr-2 h-4 w-4" />
 								Profile
 							</Link>

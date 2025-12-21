@@ -128,13 +128,10 @@ export function Sidebar() {
 											</Link>
 										))}
 									</div>
-									<Link
-										href="/starred"
-										className="mt-3 flex items-center gap-2 border-t pt-3 text-sm text-muted-foreground hover:text-foreground"
-									>
+									<div className="mt-3 flex items-center gap-2 border-t pt-3 text-sm text-muted-foreground hover:text-foreground">
 										<Filter className="h-4 w-4" />
 										View all starred items
-									</Link>
+									</div>
 								</div>
 							</PopoverContent>
 						</Popover>
@@ -271,8 +268,7 @@ export function Sidebar() {
 					</Collapsible>
 
 					<nav className="mt-4 space-y-1">
-						<Link
-							href="/teams"
+						<div
 							className={cn(
 								"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
 								pathname === "/teams" && "bg-sidebar-accent",
@@ -281,7 +277,7 @@ export function Sidebar() {
 							<Users className="h-4 w-4" />
 							Teams
 							<ExternalLink className="ml-auto h-3 w-3 text-sidebar-foreground/50" />
-						</Link>
+						</div>
 					</nav>
 				</div>
 			</ScrollArea>
