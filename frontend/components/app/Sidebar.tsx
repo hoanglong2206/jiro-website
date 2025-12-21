@@ -35,8 +35,6 @@ import {
 export function Sidebar() {
 	const pathname = usePathname();
 	const [spacesOpen, setSpacesOpen] = useState(true);
-	const [starredOpen, setStarredOpen] = useState(true);
-	const [recentOpen, setRecentOpen] = useState(true);
 	const [plansOpen, setPlansOpen] = useState(true);
 
 	const starredProjects = projects.slice(0, 1);
@@ -45,7 +43,6 @@ export function Sidebar() {
 		<aside className="flex max-h-[888px] w-64 flex-col bg-sidebar text-sidebar-foreground">
 			<ScrollArea className="flex-1">
 				<div className="p-2">
-					{/* Navigation */}
 					<nav className="space-y-1">
 						<Link
 							href="/for-you"
@@ -58,11 +55,9 @@ export function Sidebar() {
 							<Home className="h-4 w-4" />
 							For you
 						</Link>
-
-						{/* Recent - expandable */}
 						<Popover>
 							<PopoverTrigger asChild>
-								<button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent">
+								<button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
 									<div className="flex items-center gap-3">
 										<Clock className="h-4 w-4" />
 										Recent
@@ -93,11 +88,9 @@ export function Sidebar() {
 								</div>
 							</PopoverContent>
 						</Popover>
-
-						{/* Starred - with popover */}
 						<Popover>
 							<PopoverTrigger asChild>
-								<button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent">
+								<button className="flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
 									<div className="flex items-center gap-3">
 										<Star className="h-4 w-4" />
 										Starred
@@ -146,11 +139,10 @@ export function Sidebar() {
 							</PopoverContent>
 						</Popover>
 
-						{/* Plans */}
 						<Collapsible open={plansOpen} onOpenChange={setPlansOpen}>
 							<div className="flex items-center">
 								<CollapsibleTrigger asChild>
-									<button className="flex flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent">
+									<button className="flex flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
 										<Map className="h-4 w-4" />
 										Plans
 									</button>
@@ -159,14 +151,14 @@ export function Sidebar() {
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-6 w-6 hover:bg-sidebar-accent"
+										className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
 									>
 										<Plus className="h-3 w-3" />
 									</Button>
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-6 w-6 hover:bg-sidebar-accent"
+										className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
 									>
 										<MoreHorizontal className="h-3 w-3" />
 									</Button>
@@ -176,8 +168,9 @@ export function Sidebar() {
 								<Link
 									href="/plans"
 									className={cn(
-										"flex items-center gap-2 rounded-md px-3 py-2 text-primary hover:bg-sidebar-accent",
-										pathname === "/plans" && "bg-sidebar-accent",
+										"flex items-center gap-2 rounded-md px-3 py-2 text-primary hover:bg-sidebar-accent transition-colors",
+										pathname === "/plans" &&
+											"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
 									)}
 								>
 									<Filter className="h-4 w-4" />
@@ -189,96 +182,87 @@ export function Sidebar() {
 
 					{/* Spaces */}
 					<Collapsible open={spacesOpen} onOpenChange={setSpacesOpen}>
-						<CollapsibleTrigger className="flex w-full items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/50 hover:text-sidebar-foreground">
-							<div className="flex items-center gap-2">
-								<FolderKanban className="h-3 w-3" />
-								Spaces
-							</div>
-							<div className="flex items-center gap-1">
+						<div className="flex items-center">
+							<CollapsibleTrigger asChild>
+								<button className="flex flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
+									<FolderKanban className="h-4 w-4" />
+									Spaces
+								</button>
+							</CollapsibleTrigger>
+							<div className="flex items-center gap-1 pr-2">
 								<Button
 									variant="ghost"
 									size="icon"
-									className="h-5 w-5 hover:bg-sidebar-accent"
+									className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
 								>
 									<Plus className="h-3 w-3" />
 								</Button>
 								<Button
 									variant="ghost"
 									size="icon"
-									className="h-5 w-5 hover:bg-sidebar-accent"
+									className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
 								>
 									<MoreHorizontal className="h-3 w-3" />
 								</Button>
 							</div>
-						</CollapsibleTrigger>
+						</div>
 						<CollapsibleContent className="space-y-1">
 							{/* Starred */}
-							<Collapsible
-								open={starredOpen}
-								onOpenChange={setStarredOpen}
-								className="ml-2"
-							>
-								<CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground">
+							<div className="space-y-2 pl-2">
+								<h4 className="px-3 text-xs font-medium text-sidebar-foreground/50">
 									Starred
-								</CollapsibleTrigger>
-								<CollapsibleContent>
-									{starredProjects.map((project) => (
-										<Link
-											key={project.id}
-											href={`/projects/${project.id}/board`}
-											className={cn(
-												"ml-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-												pathname.includes(`/projects/${project.id}`) && "",
-											)}
+								</h4>
+								{starredProjects.map((project) => (
+									<Link
+										key={project.id}
+										href={`/projects/${project.id}/board`}
+										className={cn(
+											"ml-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
+											pathname.includes(`/projects/${project.id}`) &&
+												"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
+										)}
+									>
+										<span
+											className="flex h-5 w-5 items-center justify-center rounded text-xs"
+											style={{ backgroundColor: project.color }}
 										>
-											<span
-												className="flex h-5 w-5 items-center justify-center rounded text-xs"
-												style={{ backgroundColor: project.color }}
-											>
-												{project.icon}
-											</span>
-											<span className="truncate">{project.name}</span>
-										</Link>
-									))}
-								</CollapsibleContent>
-							</Collapsible>
+											{project.icon}
+										</span>
+										<span className="truncate">{project.name}</span>
+									</Link>
+								))}
+							</div>
 
 							{/* Recent */}
-							<Collapsible
-								open={recentOpen}
-								onOpenChange={setRecentOpen}
-								className="ml-2"
-							>
-								<CollapsibleTrigger className="flex w-full items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground">
+							<div className="space-y-2 pl-2">
+								<h4 className="px-3 text-xs font-medium text-sidebar-foreground/50">
 									Recent
-								</CollapsibleTrigger>
-								<CollapsibleContent>
-									{projects.slice(1).map((project) => (
-										<Link
-											key={project.id}
-											href={`/projects/${project.id}/board`}
-											className={cn(
-												"ml-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-												pathname.includes(`/projects/${project.id}`) &&
-													"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
-											)}
+								</h4>
+								{projects.slice(1).map((project) => (
+									<Link
+										key={project.id}
+										href={`/projects/${project.id}/board`}
+										className={cn(
+											"ml-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
+											pathname.includes(`/projects/${project.id}`) &&
+												"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
+										)}
+									>
+										<span
+											className="flex h-5 w-5 items-center justify-center rounded text-xs"
+											style={{ backgroundColor: project.color }}
 										>
-											<span
-												className="flex h-5 w-5 items-center justify-center rounded text-xs"
-												style={{ backgroundColor: project.color }}
-											>
-												{project.icon}
-											</span>
-											<span className="truncate">{project.name}</span>
-										</Link>
-									))}
-								</CollapsibleContent>
-							</Collapsible>
+											{project.icon}
+										</span>
+										<span className="truncate">{project.name}</span>
+									</Link>
+								))}
+							</div>
 
 							{/* More spaces */}
 							<Button
 								variant={"ghost"}
-								className="ml-4 flex items-center gap-2 px-3 py-2 text-sm text-sidebar-foreground/50 hover:text-sidebar-foreground"
+								className="ml-4 flex items-center w-full gap-2 px-3 py-2 text-sm text-sidebar-foreground/50 hover:text-sidebar-foreground justify-start cursor-pointer"
 							>
 								<ChevronRight className="h-3 w-3" />
 								More spaces
@@ -299,12 +283,6 @@ export function Sidebar() {
 							<ExternalLink className="ml-auto h-3 w-3 text-sidebar-foreground/50" />
 						</Link>
 					</nav>
-					<div className="px-3 py-2">
-						<button className="flex items-center gap-2 text-sm text-sidebar-foreground/50 hover:text-sidebar-foreground">
-							<MoreHorizontal className="h-4 w-4" />
-							More
-						</button>
-					</div>
 				</div>
 			</ScrollArea>
 		</aside>
