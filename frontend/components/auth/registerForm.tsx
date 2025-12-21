@@ -57,7 +57,7 @@ export function RegisterForm() {
 				);
 			}
 			toast.success("Tạo tài khoản thành công");
-			router.push("/demo");
+			router.push("/for-you");
 		} catch (err) {
 			console.error("Registration failed:", err);
 			toast.error("Đăng ký thất bại. Vui lòng thử lại.");

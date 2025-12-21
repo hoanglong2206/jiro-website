@@ -128,7 +128,13 @@ export default function Home() {
 				<div className="container flex h-16 items-center justify-between px-4 lg:px-8 max-w-7xl mx-auto">
 					<div className="flex items-center gap-x-8">
 						<div className="flex items-center gap-2">
-							<Image src="/logo_l.svg" alt="Logo" width={100} height={100} />
+							<Image
+								src="/logo_l.svg"
+								alt="Logo"
+								width={100}
+								height={100}
+								loading="eager"
+							/>
 						</div>
 					</div>
 					<div className="flex items-center">

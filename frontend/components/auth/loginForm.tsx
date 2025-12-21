@@ -53,7 +53,7 @@ export function LoginForm() {
 				);
 			}
 			toast.success("Đăng nhập thành công");
-			router.push("/demo");
+			router.push("/for-you");
 		} catch (error) {
 			console.error("Login failed:", error);
 			toast.error("Đăng nhập thất bại. Vui lòng thử lại.");
