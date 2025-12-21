@@ -14,7 +14,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 	return (
 		<div className="h-screen flex flex-col">
 			<Header />
-			<main className="flex-1 overflow-auto">{children}</main>
+			<main className="flex-1 overflow-auto no-scrollbar">{children}</main>
 		</div>
 	);
 }
