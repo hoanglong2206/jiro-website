@@ -40,7 +40,7 @@ export function Sidebar() {
 	const starredProjects = projects.slice(0, 1);
 
 	return (
-		<aside className="flex max-h-[888px] w-64 flex-col bg-sidebar text-sidebar-foreground">
+		<aside className="hidden lg:flex max-h-[888px] w-64 flex-col bg-sidebar text-sidebar-foreground">
 			<ScrollArea className="flex-1">
 				<div className="p-2">
 					<nav className="space-y-1">

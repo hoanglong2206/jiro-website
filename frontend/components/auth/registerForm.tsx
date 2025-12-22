@@ -65,7 +65,7 @@ export function RegisterForm() {
 	}
 
 	return (
-		<Card className="w-full max-w-md">
+		<Card className="w-full max-w-md mx-8">
 			<CardHeader className="space-y-1 text-center">
 				<Link href="/" className="flex items-center justify-center">
 					<Image

@@ -5,14 +5,15 @@ import {
 	HelpCircle,
 	Search,
 	Settings,
-	Sparkles,
 	User,
 	LogOut,
 	Plus,
+	Menu,
+	MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
 	Tooltip,
 	TooltipContent,
@@ -55,9 +56,16 @@ export function Header() {
 		}
 	};
 	return (
-		<header className="flex h-14 items-center justify-between border-b border-border bg-card px-8 gap-16">
-			<div className="flex flex-1 items-center justify-between gap-x-2">
-				<Link href="/for-you" className="lg:flex items-center hidden">
+		<header className="flex h-14 items-center justify-between border-b border-border bg-card px-8 gap-8 xl:gap-16">
+			<div className="flex flex-1 items-center justify-between gap-x-4">
+				<Button
+					variant="ghost"
+					size="icon"
+					className="lg:hidden cursor-pointer border"
+				>
+					<Menu className="h-5 w-5" />
+				</Button>
+				<Link href="/for-you" className="items-center hidden md:flex">
 					<Image
 						src="/logo_l.svg"
 						alt="Logo"
@@ -66,15 +74,16 @@ export function Header() {
 						loading="eager"
 					/>
 				</Link>
-				<div className="flex flex-1 items-center justify-center gap-2 max-w-2xl">
-					<div className="relative w-full hidden lg:flex">
+
+				<div className="flex flex-1 items-center justify-center gap-2 max-w-3xl">
+					<div className="relative w-full">
 						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
 							placeholder="Search"
 							className="h-9 bg-muted pl-9 focus-visible:ring-primary"
 						/>
 					</div>
-					<Button className="gap-2 cursor-pointer">
+					<Button className="gap-2 cursor-pointer hidden lg:flex">
 						<Plus className="h-4 w-4" />
 						Create
 					</Button>
@@ -83,16 +92,27 @@ export function Header() {
 
 			<div className="flex items-center gap-2">
 				<Button
-					variant="outline"
-					className="gap-2 border-amber-500 text-amber-500 hover:bg-amber-500/10 bg-transparent hover:text-amber-500 cursor-pointer hidden md:flex"
+					variant={"ghost"}
+					size="icon"
+					className="lg:hidden cursor-pointer border"
 				>
-					<Sparkles className="h-4 w-4" />
-					Premium trial
+					<Plus className="h-5 w-5" />
+				</Button>
+				<Button
+					variant="ghost"
+					size="icon"
+					className="cursor-pointer md:hidden border"
+				>
+					<MoreHorizontal className="h-5 w-5" />
 				</Button>
 
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button variant="ghost" size="icon" className="cursor-pointer">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="cursor-pointer hidden md:flex"
+						>
 							<Bell className="h-5 w-5" />
 						</Button>
 					</TooltipTrigger>
@@ -103,7 +123,11 @@ export function Header() {
 
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button variant="ghost" size="icon" className="cursor-pointer">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="cursor-pointer hidden md:flex"
+						>
 							<HelpCircle className="h-5 w-5" />
 						</Button>
 					</TooltipTrigger>
@@ -114,7 +138,11 @@ export function Header() {
 
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button variant="ghost" size="icon" className="cursor-pointer">
+						<Button
+							variant="ghost"
+							size="icon"
+							className="cursor-pointer hidden md:flex"
+						>
 							<Settings className="h-5 w-5" />
 						</Button>
 					</TooltipTrigger>
@@ -125,8 +153,7 @@ export function Header() {
 
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Avatar className="h-8 w-8 cursor-pointer">
-							<AvatarImage src="/diverse-user-avatars.png" />
+						<Avatar className="h-8 w-8 cursor-pointer hidden md:flex">
 							<AvatarFallback className="bg-orange-500 text-white">
 								LS
 							</AvatarFallback>
@@ -148,8 +175,8 @@ export function Header() {
 						</DropdownMenuItem>
 						<DropdownMenuItem asChild>
 							<Link href="/profile/notifications" className="cursor-pointer">
-								<Bell className="mr-2 h-4 w-4" />
-								Notifications
+								<Settings className="mr-2 h-4 w-4" />
+								Account Settings
 							</Link>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />

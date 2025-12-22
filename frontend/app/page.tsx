@@ -101,7 +101,7 @@ export default function Home() {
 					<div className="container px-4 py-3 flex items-center justify-center gap-4 text-sm mx-auto">
 						<span className="text-white/90">
 							<span className="font-semibold">Catch up on what you missed</span>
-							<span className="hidden sm:inline">
+							<span className="hidden lg:inline">
 								{" "}
 								- See what&apos;s new with AI-powered technology & other product
 								updates

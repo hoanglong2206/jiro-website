@@ -1,15 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import {
-	CheckSquare,
-	Bookmark,
-	Users,
-	Square,
-	ChevronDown,
-} from "lucide-react";
+import { Users, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { projects, tasks, users } from "@/lib/data";
 import { cn } from "@/lib/utils";
@@ -63,17 +57,6 @@ const activities: Activity[] = [
 	},
 ];
 
-const getTaskIcon = (status: string) => {
-	switch (status) {
-		case "done":
-			return <CheckSquare className="h-4 w-4 text-blue-500" />;
-		case "in-progress":
-			return <Square className="h-4 w-4 text-blue-500" />;
-		default:
-			return <Bookmark className="h-4 w-4 text-yellow-500" />;
-	}
-};
-
 const getActionLabel = (action: string) => {
 	switch (action) {
 		case "commented":
@@ -92,8 +75,6 @@ const getActionLabel = (action: string) => {
 export default function ForYouPage() {
 	const [spaceFilter, setSpaceFilter] = useState<SpaceFilter>("recommended");
 
-	const assignedToMeCount = tasks.filter((t) => t.assignee?.id === "1").length;
-
 	const getOpenWorkItems = (projectId: string) => {
 		return tasks.filter((t) => t.projectId === projectId && t.status !== "done")
 			.length;
@@ -101,7 +82,7 @@ export default function ForYouPage() {
 
 	return (
 		<div className="flex-1 overflow-auto bg-background">
-			<div className="max-w-6xl mx-auto p-8">
+			<div className="max-w-6xl mx-auto p-4 md:p-8">
 				<h1 className="text-2xl font-semibold text-foreground">For you</h1>
 				<hr className="my-4" />
 
@@ -137,19 +118,19 @@ export default function ForYouPage() {
 							</button>
 							<Link
 								href="/spaces"
-								className="text-sm text-primary hover:underline ml-2"
+								className="text-sm text-primary hover:underline ml-2 hidden md:inline-block"
 							>
 								View all spaces
 							</Link>
 						</div>
 					</div>
-					<div className="flex gap-4">
+					<div className="flex gap-4 overflow-auto">
 						{spaceFilter === "recommended" ? (
 							<>
 								{projects.slice(0, 3).map((project) => (
 									<div
 										key={project.id}
-										className="shrink-0 w-64 p-4 border border-border rounded-lg hover:border-primary/50 transition-colors bg-card flex flex-col justify-between cursor-pointer"
+										className="shrink-0 p-4 border border-border rounded-lg hover:border-primary/50 transition-colors bg-card flex flex-col justify-between cursor-pointer"
 									>
 										<div className="space-y-0.5">
 											<h3 className="font-medium text-foreground truncate">
@@ -212,22 +193,18 @@ export default function ForYouPage() {
 							</>
 						)}
 					</div>
+					<div className="flex w-full items-center justify-end">
+						<div className="text-sm text-primary hover:underline mt-2 inline-block md:hidden">
+							View all spaces
+						</div>
+					</div>
 				</div>
 
 				<Tabs defaultValue="worked-on" className="space-y-6">
 					<TabsList>
 						<TabsTrigger value="worked-on">Worked on</TabsTrigger>
 						<TabsTrigger value="viewed">Viewed</TabsTrigger>
-						<TabsTrigger value="assigned">
-							Assigned to me
-							{assignedToMeCount > 0 && (
-								<Badge className="ml-1 bg-primary/20">
-									{assignedToMeCount}
-								</Badge>
-							)}
-						</TabsTrigger>
 						<TabsTrigger value="starred">Starred</TabsTrigger>
-						<TabsTrigger value="boards">Boards</TabsTrigger>
 					</TabsList>
 					<TabsContent value="worked-on">
 						<h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">
@@ -243,25 +220,21 @@ export default function ForYouPage() {
 										key={activity.id}
 										className="flex items-center justify-between py-3 px-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
 									>
-										<div className="flex items-center gap-3">
-											{getTaskIcon(activity.task.status)}
+										<div className="flex items-center gap-3 max-w-[220px] lg:w-auto">
 											<div>
-												<p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+												<p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
 													{activity.task.title}
 												</p>
-												<p className="text-xs text-muted-foreground">
+												<p className="text-xs text-muted-foreground truncate">
 													{activity.task.key} · (Example) {project?.name}
 												</p>
 											</div>
 										</div>
-										<div className="flex items-center gap-3">
-											<span className="text-sm text-muted-foreground">
+										<div className="flex items-center gap-1">
+											<span className="text-xs lg:text-sm text-muted-foreground truncate">
 												{getActionLabel(activity.action)}
 											</span>
 											<Avatar className="h-8 w-8 bg-orange-500">
-												<AvatarImage
-													src={activity.user.avatar || "/placeholder.svg"}
-												/>
 												<AvatarFallback className="bg-orange-500 text-white text-xs">
 													{activity.user.name
 														.split(" ")
@@ -280,19 +253,9 @@ export default function ForYouPage() {
 							No recently viewed work items.
 						</p>
 					</TabsContent>
-					<TabsContent value="assigned">
-						<p className="text-sm text-muted-foreground">
-							No work items assigned to you.
-						</p>
-					</TabsContent>
 					<TabsContent value="starred">
 						<p className="text-sm text-muted-foreground">
 							You haven&apos;t starred any work items yet.
-						</p>
-					</TabsContent>
-					<TabsContent value="boards">
-						<p className="text-sm text-muted-foreground">
-							You haven&apos;t accessed any boards recently.
 						</p>
 					</TabsContent>
 				</Tabs>

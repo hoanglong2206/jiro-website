@@ -17,14 +17,13 @@ const sidebarItems: { label: string; href: string }[] = [
 export default function ProfileLayout({ children }: ProfileLayoutProps) {
 	const pathname = usePathname();
 	return (
-		<div className="mx-auto max-w-6xl">
-			<h1 className="text-2xl font-semibold text-foreground mt-4 mb-8">
+		<div className="mx-auto max-w-6xl p-8">
+			<h1 className="text-2xl font-semibold text-foreground mb-8">
 				Account settings
 			</h1>
-			<div className="flex gap-8">
-				{/* Sidebar */}
+			<div className="flex flex-col md:flex-row gap-4">
 				<div className="w-75 shrink-0">
-					<nav className="space-y-1">
+					<nav className="flex flex-row md:flex-col gap-1">
 						{sidebarItems.map((item) => {
 							const isActive = pathname === item.href;
 							return (
@@ -44,7 +43,6 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
 						})}
 					</nav>
 				</div>
-				{/* Main Content */}
 				<div className="flex-1">{children}</div>
 			</div>
 		</div>

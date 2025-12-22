@@ -49,7 +49,7 @@ export default function SummaryPage() {
 
 	return (
 		<div className="p-6 min-h-full">
-			<div className="grid grid-cols-4 gap-4 mb-6">
+			<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
 				<div className="rounded-lg p-4 border">
 					<div className="flex items-center gap-3">
 						<div className="p-2 rounded-lg bg-blue-500/20">
@@ -115,7 +115,7 @@ export default function SummaryPage() {
 				</div>
 			</div>
 
-			<div className="grid grid-cols-2 gap-4 mb-6">
+			<div className="grid md:grid-cols-2 gap-4 mb-6">
 				<div className="rounded-lg p-5 border">
 					<div className="flex items-center justify-between mb-1">
 						<h3 className=" font-semibold">Status overview</h3>
@@ -205,7 +205,7 @@ export default function SummaryPage() {
 				</div>
 			</div>
 
-			<div className="grid grid-cols-2 gap-4 mb-6">
+			<div className="grid md:grid-cols-2 gap-4 mb-6">
 				<div className="rounded-lg p-5 border">
 					<h3 className=" font-semibold mb-1">Types of work</h3>
 					<p className="text-sm mb-4">
