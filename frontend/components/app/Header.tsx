@@ -36,11 +36,13 @@ import { useAppDispatch } from "@/store/store";
 import { deleteFromSessionStorage } from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
 import { toast } from "sonner";
+import { useSidebar } from "@/components/providers/SidebarProvider";
 
 export function Header() {
 	const router = useRouter();
 	const [logout] = useLogoutMutation();
 	const dispatch = useAppDispatch();
+	const { toggleSidebar } = useSidebar();
 
 	const handleLogout = async (): Promise<void> => {
 		try {
@@ -61,6 +63,7 @@ export function Header() {
 				<Button
 					variant="ghost"
 					size="icon"
+					onClick={toggleSidebar}
 					className="lg:hidden cursor-pointer border"
 				>
 					<Menu className="h-5 w-5" />
