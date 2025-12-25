@@ -5,22 +5,20 @@ export interface User {
 	avatar: string;
 }
 
+export enum TaskStatus {
+	TODO = "TO DO",
+	IN_PROGRESS = "IN PROGRESS",
+	IN_REVIEW = "IN REVIEW",
+	DONE = "DONE",
+}
+
 export interface Task {
 	id: string;
 	key: string;
 	title: string;
 	description?: string;
 	status: "todo" | "in-progress" | "in-review" | "done";
-	priority:
-		| "low"
-		| "medium"
-		| "high"
-		| "urgent"
-		| "lowest"
-		| "highest"
-		| "none";
-	type: "task" | "epic" | "story" | "subtask" | "bug";
-	labels: string[];
+	type: "task" | "epic" | "subtask" | "bug";
 	assignee?: User;
 	reporter?: User;
 	dueDate?: string;
@@ -51,7 +49,6 @@ export interface Task {
 		content: string;
 		createdAt: string;
 	}[];
-	team?: string;
 }
 
 export interface Project {
@@ -65,36 +62,30 @@ export interface Project {
 	members: User[];
 }
 
-export interface Space {
-	id: string;
-	name: string;
-	projects: Project[];
-}
-
 export const users: User[] = [
 	{
 		id: "1",
 		name: "John Doe",
 		email: "john@example.com",
-		avatar: "/diverse-group-avatars.png",
+		avatar: "/logo.svg",
 	},
 	{
 		id: "2",
 		name: "Jane Smith",
 		email: "jane@example.com",
-		avatar: "/diverse-group-avatars.png",
+		avatar: "/logo.svg",
 	},
 	{
 		id: "3",
 		name: "Bob Wilson",
 		email: "bob@example.com",
-		avatar: "/diverse-group-avatars.png",
+		avatar: "/logo.svg",
 	},
 	{
 		id: "4",
 		name: "Alice Brown",
 		email: "alice@example.com",
-		avatar: "/diverse-group-avatars.png",
+		avatar: "/logo.svg",
 	},
 ];
 
@@ -131,19 +122,6 @@ export const projects: Project[] = [
 	},
 ];
 
-export const spaces: Space[] = [
-	{
-		id: "1",
-		name: "Engineering",
-		projects: [projects[0], projects[1]],
-	},
-	{
-		id: "2",
-		name: "Marketing",
-		projects: [projects[2]],
-	},
-];
-
 export const tasks: Task[] = [
 	{
 		id: "1",
@@ -152,9 +130,7 @@ export const tasks: Task[] = [
 		description:
 			"Implement push notifications system for user alerts.\n\nThis task includes:\n• Setting up Firebase Cloud Messaging\n• Creating notification templates\n• Implementing notification preferences",
 		status: "todo",
-		priority: "high",
 		type: "task",
-		labels: ["IMPLEMENT USER AUTHENTICATION"],
 		assignee: users[0],
 		reporter: users[1],
 		dueDate: "2025-12-27",
@@ -186,9 +162,7 @@ export const tasks: Task[] = [
 		description:
 			"Create a comprehensive transaction history view with filtering and export capabilities.",
 		status: "todo",
-		priority: "medium",
 		type: "task",
-		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
 		assignee: users[1],
 		reporter: users[0],
 		dueDate: "2025-12-24",
@@ -208,9 +182,7 @@ export const tasks: Task[] = [
 		description:
 			"Improve loading times and reduce bundle size.\n\nFocus areas:\n• Code splitting\n• Image optimization\n• Caching strategies",
 		status: "todo",
-		priority: "high",
 		type: "task",
-		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
 		assignee: users[2],
 		reporter: users[0],
 		dueDate: "2025-12-26",
@@ -230,9 +202,7 @@ export const tasks: Task[] = [
 		description:
 			"Integrating a cryptocurrency wallet is essential for users to manage their assets. This task includes:\n\n• Researching wallet APIs.\n• Implementing wallet connection features.\n• Testing wallet transactions.\n\nThe integration should support multiple cryptocurrencies and ensure that transactions are secure and efficient.",
 		status: "in-progress",
-		priority: "urgent",
 		type: "task",
-		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
 		assignee: undefined,
 		reporter: users[1],
 		dueDate: "2025-12-24",
@@ -253,9 +223,7 @@ export const tasks: Task[] = [
 		title: "Finalize Documentation for the Project",
 		description: "Complete all technical and user documentation",
 		status: "in-review",
-		priority: "medium",
-		type: "story",
-		labels: ["POST-LAUNCH REVIEW AND FEEDBACK"],
+		type: "task",
 		assignee: users[0],
 		reporter: users[2],
 		dueDate: "2025-12-20",
@@ -269,9 +237,7 @@ export const tasks: Task[] = [
 		title: "Implement Payment Gateway",
 		description: "Set up Stripe integration for payments",
 		status: "done",
-		priority: "urgent",
 		type: "task",
-		labels: ["PAYMENT INTEGRATION"],
 		assignee: users[1],
 		reporter: users[0],
 		dueDate: "2025-12-18",
@@ -285,9 +251,7 @@ export const tasks: Task[] = [
 		title: "Design User Dashboard",
 		description: "Create mockups for the main dashboard",
 		status: "done",
-		priority: "high",
-		type: "story",
-		labels: ["UI/UX DESIGN"],
+		type: "task",
 		assignee: users[3],
 		reporter: users[2],
 		dueDate: "2025-12-15",
@@ -301,9 +265,7 @@ export const tasks: Task[] = [
 		title: "Setup CI/CD Pipeline",
 		description: "Configure GitHub Actions for automated deployments",
 		status: "in-progress",
-		priority: "high",
 		type: "task",
-		labels: ["DEVOPS"],
 		assignee: users[0],
 		reporter: users[1],
 		dueDate: "2025-12-30",
@@ -317,9 +279,7 @@ export const tasks: Task[] = [
 		title: "Implement User Authentication",
 		description: "Complete user authentication system with OAuth and 2FA",
 		status: "done",
-		priority: "highest",
 		type: "epic",
-		labels: ["IMPLEMENT USER AUTHENTICATION"],
 		assignee: users[0],
 		reporter: users[0],
 		dueDate: "2025-12-15",
@@ -334,9 +294,7 @@ export const tasks: Task[] = [
 		description:
 			"Build comprehensive market analysis dashboard with charts and data visualization",
 		status: "in-progress",
-		priority: "highest",
 		type: "epic",
-		labels: ["IMPLEMENT MARKET ANALYSIS TOOLS"],
 		assignee: users[1],
 		reporter: users[0],
 		dueDate: "2025-12-30",
@@ -345,12 +303,3 @@ export const tasks: Task[] = [
 		projectId: "1",
 	},
 ];
-
-export const labelColors: Record<string, string> = {
-	"IMPLEMENT USER AUTHENTICATION": "#8b5cf6",
-	"IMPLEMENT MARKET ANALYSIS TOOLS": "#3b82f6",
-	"POST-LAUNCH REVIEW AND FEEDBACK": "#f97316",
-	"PAYMENT INTEGRATION": "#22c55e",
-	"UI/UX DESIGN": "#ec4899",
-	DEVOPS: "#14b8a6",
-};
