@@ -18,7 +18,7 @@ export interface Task {
 	title: string;
 	description?: string;
 	status: "todo" | "in-progress" | "in-review" | "done";
-	type: "task" | "epic" | "subtask" | "bug";
+	type: "task" | "epic" | "story";
 	assignee?: User;
 	reporter?: User;
 	dueDate?: string;
@@ -137,15 +137,6 @@ export const tasks: Task[] = [
 		createdAt: "2025-12-01",
 		updatedAt: "2025-12-15",
 		projectId: "1",
-		subtasks: [
-			{ id: "sub-1", key: "BSD-1-1", title: "Setup Firebase", status: "done" },
-			{
-				id: "sub-2",
-				key: "BSD-1-2",
-				title: "Create templates",
-				status: "in-progress",
-			},
-		],
 		comments: [
 			{
 				id: "c1",
@@ -169,11 +160,6 @@ export const tasks: Task[] = [
 		createdAt: "2025-12-02",
 		updatedAt: "2025-12-14",
 		projectId: "1",
-		parentTask: {
-			id: "parent-1",
-			key: "SAM1-2",
-			title: "Implement Market Analysis Tools",
-		},
 	},
 	{
 		id: "3",
@@ -189,11 +175,6 @@ export const tasks: Task[] = [
 		createdAt: "2025-12-03",
 		updatedAt: "2025-12-13",
 		projectId: "1",
-		parentTask: {
-			id: "parent-1",
-			key: "SAM1-2",
-			title: "Implement Market Analysis Tools",
-		},
 	},
 	{
 		id: "4",
@@ -209,11 +190,6 @@ export const tasks: Task[] = [
 		createdAt: "2025-12-04",
 		updatedAt: "2025-12-12",
 		projectId: "1",
-		parentTask: {
-			id: "parent-1",
-			key: "SAM1-2",
-			title: "Implement Market Analysis Tools",
-		},
 		subtasks: [],
 		linkedItems: [],
 	},

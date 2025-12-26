@@ -2,6 +2,11 @@ import { TaskStatus } from "@/lib/data";
 import { CircleDashedIcon, MoreHorizontal } from "lucide-react";
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface KanbanHeaderProps {
 	board: TaskStatus;
@@ -19,7 +24,7 @@ const statusLabels: Record<TaskStatus, ReactNode> = {
 export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {
 	const icon = statusLabels[board];
 	return (
-		<div className="px-2 flex items-center justify-between">
+		<div className="px-2 py-1 flex items-center justify-between">
 			<div className="flex items-center gap-x-2">
 				{icon}
 				<h2 className="text-sm font-medium capitalize">
@@ -29,13 +34,20 @@ export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {
 					{taskCount}
 				</div>
 			</div>
-			<Button
-				variant="ghost"
-				size="icon"
-				className="hover:bg-neutral-200 cursor-pointer"
-			>
-				<MoreHorizontal className="size-4" />
-			</Button>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="hover:bg-neutral-200/40 size-6 cursor-pointer"
+					>
+						<MoreHorizontal className="size-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent side="bottom">
+					<p>More actions</p>
+				</TooltipContent>
+			</Tooltip>
 		</div>
 	);
 };

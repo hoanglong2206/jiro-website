@@ -9,6 +9,7 @@ import {
 	DropResult,
 } from "@hello-pangea/dnd";
 import { KanbanHeader, KanbanCard } from "@/components/app";
+import { TaskModal } from "./TaskModal";
 
 interface KanbanBoardProps {
 	tasks: Task[];
@@ -75,45 +76,68 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 			[destBoard]: destTasks,
 		}));
 	};
+
+	const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	const handleCardClick = (task: Task) => {
+		setSelectedTask(task);
+		setIsModalOpen(true);
+	};
+
 	return (
-		<DragDropContext onDragEnd={onDragEnd}>
-			<div className="flex gap-2 overflow-x-auto p-4">
-				{boards.map((board) => {
-					return (
-						<div key={board} className="flex-1 bg-muted p-1.5 rounded-md">
-							<KanbanHeader board={board} taskCount={taskState[board].length} />
-							<Droppable droppableId={board}>
-								{(provided) => (
-									<div
-										ref={provided.innerRef}
-										{...provided.droppableProps}
-										className="min-h-[200px] py-1.5"
-									>
-										{taskState[board].map((task, index) => (
-											<Draggable
-												key={task.id}
-												draggableId={task.id}
-												index={index}
-											>
-												{(provided) => (
-													<div
-														ref={provided.innerRef}
-														{...provided.draggableProps}
-														{...provided.dragHandleProps}
-													>
-														<KanbanCard task={task} />
-													</div>
-												)}
-											</Draggable>
-										))}
-										{provided.placeholder}
-									</div>
-								)}
-							</Droppable>
-						</div>
-					);
-				})}
-			</div>
-		</DragDropContext>
+		<>
+			<DragDropContext onDragEnd={onDragEnd}>
+				<div className="flex gap-2 overflow-x-auto p-4">
+					{boards.map((board) => {
+						return (
+							<div
+								key={board}
+								className="flex-1 bg-muted p-1.5 min-w-[280px] rounded-md"
+							>
+								<KanbanHeader
+									board={board}
+									taskCount={taskState[board].length}
+								/>
+								<Droppable droppableId={board}>
+									{(provided) => (
+										<div
+											ref={provided.innerRef}
+											{...provided.droppableProps}
+											className="min-h-[200px] py-1.5"
+										>
+											{taskState[board].map((task, index) => (
+												<Draggable
+													key={task.id}
+													draggableId={task.id}
+													index={index}
+												>
+													{(provided) => (
+														<div
+															ref={provided.innerRef}
+															{...provided.draggableProps}
+															{...provided.dragHandleProps}
+															onClick={() => handleCardClick(task)}
+														>
+															<KanbanCard task={task} />
+														</div>
+													)}
+												</Draggable>
+											))}
+											{provided.placeholder}
+										</div>
+									)}
+								</Droppable>
+							</div>
+						);
+					})}
+				</div>
+			</DragDropContext>
+			<TaskModal
+				open={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				task={selectedTask}
+			/>
+		</>
 	);
 }

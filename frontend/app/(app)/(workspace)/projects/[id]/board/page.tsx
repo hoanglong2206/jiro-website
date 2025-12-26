@@ -1,11 +1,18 @@
-import { BoardToolbar, KanbanBoard } from "@/components/app";
+import { KanbanBoard, BoardToolbar } from "@/components/app";
 import { tasks } from "@/lib/data";
 
-export default async function BoardPage() {
+export default async function BoardPage({
+	params,
+}: {
+	params: Promise<{ id: string }>;
+}) {
+	const { id } = await params;
+	const projectTasks = tasks.filter((task) => task.projectId === id);
+
 	return (
 		<div className="flex h-full flex-col">
 			<BoardToolbar />
-			<KanbanBoard tasks={tasks} />
+			<KanbanBoard tasks={projectTasks} />
 		</div>
 	);
 }
