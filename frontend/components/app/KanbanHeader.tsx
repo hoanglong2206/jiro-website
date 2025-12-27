@@ -39,7 +39,7 @@ export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {
 					<Button
 						variant="ghost"
 						size="icon"
-						className="hover:bg-neutral-200/40 size-6 cursor-pointer"
+						className="hover:bg-neutral-200/40 size-7 cursor-pointer"
 					>
 						<MoreHorizontal className="size-4" />
 					</Button>

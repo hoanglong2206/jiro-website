@@ -64,7 +64,8 @@ export const KanbanCard = ({ task }: KanbanCardProps) => {
 						<Button
 							variant="ghost"
 							size="icon"
-							className="hover:bg-neutral-200/40 size-6 cursor-pointer"
+							className="hover:bg-neutral-200/40 size-7 cursor-pointer"
+							onClick={(event) => event.stopPropagation()}
 						>
 							<MoreHorizontal className="size-4" />
 						</Button>

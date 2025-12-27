@@ -40,15 +40,15 @@ export const CustomModal = ({
 							leaveTo="opacity-0 scale-95"
 						>
 							<DialogPanel
-								className={`"w-full overflow-hidden rounded-lg text-left align-middle ${size}`}
+								className={`overflow-hidden rounded-lg text-left align-middle xl:h-[600px] ${size}`}
 							>
-								<div className="relative flex w-full items-center overflow-hidden bg-white px-4 pb-8 pt-14 shadow-2xl sm:px-6 sm:pt-8 md:p-6 lg:p-8">
+								<div className="relative flex h-full w-full flex-col bg-white shadow-2xl">
 									<div className="absolute right-4 top-4">
-										<Button variant="ghost" onClick={onClose} size={"icon"}>
+										<Button variant="ghost" onClick={onClose} size="icon">
 											<X className="h-6 w-6" />
 										</Button>
 									</div>
-									{children}
+									<div className="overflow-y-auto py-4 px-6">{children}</div>
 								</div>
 							</DialogPanel>
 						</TransitionChild>
