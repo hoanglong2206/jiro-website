@@ -1,3 +1,5 @@
+"use client";
+
 import { CustomModal } from "@/components/ui/modal";
 import { Task } from "@/lib/data";
 import {
