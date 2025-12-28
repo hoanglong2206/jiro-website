@@ -1,3 +1,5 @@
+"use client";
+
 import { Task } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -9,6 +11,7 @@ import {
 	TriangleAlert,
 	Calendar,
 	Clock,
+	Trash,
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn, formatDate } from "@/lib/utils";
@@ -18,6 +21,11 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface KanbanCardProps {
 	task: Task;
@@ -59,21 +67,34 @@ export const KanbanCard = ({ task }: KanbanCardProps) => {
 		<div className="bg-white p-2.5 mb-1.5 rounded shadow-sm space-y-1">
 			<div className="flex items-start justify-between gap-x-2">
 				<p className="text-sm line-clamp-2">{task.title}</p>
-				<Tooltip>
-					<TooltipTrigger asChild>
+				<Popover>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<PopoverTrigger asChild>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="hover:bg-neutral-200/40 size-7 cursor-pointer"
+									onClick={(event) => event.stopPropagation()}
+								>
+									<MoreHorizontal className="size-4" />
+								</Button>
+							</PopoverTrigger>
+						</TooltipTrigger>
+						<TooltipContent side="bottom">
+							<p>More actions</p>
+						</TooltipContent>
+					</Tooltip>
+					<PopoverContent align="end" className="w-36 px-2 py-1.5">
 						<Button
 							variant="ghost"
-							size="icon"
-							className="hover:bg-neutral-200/40 size-7 cursor-pointer"
-							onClick={(event) => event.stopPropagation()}
+							className="w-full justify-start cursor-pointer"
 						>
-							<MoreHorizontal className="size-4" />
+							<Trash className=" size-4" />
+							Delete
 						</Button>
-					</TooltipTrigger>
-					<TooltipContent side="bottom">
-						<p>More actions</p>
-					</TooltipContent>
-				</Tooltip>
+					</PopoverContent>
+				</Popover>
 			</div>
 			<div
 				className={cn(

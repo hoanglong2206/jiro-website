@@ -30,7 +30,7 @@ export default function SummaryPage() {
 	// Types of work calculations
 	const taskCount = projectTasks.filter((t) => t.type === "task").length;
 	const epicCount = projectTasks.filter((t) => t.type === "epic").length;
-	const subtaskCount = projectTasks.filter((t) => t.type === "subtask").length;
+	const subtaskCount = projectTasks.filter((t) => t.type === "story").length;
 
 	const taskPercentage =
 		totalCount > 0 ? Math.round((taskCount / totalCount) * 100) : 0;

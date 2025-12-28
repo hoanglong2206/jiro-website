@@ -1,3 +1,5 @@
+'use client";';
+
 import { TaskStatus } from "@/lib/data";
 import { CircleDashedIcon, MoreHorizontal } from "lucide-react";
 import { ReactNode } from "react";
