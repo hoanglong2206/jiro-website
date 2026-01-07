@@ -36,6 +36,12 @@ export function RegisterForm() {
 
 	async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
+
+		if (!username && !email && !password) {
+			toast.error("Vui lòng nhập đầy đủ thông tin");
+			return;
+		}
+
 		try {
 			const result = await register({
 				username,
@@ -47,20 +53,21 @@ export function RegisterForm() {
 				dispatch(
 					addAuthUser({
 						authInfo: result.user,
-					}),
+					})
 				);
 				dispatch(updateLogout(false));
 				saveToSessionStorage(
 					JSON.stringify(true),
 					JSON.stringify(result.user.username),
-					result.token ? JSON.stringify(result.token) : undefined,
+					result.token ? JSON.stringify(result.token) : undefined
 				);
 			}
 			toast.success("Tạo tài khoản thành công");
 			router.push("/for-you");
-		} catch (err) {
-			console.error("Registration failed:", err);
-			toast.error("Đăng ký thất bại. Vui lòng thử lại.");
+		} catch (error: any) {
+			if (error) {
+				toast.error(error.data.message);
+			}
 		}
 	}
 
@@ -76,7 +83,9 @@ export function RegisterForm() {
 						height={100}
 					/>
 				</Link>
-				<CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+				<CardTitle className="text-2xl font-bold">
+					Create an account
+				</CardTitle>
 			</CardHeader>
 			<form onSubmit={onSubmit}>
 				<CardContent className="space-y-4">
@@ -87,7 +96,6 @@ export function RegisterForm() {
 							placeholder="Your username"
 							value={username}
 							onChange={(e) => setUsername(e.target.value)}
-							required
 						/>
 					</div>
 					<div className="space-y-2">
@@ -98,7 +106,6 @@ export function RegisterForm() {
 							placeholder="name@example.com"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							required
 						/>
 					</div>
 					<div className="space-y-2">
@@ -110,7 +117,6 @@ export function RegisterForm() {
 								placeholder="Create a password"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
-								required
 							/>
 							<Button
 								type="button"
@@ -124,7 +130,9 @@ export function RegisterForm() {
 								) : (
 									<Eye className="h-4 w-4 text-muted-foreground" />
 								)}
-								<span className="sr-only">Toggle password visibility</span>
+								<span className="sr-only">
+									Toggle password visibility
+								</span>
 							</Button>
 						</div>
 					</div>
@@ -172,7 +180,10 @@ export function RegisterForm() {
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						Already have an account?{" "}
-						<Link href="/login" className="text-primary hover:underline">
+						<Link
+							href="/login"
+							className="text-primary hover:underline"
+						>
 							Sign in
 						</Link>
 					</p>

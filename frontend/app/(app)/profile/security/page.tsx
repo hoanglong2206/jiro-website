@@ -37,13 +37,8 @@ export default function SecurityPage() {
 	const handleUpdatePassword = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
-		if (!passwords.current || !passwords.new || !passwords.confirm) {
-			toast.error("Vui lòng điền đầy đủ thông tin");
-			return;
-		}
-
-		if (passwords.new !== passwords.confirm) {
-			toast.error("Mật khẩu xác nhận không khớp");
+		if (!passwords.current && !passwords.new && !passwords.confirm) {
+			toast.error("Please fill in all fields");
 			return;
 		}
 
@@ -58,34 +53,25 @@ export default function SecurityPage() {
 				dispatch(
 					addAuthUser({
 						authInfo: result.user,
-					}),
+					})
 				);
 			}
 
 			if (result.token) {
-				const usernameSource = result.user?.username ?? authUser.username;
+				const usernameSource =
+					result.user?.username ?? authUser.username;
 				saveToSessionStorage(
 					JSON.stringify(true),
 					JSON.stringify(usernameSource ?? ""),
-					JSON.stringify(result.token),
+					JSON.stringify(result.token)
 				);
 			}
 			toast.success("Đổi mật khẩu thành công");
 			setPasswords({ current: "", new: "", confirm: "" });
-		} catch (error) {
+		} catch (error: any) {
 			let message = "Đổi mật khẩu thất bại";
-			if (
-				error &&
-				typeof error === "object" &&
-				"data" in error &&
-				typeof (error as { data?: unknown }).data === "object" &&
-				(error as { data?: { message?: unknown } }).data?.message
-			) {
-				const maybeMessage = (error as { data?: { message?: unknown } }).data
-					?.message;
-				if (typeof maybeMessage === "string") {
-					message = maybeMessage;
-				}
+			if (error) {
+				message = error.data.message;
 			}
 			toast.error(message);
 		}
@@ -108,20 +94,33 @@ export default function SecurityPage() {
 				<CardContent className="space-y-4">
 					<form className="space-y-4" onSubmit={handleUpdatePassword}>
 						<div className="space-y-2">
-							<Label htmlFor="currentPassword">Current Password</Label>
+							<Label htmlFor="currentPassword">
+								Current Password
+							</Label>
 							<div className="relative">
 								<Input
 									id="currentPassword"
-									type={showCurrentPassword ? "text" : "password"}
+									type={
+										showCurrentPassword
+											? "text"
+											: "password"
+									}
 									value={passwords.current}
 									onChange={(e) =>
-										setPasswords({ ...passwords, current: e.target.value })
+										setPasswords({
+											...passwords,
+											current: e.target.value,
+										})
 									}
 									placeholder="Enter current password"
 								/>
 								<button
 									type="button"
-									onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+									onClick={() =>
+										setShowCurrentPassword(
+											!showCurrentPassword
+										)
+									}
 									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showCurrentPassword ? (
@@ -141,13 +140,18 @@ export default function SecurityPage() {
 									type={showNewPassword ? "text" : "password"}
 									value={passwords.new}
 									onChange={(e) =>
-										setPasswords({ ...passwords, new: e.target.value })
+										setPasswords({
+											...passwords,
+											new: e.target.value,
+										})
 									}
 									placeholder="Enter new password"
 								/>
 								<button
 									type="button"
-									onClick={() => setShowNewPassword(!showNewPassword)}
+									onClick={() =>
+										setShowNewPassword(!showNewPassword)
+									}
 									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showNewPassword ? (
@@ -160,20 +164,33 @@ export default function SecurityPage() {
 						</div>
 
 						<div className="space-y-2">
-							<Label htmlFor="confirmPassword">Confirm New Password</Label>
+							<Label htmlFor="confirmPassword">
+								Confirm New Password
+							</Label>
 							<div className="relative">
 								<Input
 									id="confirmPassword"
-									type={showConfirmPassword ? "text" : "password"}
+									type={
+										showConfirmPassword
+											? "text"
+											: "password"
+									}
 									value={passwords.confirm}
 									onChange={(e) =>
-										setPasswords({ ...passwords, confirm: e.target.value })
+										setPasswords({
+											...passwords,
+											confirm: e.target.value,
+										})
 									}
 									placeholder="Confirm new password"
 								/>
 								<button
 									type="button"
-									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+									onClick={() =>
+										setShowConfirmPassword(
+											!showConfirmPassword
+										)
+									}
 									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showConfirmPassword ? (
@@ -185,7 +202,11 @@ export default function SecurityPage() {
 							</div>
 						</div>
 
-						<Button className="mt-2" type="submit" disabled={isLoading}>
+						<Button
+							className="mt-2"
+							type="submit"
+							disabled={isLoading}
+						>
 							{isLoading ? "Updating..." : "Update Password"}
 						</Button>
 					</form>
@@ -210,9 +231,12 @@ export default function SecurityPage() {
 						<div className="flex items-center gap-3">
 							<Smartphone className="h-8 w-8 text-muted-foreground" />
 							<div>
-								<p className="text-sm font-medium">Authenticator App</p>
+								<p className="text-sm font-medium">
+									Authenticator App
+								</p>
 								<p className="text-xs text-muted-foreground">
-									Use an authenticator app to generate verification codes
+									Use an authenticator app to generate
+									verification codes
 								</p>
 							</div>
 						</div>
