@@ -20,7 +20,9 @@ const statusLabels: Record<TaskStatus, ReactNode> = {
 	[TaskStatus.IN_PROGRESS]: (
 		<CircleDashedIcon className="size-4 text-yellow-400" />
 	),
-	[TaskStatus.IN_REVIEW]: <CircleDashedIcon className="size-4 text-blue-400" />,
+	[TaskStatus.IN_REVIEW]: (
+		<CircleDashedIcon className="size-4 text-blue-400" />
+	),
 	[TaskStatus.DONE]: <CircleDashedIcon className="size-4 text-green-400" />,
 };
 export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {

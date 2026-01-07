@@ -7,7 +7,7 @@ import {
 	DropdownMenuTrigger,
 	DropdownMenuItem,
 	DropdownMenuContent,
-} from "../ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -36,7 +36,7 @@ import { ReactNode, useState } from "react";
 import { cn, formatDate } from "@/lib/utils";
 
 interface TaskModalProps {
-	open: boolean;
+	isOpen: boolean;
 	onClose: () => void;
 	task: Task | null;
 }
@@ -54,7 +54,7 @@ const iconDueStatus: Record<string, ReactNode> = {
 	upcoming: <Clock className="size-5 text-emerald-600" />,
 };
 
-export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
+export const TaskModal = ({ isOpen, onClose, task }: TaskModalProps) => {
 	const [comment, setComment] = useState("");
 	const dueDate = task?.dueDate ? new Date(task.dueDate) : null;
 	const today = new Date();
@@ -90,7 +90,11 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 		});
 	};
 	return (
-		<CustomModal size="xl:min-w-7xl" open={open} onClose={onClose}>
+		<CustomModal
+			size="xl:min-w-7xl xl:h-150"
+			open={isOpen}
+			onClose={onClose}
+		>
 			<div className="flex h-full flex-col gap-8">
 				<div className="flex items-center justify-start gap-x-2 w-full">
 					<DropdownMenu>
@@ -106,7 +110,10 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 						</DropdownMenuTrigger>
 						<DropdownMenuContent className="z-9999">
 							<DropdownMenuItem className="cursor-pointer">
-								<Badge variant="secondary" className="bg-red-100 text-red-600">
+								<Badge
+									variant="secondary"
+									className="bg-red-100 text-red-600"
+								>
 									Todo
 								</Badge>
 							</DropdownMenuItem>
@@ -138,7 +145,11 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 					</DropdownMenu>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Button variant="ghost" size="icon" className="cursor-pointer">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="cursor-pointer"
+							>
 								<LockOpen className="size-5" />
 							</Button>
 						</TooltipTrigger>
@@ -148,7 +159,11 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 					</Tooltip>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Button variant="ghost" size="icon" className="cursor-pointer">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="cursor-pointer"
+							>
 								<Eye className="size-5" />
 							</Button>
 						</TooltipTrigger>
@@ -158,7 +173,11 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 					</Tooltip>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Button variant="ghost" size="icon" className="cursor-pointer">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="cursor-pointer"
+							>
 								<MoreHorizontal className="size-5" />
 							</Button>
 						</TooltipTrigger>
@@ -188,7 +207,9 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 							</Button>
 						</div>
 						<div className="space-y-2 px-1">
-							<h3 className="text-lg font-semibold">Description</h3>
+							<h3 className="text-lg font-semibold">
+								Description
+							</h3>
 							<div className="text-sm text-muted-foreground leading-relaxed">
 								{task?.description ? (
 									<div className="space-y-1">
@@ -213,11 +234,17 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 						</div>
 
 						<div className="space-y-2 px-1">
-							<h3 className="text-lg font-semibold">Activities</h3>
+							<h3 className="text-lg font-semibold">
+								Activities
+							</h3>
 							<Tabs defaultValue="comments" className="w-full">
 								<TabsList className="border-b border-border mb-4">
-									<TabsTrigger value="comments">Comments</TabsTrigger>
-									<TabsTrigger value="activity">Activity</TabsTrigger>
+									<TabsTrigger value="comments">
+										Comments
+									</TabsTrigger>
+									<TabsTrigger value="activity">
+										Activity
+									</TabsTrigger>
 								</TabsList>
 								<TabsContent value="comments">
 									<div className="space-y-4">
@@ -227,10 +254,16 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 											</p>
 										)}
 										{task?.comments?.map((c) => (
-											<div key={c.id} className="flex items-start gap-3">
+											<div
+												key={c.id}
+												className="flex items-start gap-3"
+											>
 												<Avatar className="h-8 w-8">
 													<AvatarImage
-														src={c.user.avatar || "/placeholder.svg"}
+														src={
+															c.user.avatar ||
+															"/placeholder.svg"
+														}
 													/>
 													<AvatarFallback className="text-xs">
 														{c.user.name
@@ -241,10 +274,15 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 												</Avatar>
 												<div>
 													<p className="text-sm">
-														<strong>{c.user.name}</strong> {c.content}
+														<strong>
+															{c.user.name}
+														</strong>{" "}
+														{c.content}
 													</p>
 													<p className="text-xs text-muted-foreground">
-														{new Date(c.createdAt).toLocaleString()}
+														{new Date(
+															c.createdAt
+														).toLocaleString()}
 													</p>
 												</div>
 											</div>
@@ -253,7 +291,9 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 											<Textarea
 												placeholder="Add a comment..."
 												value={comment}
-												onChange={(e) => setComment(e.target.value)}
+												onChange={(e) =>
+													setComment(e.target.value)
+												}
 											/>
 											<Button
 												className="mt-2"
@@ -275,10 +315,12 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 						</div>
 					</div>
 					{/* 2 */}
-					<div className="w-[350px] xl:w-100 shrink-0 space-y-4 lg:overflow-y-auto">
+					<div className="w-87.5 xl:w-100 shrink-0 space-y-4 lg:overflow-y-auto">
 						<div className="border border-border bg-muted/30 p-4 rounded-md">
 							<div className="flex items-center justify-between">
-								<h3 className="text-lg font-semibold italic">Details</h3>
+								<h3 className="text-lg font-semibold italic">
+									Details
+								</h3>
 								<div className="flex items-center gap-2 text-sm text-primary">
 									<span>{task?.key}</span>
 								</div>
@@ -295,12 +337,18 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 												<>
 													<Avatar className="h-7 w-7">
 														<AvatarImage
-															src={task?.assignee?.avatar || "/placeholder.svg"}
+															src={
+																task?.assignee
+																	?.avatar ||
+																"/placeholder.svg"
+															}
 														/>
 														<AvatarFallback className="text-xs">
 															{task?.assignee?.name
 																.split(" ")
-																.map((n) => n[0])
+																.map(
+																	(n) => n[0]
+																)
 																.join("")}
 														</AvatarFallback>
 													</Avatar>
@@ -313,7 +361,9 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 													<div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted">
 														<User className="h-5 w-5 text-muted-foreground" />
 													</div>
-													<span className="text-sm">Unassigned</span>
+													<span className="text-sm">
+														Unassigned
+													</span>
 												</>
 											)}
 										</div>
@@ -338,11 +388,13 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 													dueStatus === "due-today" &&
 														"bg-amber-50 border-amber-200 text-amber-700",
 													dueStatus === "upcoming" &&
-														"bg-emerald-50 border-emerald-200 text-emerald-700",
+														"bg-emerald-50 border-emerald-200 text-emerald-700"
 												)}
 											>
 												{iconDue}
-												<span className="ml-1">{formatDate(dueDate!)}</span>
+												<span className="ml-1">
+													{formatDate(dueDate!)}
+												</span>
 											</div>
 										) : (
 											<div className="h-7">
@@ -374,7 +426,9 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 										Team
 									</div>
 									<div className="flex flex-1 items-center justify-end gap-x-2 px-2 py-1.5 rounded-md cursor-pointer hover:bg-muted transition h-10">
-										<span className="text-sm text-muted-foreground">None</span>
+										<span className="text-sm text-muted-foreground">
+											None
+										</span>
 									</div>
 								</div>
 								<div className="flex items-center justify-between py-1.5 px-2 gap-x-4">
@@ -411,7 +465,8 @@ export const TaskModal = ({ open, onClose, task }: TaskModalProps) => {
 								Created on {task && formatDate(task.createdAt)}
 							</p>
 							<p className="text-xs text-muted-foreground">
-								Last updated on {task && formatDate(task.updatedAt)}
+								Last updated on{" "}
+								{task && formatDate(task.updatedAt)}
 							</p>
 						</div>
 					</div>

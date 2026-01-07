@@ -93,7 +93,7 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 						return (
 							<div
 								key={board}
-								className="flex-1 bg-muted p-1.5 min-w-[280px] rounded-md"
+								className="flex-1 bg-muted p-1.5 min-w-70 max-w-80 rounded-md"
 							>
 								<KanbanHeader
 									board={board}
@@ -104,26 +104,36 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 										<div
 											ref={provided.innerRef}
 											{...provided.droppableProps}
-											className="min-h-[200px] py-1.5"
+											className="min-h-50 py-1.5"
 										>
-											{taskState[board].map((task, index) => (
-												<Draggable
-													key={task.id}
-													draggableId={task.id}
-													index={index}
-												>
-													{(provided) => (
-														<div
-															ref={provided.innerRef}
-															{...provided.draggableProps}
-															{...provided.dragHandleProps}
-															onClick={() => handleCardClick(task)}
-														>
-															<KanbanCard task={task} />
-														</div>
-													)}
-												</Draggable>
-											))}
+											{taskState[board].map(
+												(task, index) => (
+													<Draggable
+														key={task.id}
+														draggableId={task.id}
+														index={index}
+													>
+														{(provided) => (
+															<div
+																ref={
+																	provided.innerRef
+																}
+																{...provided.draggableProps}
+																{...provided.dragHandleProps}
+																onClick={() =>
+																	handleCardClick(
+																		task
+																	)
+																}
+															>
+																<KanbanCard
+																	task={task}
+																/>
+															</div>
+														)}
+													</Draggable>
+												)
+											)}
 											{provided.placeholder}
 										</div>
 									)}
@@ -134,7 +144,7 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 				</div>
 			</DragDropContext>
 			<TaskModal
-				open={isModalOpen}
+				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				task={selectedTask}
 			/>

@@ -53,18 +53,18 @@ export function Sidebar() {
 		<>
 			<div
 				className={cn(
-					"fixed inset-0 z-40 bg-background/60 backdrop-blur-sm transition-opacity duration-200 lg:hidden",
+					"fixed inset-0 z-40 bg-background/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden",
 					isSidebarOpen
 						? "opacity-100 pointer-events-auto"
-						: "opacity-0 pointer-events-none",
+						: "opacity-0 pointer-events-none"
 				)}
 				onClick={closeSidebar}
 			/>
 			<aside
 				className={cn(
-					"fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-sidebar text-sidebar-foreground shadow-lg transition-transform duration-100 ease-in-out lg:relative lg:max-h-[888px] lg:shadow-none",
+					"fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-sidebar text-sidebar-foreground shadow-lg transition-transform duration-100 ease-in-out lg:relative lg:max-h-222 lg:shadow-none",
 					isSidebarOpen ? "translate-x-0" : "-translate-x-full",
-					"lg:flex lg:translate-x-0",
+					"lg:flex lg:translate-x-0"
 				)}
 			>
 				<div className="flex items-center justify-between border-b border-sidebar-foreground/10 px-4 py-3 lg:hidden">
@@ -92,7 +92,7 @@ export function Sidebar() {
 								className={cn(
 									"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
 									pathname === "/for-you" &&
-										"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
+										"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary"
 								)}
 							>
 								<Home className="h-4 w-4" />
@@ -108,9 +108,15 @@ export function Sidebar() {
 										<ChevronRight className="h-4 w-4" />
 									</button>
 								</PopoverTrigger>
-								<PopoverContent side="right" align="start" className="w-80 p-0">
+								<PopoverContent
+									side="right"
+									align="start"
+									className="w-80 p-0"
+								>
 									<div className="p-3">
-										<h4 className="mb-3 text-sm font-medium">Recent</h4>
+										<h4 className="mb-3 text-sm font-medium">
+											Recent
+										</h4>
 										<div className="space-y-1">
 											{projects.map((project) => (
 												<Link
@@ -120,7 +126,10 @@ export function Sidebar() {
 												>
 													<span
 														className="flex h-6 w-6 items-center justify-center rounded text-xs"
-														style={{ backgroundColor: project.color }}
+														style={{
+															backgroundColor:
+																project.color,
+														}}
 													>
 														{project.icon}
 													</span>
@@ -141,9 +150,15 @@ export function Sidebar() {
 										<ChevronRight className="h-4 w-4" />
 									</button>
 								</PopoverTrigger>
-								<PopoverContent side="right" align="start" className="w-80 p-0">
+								<PopoverContent
+									side="right"
+									align="start"
+									className="w-80 p-0"
+								>
 									<div className="p-3">
-										<h4 className="mb-3 text-sm font-medium">Starred</h4>
+										<h4 className="mb-3 text-sm font-medium">
+											Starred
+										</h4>
 										<div className="relative mb-3">
 											<Input
 												placeholder="Search starred items"
@@ -161,11 +176,16 @@ export function Sidebar() {
 													<div className="flex items-center gap-2">
 														<span
 															className="flex h-6 w-6 items-center justify-center rounded text-xs"
-															style={{ backgroundColor: project.color }}
+															style={{
+																backgroundColor:
+																	project.color,
+															}}
 														>
 															{project.icon}
 														</span>
-														<span>{project.name}</span>
+														<span>
+															{project.name}
+														</span>
 													</div>
 													<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
 												</Link>
@@ -179,7 +199,10 @@ export function Sidebar() {
 								</PopoverContent>
 							</Popover>
 
-							<Collapsible open={plansOpen} onOpenChange={setPlansOpen}>
+							<Collapsible
+								open={plansOpen}
+								onOpenChange={setPlansOpen}
+							>
 								<div className="flex items-center">
 									<CollapsibleTrigger asChild>
 										<button className="flex flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
@@ -210,7 +233,7 @@ export function Sidebar() {
 										className={cn(
 											"flex items-center gap-2 rounded-md px-3 py-2 text-primary hover:bg-sidebar-accent transition-colors",
 											pathname === "/plans" &&
-												"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
+												"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary"
 										)}
 									>
 										<Filter className="h-4 w-4" />
@@ -221,7 +244,10 @@ export function Sidebar() {
 						</nav>
 
 						{/* Spaces */}
-						<Collapsible open={spacesOpen} onOpenChange={setSpacesOpen}>
+						<Collapsible
+							open={spacesOpen}
+							onOpenChange={setSpacesOpen}
+						>
 							<div className="flex items-center">
 								<CollapsibleTrigger asChild>
 									<button className="flex flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
@@ -258,17 +284,24 @@ export function Sidebar() {
 											href={`/projects/${project.id}/board`}
 											className={cn(
 												"ml-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-												pathname.includes(`/projects/${project.id}`) &&
-													"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
+												pathname.includes(
+													`/projects/${project.id}`
+												) &&
+													"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary"
 											)}
 										>
 											<span
 												className="flex h-5 w-5 items-center justify-center rounded text-xs"
-												style={{ backgroundColor: project.color }}
+												style={{
+													backgroundColor:
+														project.color,
+												}}
 											>
 												{project.icon}
 											</span>
-											<span className="truncate">{project.name}</span>
+											<span className="truncate">
+												{project.name}
+											</span>
 										</Link>
 									))}
 								</div>
@@ -284,17 +317,24 @@ export function Sidebar() {
 											href={`/projects/${project.id}/board`}
 											className={cn(
 												"ml-2 flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-												pathname.includes(`/projects/${project.id}`) &&
-													"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary",
+												pathname.includes(
+													`/projects/${project.id}`
+												) &&
+													"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary"
 											)}
 										>
 											<span
 												className="flex h-5 w-5 items-center justify-center rounded text-xs"
-												style={{ backgroundColor: project.color }}
+												style={{
+													backgroundColor:
+														project.color,
+												}}
 											>
 												{project.icon}
 											</span>
-											<span className="truncate">{project.name}</span>
+											<span className="truncate">
+												{project.name}
+											</span>
 										</Link>
 									))}
 								</div>
@@ -314,7 +354,7 @@ export function Sidebar() {
 							<div
 								className={cn(
 									"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-									pathname === "/teams" && "bg-sidebar-accent",
+									pathname === "/teams" && "bg-sidebar-accent"
 								)}
 							>
 								<Users className="h-4 w-4" />

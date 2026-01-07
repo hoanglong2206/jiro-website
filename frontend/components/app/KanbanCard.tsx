@@ -87,6 +87,9 @@ export const KanbanCard = ({ task }: KanbanCardProps) => {
 					</Tooltip>
 					<PopoverContent align="end" className="w-36 px-2 py-1.5">
 						<Button
+							onClick={(e) => {
+								e.stopPropagation();
+							}}
 							variant="ghost"
 							className="w-full justify-start cursor-pointer"
 						>
@@ -99,18 +102,21 @@ export const KanbanCard = ({ task }: KanbanCardProps) => {
 			<div
 				className={cn(
 					"px-1 py-0.5 border-2 flex items-center justify-start text-xs rounded max-w-2/5 font-medium",
-					dueStatus === "overdue" && "bg-rose-50 border-rose-200 text-rose-700",
+					dueStatus === "overdue" &&
+						"bg-rose-50 border-rose-200 text-rose-700",
 					dueStatus === "due-today" &&
 						"bg-amber-50 border-amber-200 text-amber-700",
 					dueStatus === "upcoming" &&
 						"bg-emerald-50 border-emerald-200 text-emerald-700",
 					dueStatus === "no-due" &&
-						"bg-neutral-100 border-neutral-200 text-neutral-600",
+						"bg-neutral-100 border-neutral-200 text-neutral-600"
 				)}
 			>
 				{iconDue}
 				<span className="ml-1">
-					{dueStatus === "no-due" ? "No due date" : formatDate(task.dueDate!)}
+					{dueStatus === "no-due"
+						? "No due date"
+						: formatDate(task.dueDate!)}
 				</span>
 			</div>
 			<Separator />
