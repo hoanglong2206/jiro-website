@@ -1,12 +1,12 @@
 export interface IAuthUser {
-	id: number | null;
+	id: string | null;
 	username: string | null;
 	email: string | null;
 	profilePicture: string | null;
 }
 
 export interface IAuthDocument {
-	id?: number;
+	id?: string;
 	username?: string;
 	email?: string;
 	password?: string;
