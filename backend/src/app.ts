@@ -8,6 +8,9 @@ import cors from "cors";
 import { config } from "./config";
 import { appRoutes } from "./routes";
 import http from "http";
+import { authConnection } from "./queues/auth/connection";
+import { Channel } from "amqplib";
+import { userConnection } from "./queues/user/connection";
 
 export class App {
 	private app: Application;
@@ -20,6 +23,7 @@ export class App {
 		this.securityMiddleware(this.app);
 		this.standardMiddleware(this.app);
 		this.routesMiddleware(this.app);
+		this.startQueues();
 		this.errorHandler(this.app);
 		this.startServer(this.app);
 	}
@@ -36,7 +40,7 @@ export class App {
 					maxAge: 1000 * 60 * 60 * 24, // 1 day
 					secure: config.NODE_ENV === "production",
 				},
-			}),
+			})
 		);
 		app.use(helmet());
 		app.use(
@@ -44,7 +48,7 @@ export class App {
 				origin: config.CORS_ORIGIN || "*",
 				credentials: true,
 				methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-			}),
+			})
 		);
 		if (config.NODE_ENV === "development") {
 			app.use(morgan("dev"));
@@ -62,7 +66,24 @@ export class App {
 		appRoutes(app);
 	}
 
-	private errorHandler(app: Application): void {}
+	private async startQueues(): Promise<void> {
+		let authChannel: Channel;
+		let userChannel: Channel;
+
+		authChannel = (await authConnection()) as Channel;
+		userChannel = (await userConnection()) as Channel;
+	}
+
+	private errorHandler(app: Application): void {
+		app.use(
+			(err: Error, _req: Request, res: Response, next: NextFunction) => {
+				console.error(err.stack);
+				res.status(500).send("Something went wrong!");
+
+				next();
+			}
+		);
+	}
 
 	private startServer(app: Application): void {
 		try {
@@ -70,7 +91,7 @@ export class App {
 
 			httpServer.listen(config.PORT, () => {
 				console.log(
-					`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`,
+					`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`
 				);
 			});
 		} catch (error) {

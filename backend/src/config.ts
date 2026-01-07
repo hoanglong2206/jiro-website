@@ -9,6 +9,7 @@ class Config {
 	public PORT: string | number | undefined;
 	public JWT_SECRET: string | undefined;
 	public SESSION_SECRET: string | undefined;
+	public RABBITMQ_ENDPOINT: string | undefined;
 
 	constructor() {
 		this.DATABASE_URL = process.env.DATABASE_URL || "";
@@ -18,6 +19,7 @@ class Config {
 		this.JWT_SECRET = process.env.JWT_SECRET || "default_jwt_secret";
 		this.SESSION_SECRET =
 			process.env.SESSION_SECRET || "default_session_secret";
+		this.RABBITMQ_ENDPOINT = process.env.RABBITMQ_ENDPOINT || "";
 	}
 }
 
