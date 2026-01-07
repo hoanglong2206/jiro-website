@@ -1,18 +1,18 @@
 import { config } from "../../config";
 import client, { Channel, ChannelModel } from "amqplib";
 
-async function userConnection(): Promise<Channel | undefined> {
+async function userConnection(): Promise<Channel> {
 	try {
 		const connection: ChannelModel = await client.connect(
-			`${config.RABBITMQ_ENDPOINT}`
+			`${config.RABBITMQ_ENDPOINT}`,
 		);
 		const channel: Channel = await connection.createChannel();
 		console.log("User server connected to queue successfully...");
 		closeConnection(channel, connection);
 		return channel;
 	} catch (error) {
-		console.log(error);
-		return undefined;
+		console.error("Failed to establish user queue connection:", error);
+		throw error;
 	}
 }
 

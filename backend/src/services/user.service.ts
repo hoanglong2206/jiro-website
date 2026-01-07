@@ -37,7 +37,7 @@ class UserService {
 		const toInsert: NewUserRecord = {
 			username: payload.username!,
 			email: payload.email!,
-			profilePicture: payload.profilePicture!,
+			profilePicture: payload.profilePicture ?? null,
 		};
 		await db.insert(userTable).values(toInsert).returning();
 	}

@@ -10,6 +10,10 @@ import jwt from "jsonwebtoken";
 import { config } from "../config";
 import { IAuthPayload } from "../types/auth.interface";
 
+import { getAuthChannel } from "../queues/channelStore";
+import { publishDirectMessage } from "../queues/publisher";
+import { authConnection } from "../queues/auth/connection";
+
 class AuthService {
 	private authModel: AuthModel;
 
@@ -26,7 +30,7 @@ class AuthService {
 		return rows[0];
 	}
 
-	async findById(id: number): Promise<AuthRecord | undefined> {
+	async findById(id: string): Promise<AuthRecord | undefined> {
 		const rows = await db
 			.select()
 			.from(authTable)
@@ -66,6 +70,31 @@ class AuthService {
 		};
 		const inserted = await db.insert(authTable).values(toInsert).returning();
 		const user = inserted[0];
+
+		const messageDetails = {
+			username: user.username,
+			email: user.email,
+			profilePicture: null,
+			type: "auth",
+		};
+
+		try {
+			const authChannel = getAuthChannel();
+			await publishDirectMessage({
+				channel: authChannel,
+				channelFactory: authConnection,
+				exchangeName: "user.register",
+				routingKey: "user.create",
+				message: JSON.stringify(messageDetails),
+				logMessage: `Published user registration event for ${user.email}`,
+			});
+		} catch (queueError) {
+			console.error("Failed to publish user registration event:", queueError);
+			await db.delete(authTable).where(eq(authTable.id, user.id!));
+			throw new Error(
+				"Registration failed while queuing user profile creation",
+			);
+		}
 		const token = this.signToken({
 			id: user.id!,
 			username: user.username!,
@@ -125,7 +154,7 @@ class AuthService {
 	}
 
 	async changePassword(payload: {
-		userId: number;
+		userId: string;
 		currentPassword: string;
 		newPassword: string;
 	}): Promise<{

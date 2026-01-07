@@ -1,9 +1,9 @@
 import bcrypt from "bcryptjs";
-import { pgTable, serial, varchar, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
 import { IAuth } from "../types/auth.interface";
 
 export const authTable = pgTable("auth", {
-	id: serial("id").primaryKey(),
+	id: uuid("id").defaultRandom().primaryKey(),
 	username: varchar("username", { length: 50 }).notNull().unique(),
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	password: varchar("password", { length: 255 }).notNull(),
@@ -24,7 +24,7 @@ export const authTable = pgTable("auth", {
 const SALT_ROUNDS = 10;
 
 export class AuthModel implements IAuth {
-	id?: number;
+	id?: string;
 	username?: string;
 	email?: string;
 	password?: string;
