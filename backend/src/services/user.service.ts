@@ -30,11 +30,16 @@ class UserService {
 	}
 
 	async createUser(payload: IUser): Promise<void> {
-		const existing = await this.getUserByEmail(payload.email!);
-		if (existing) {
+		const existingEmail = await this.getUserByEmail(payload.email!);
+		const existingUsername = await this.getUserByUsername(payload.username!);
+		if (existingUsername) {
+			throw new Error("Username already in use");
+		}
+		if (existingEmail) {
 			throw new Error("Email already in use");
 		}
 		const toInsert: NewUserRecord = {
+			fullname: payload.fullname!,
 			username: payload.username!,
 			email: payload.email!,
 			profilePicture: payload.profilePicture ?? null,

@@ -3,27 +3,23 @@ import Joi, { ObjectSchema } from "joi";
 class authSchema {
 	registerSchema(): ObjectSchema {
 		return Joi.object({
-			username: Joi.string()
-				.alphanum()
-				.min(3)
-				.max(30)
-				.required()
-				.messages({
-					"string.min":
-						"Username must be at least {#limit} characters long",
-					"string.max":
-						"Username must be at most {#limit} characters long",
-					"string.empty": "Username cannot be empty",
-					"string.alphanum":
-						"Username can only contain letters and numbers",
-				}),
+			fullname: Joi.string().min(3).max(50).required().messages({
+				"string.min": "Fullname must be at least {#limit} characters long",
+				"string.max": "Fullname must be at most {#limit} characters long",
+				"string.empty": "Fullname cannot be empty",
+			}),
+			username: Joi.string().alphanum().min(3).max(30).required().messages({
+				"string.min": "Username must be at least {#limit} characters long",
+				"string.max": "Username must be at most {#limit} characters long",
+				"string.empty": "Username cannot be empty",
+				"string.alphanum": "Username can only contain letters and numbers",
+			}),
 			email: Joi.string().email().required().messages({
 				"string.email": "Invalid email address",
 				"string.empty": "Email cannot be empty",
 			}),
 			password: Joi.string().min(6).required().messages({
-				"string.min":
-					"Password must be at least {#limit} characters long",
+				"string.min": "Password must be at least {#limit} characters long",
 				"string.empty": "Password cannot be empty",
 			}),
 		});
@@ -36,8 +32,7 @@ class authSchema {
 				"string.empty": "Email cannot be empty",
 			}),
 			password: Joi.string().min(6).required().messages({
-				"string.min":
-					"Password must be at least {#limit} characters long",
+				"string.min": "Password must be at least {#limit} characters long",
 				"string.empty": "Password cannot be empty",
 			}),
 		});
@@ -51,8 +46,7 @@ class authSchema {
 				"string.empty": "Current password cannot be empty",
 			}),
 			newPassword: Joi.string().min(6).required().messages({
-				"string.min":
-					"New password must be at least {#limit} characters long",
+				"string.min": "New password must be at least {#limit} characters long",
 				"string.empty": "New password cannot be empty",
 			}),
 			confirmPassword: Joi.string()

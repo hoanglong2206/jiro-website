@@ -4,6 +4,7 @@ import { IAuth } from "../types/auth.interface";
 
 export const authTable = pgTable("auth", {
 	id: uuid("id").defaultRandom().primaryKey(),
+	fullname: varchar("fullname", { length: 50 }).notNull(),
 	username: varchar("username", { length: 50 }).notNull().unique(),
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	password: varchar("password", { length: 255 }).notNull(),
@@ -25,6 +26,7 @@ const SALT_ROUNDS = 10;
 
 export class AuthModel implements IAuth {
 	id?: string;
+	fullname?: string;
 	username?: string;
 	email?: string;
 	password?: string;

@@ -13,8 +13,13 @@ const refreshCookieOptions: CookieOptions = {
 class AuthController {
 	async register(req: Request, res: Response) {
 		try {
-			const { username, email, password } = req.body;
-			const result = await authService.register({ username, email, password });
+			const { fullname, username, email, password } = req.body;
+			const result = await authService.register({
+				fullname,
+				username,
+				email,
+				password,
+			});
 			res.cookie("refreshToken", result.refreshToken, refreshCookieOptions);
 			return res.status(StatusCodes.CREATED).json({
 				message: "Registered successfully",
@@ -76,6 +81,7 @@ class AuthController {
 			}
 			const token = authService.signToken({
 				id: user.id!,
+				fullname: user.fullname!,
 				username: user.username!,
 				email: user.email!,
 			});

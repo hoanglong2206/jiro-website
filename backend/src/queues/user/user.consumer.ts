@@ -25,6 +25,7 @@ const consumeUserMessage = async (channel: Channel): Promise<void> => {
 			const { type, ...data } = msg ? JSON.parse(msg.content.toString()) : {};
 			if (type === "auth") {
 				const userPayload: IUser = {
+					fullname: data.fullname,
 					username: data.username,
 					email: data.email,
 					profilePicture: data.profilePicture,

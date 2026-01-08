@@ -1,5 +1,6 @@
 export interface IAuthUser {
 	id: string | null;
+	fullname: string | null;
 	username: string | null;
 	email: string | null;
 	profilePicture: string | null;
@@ -7,6 +8,7 @@ export interface IAuthUser {
 
 export interface IAuthDocument {
 	id?: string;
+	fullname?: string;
 	username?: string;
 	email?: string;
 	password?: string;
@@ -19,6 +21,7 @@ export interface IAuthDocument {
 
 export interface ISignUpPayload {
 	[key: string]: string | null | undefined;
+	fullname: string;
 	username: string;
 	email: string;
 	password: string;
@@ -48,8 +51,4 @@ export interface IReduxAddAuthUser {
 export interface IReduxLogout {
 	type: string;
 	payload: boolean;
-}
-
-export interface IAuthResponse {
-	message: string;
 }

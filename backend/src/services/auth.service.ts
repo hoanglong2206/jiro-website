@@ -49,6 +49,7 @@ class AuthService {
 	}
 
 	async register(payload: {
+		fullname: string;
 		username: string;
 		email: string;
 		password: string;
@@ -57,24 +58,28 @@ class AuthService {
 		token: string;
 		refreshToken: string;
 	}> {
-		const existing = await this.findByEmail(payload.email);
-		if (existing) {
+		const existingEmail = await this.findByEmail(payload.email);
+		if (existingEmail) {
 			throw new Error("Email already in use");
+		}
+
+		const existingUsername = await this.findByUsername(payload.username);
+		if (existingUsername) {
+			throw new Error("Username already in use");
 		}
 
 		const hashed = await this.authModel.hashPassword(payload.password);
 		const toInsert: NewAuthRecord = {
+			fullname: payload.fullname,
 			username: payload.username,
 			email: payload.email,
 			password: hashed,
 		};
-		const inserted = await db
-			.insert(authTable)
-			.values(toInsert)
-			.returning();
+		const inserted = await db.insert(authTable).values(toInsert).returning();
 		const user = inserted[0];
 
 		const messageDetails = {
+			fullname: user.fullname,
 			username: user.username,
 			email: user.email,
 			profilePicture: null,
@@ -92,23 +97,22 @@ class AuthService {
 				logMessage: `Published user registration event for ${user.email}`,
 			});
 		} catch (queueError) {
-			console.error(
-				"Failed to publish user registration event:",
-				queueError
-			);
+			console.error("Failed to publish user registration event:", queueError);
 			await db.delete(authTable).where(eq(authTable.id, user.id!));
 			throw new Error(
-				"Registration failed while queuing user profile creation"
+				"Registration failed while queuing user profile creation",
 			);
 		}
 		const token = this.signToken({
 			id: user.id!,
+			fullname: user.fullname!,
 			username: user.username!,
 			email: user.email!,
 		});
 
 		const refreshToken = this.signRefreshToken({
 			id: user.id!,
+			fullname: user.fullname!,
 			username: user.username!,
 			email: user.email!,
 		});
@@ -128,19 +132,21 @@ class AuthService {
 		}
 		const match = await this.authModel.comparePassword(
 			payload.password,
-			user.password!
+			user.password!,
 		);
 		if (!match) {
 			throw new Error("Invalid credentials");
 		}
 		const token = this.signToken({
 			id: user.id!,
+			fullname: user.fullname!,
 			username: user.username!,
 			email: user.email!,
 		});
 
 		const refreshToken = this.signRefreshToken({
 			id: user.id!,
+			fullname: user.fullname!,
 			username: user.username!,
 			email: user.email!,
 		});
@@ -165,11 +171,7 @@ class AuthService {
 		userId: string;
 		currentPassword: string;
 		newPassword: string;
-	}): Promise<{
-		user: Omit<AuthRecord, "password">;
-		token: string;
-		refreshToken: string;
-	}> {
+	}): Promise<void> {
 		const user = await this.findById(payload.userId);
 		if (!user) {
 			throw new Error("User not found");
@@ -177,7 +179,7 @@ class AuthService {
 
 		const matched = await this.authModel.comparePassword(
 			payload.currentPassword,
-			user.password!
+			user.password!,
 		);
 		if (!matched) {
 			throw new Error("Current password is incorrect");
@@ -185,38 +187,20 @@ class AuthService {
 
 		const isSamePassword = await this.authModel.comparePassword(
 			payload.newPassword,
-			user.password!
+			user.password!,
 		);
 		if (isSamePassword) {
 			throw new Error(
-				"New password must be different from the current password"
+				"New password must be different from the current password",
 			);
 		}
 
 		const hashed = await this.authModel.hashPassword(payload.newPassword);
-		const updated = await db
+		await db
 			.update(authTable)
 			.set({ password: hashed })
 			.where(eq(authTable.id, payload.userId))
 			.returning();
-		const updatedUser = updated[0];
-		if (!updatedUser) {
-			throw new Error("Password update failed");
-		}
-
-		const token = this.signToken({
-			id: updatedUser.id!,
-			username: updatedUser.username!,
-			email: updatedUser.email!,
-		});
-		const refreshToken = this.signRefreshToken({
-			id: updatedUser.id!,
-			username: updatedUser.username!,
-			email: updatedUser.email!,
-		});
-
-		const { password, ...safe } = updatedUser;
-		return { user: safe, token, refreshToken };
 	}
 }
 

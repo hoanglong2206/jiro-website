@@ -4,6 +4,7 @@ import { IAuthUser, IReduxAddAuthUser } from "@/types/auth.interface";
 
 const initialValue: IAuthUser = {
 	id: null,
+	fullname: null,
 	username: null,
 	email: null,
 	profilePicture: null,
@@ -17,6 +18,7 @@ const authSlice: Slice = createSlice({
 			const { authInfo } = action.payload;
 			if (authInfo) {
 				state.id = authInfo.id ?? null;
+				state.fullname = authInfo.fullname ?? null;
 				state.username = authInfo.username ?? null;
 				state.email = authInfo.email ?? null;
 				state.profilePicture = authInfo.profilePicture ?? null;

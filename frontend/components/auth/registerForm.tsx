@@ -27,6 +27,7 @@ import { toast } from "sonner";
 
 export function RegisterForm() {
 	const [showPassword, setShowPassword] = useState<boolean>(false);
+	const [fullname, setFullname] = useState<string>("");
 	const [username, setUsername] = useState<string>("");
 	const [email, setEmail] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
@@ -44,6 +45,7 @@ export function RegisterForm() {
 
 		try {
 			const result = await register({
+				fullname,
 				username,
 				email,
 				password,
@@ -53,13 +55,13 @@ export function RegisterForm() {
 				dispatch(
 					addAuthUser({
 						authInfo: result.user,
-					})
+					}),
 				);
 				dispatch(updateLogout(false));
 				saveToSessionStorage(
 					JSON.stringify(true),
 					JSON.stringify(result.user.username),
-					result.token ? JSON.stringify(result.token) : undefined
+					result.token ? JSON.stringify(result.token) : undefined,
 				);
 			}
 			toast.success("Tạo tài khoản thành công");
@@ -83,16 +85,23 @@ export function RegisterForm() {
 						height={100}
 					/>
 				</Link>
-				<CardTitle className="text-2xl font-bold">
-					Create an account
-				</CardTitle>
+				<CardTitle className="text-2xl font-bold">Create an account</CardTitle>
 			</CardHeader>
 			<form onSubmit={onSubmit}>
 				<CardContent className="space-y-4">
 					<div className="space-y-2">
-						<Label htmlFor="name">Username</Label>
+						<Label htmlFor="fullname">Fullname</Label>
 						<Input
-							id="name"
+							id="fullname"
+							placeholder="Your fullname"
+							value={fullname}
+							onChange={(e) => setFullname(e.target.value)}
+						/>
+					</div>
+					<div className="space-y-2">
+						<Label htmlFor="username">Username</Label>
+						<Input
+							id="username"
 							placeholder="Your username"
 							value={username}
 							onChange={(e) => setUsername(e.target.value)}
@@ -103,7 +112,7 @@ export function RegisterForm() {
 						<Input
 							id="email"
 							type="email"
-							placeholder="name@example.com"
+							placeholder="Your email address"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
 						/>
@@ -130,9 +139,7 @@ export function RegisterForm() {
 								) : (
 									<Eye className="h-4 w-4 text-muted-foreground" />
 								)}
-								<span className="sr-only">
-									Toggle password visibility
-								</span>
+								<span className="sr-only">Toggle password visibility</span>
 							</Button>
 						</div>
 					</div>
@@ -180,10 +187,7 @@ export function RegisterForm() {
 					</Button>
 					<p className="text-center text-sm text-muted-foreground">
 						Already have an account?{" "}
-						<Link
-							href="/login"
-							className="text-primary hover:underline"
-						>
+						<Link href="/login" className="text-primary hover:underline">
 							Sign in
 						</Link>
 					</p>
