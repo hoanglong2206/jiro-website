@@ -7,20 +7,20 @@ import { cn } from "@/lib/utils";
 import { CustomModal } from "@/components/ui/modal";
 import { Label } from "@/components/ui/label";
 import { IUser } from "@/types/user.interface";
-import { Grid2X2, List, Search, X } from "lucide-react";
+import { Grid2X2, List, Mail, Search, X } from "lucide-react";
 import { useRef, useState } from "react";
 
 const users: IUser[] = [
 	{
 		id: "1",
-		name: "John Doe",
+		fullname: "John Doe",
 		username: "johndoe",
 		email: "john@example.com",
 		colorAvatar: "bg-blue-400",
 	},
 	{
 		id: "2",
-		name: "Jane Smith",
+		fullname: "Jane Smith",
 		username: "janesmith",
 		email: "jane@example.com",
 		colorAvatar: "bg-green-400",
@@ -117,13 +117,13 @@ const PersonItem = ({ user }: { user: IUser }) => {
 			<div
 				className={`flex rounded-l-md items-center justify-center text-white font-medium tracking-wider text-2xl h-20 w-20 ${user.colorAvatar}`}
 			>
-				{user.name
+				{user.fullname
 					.split(" ")
 					.map((x) => x[0])
 					.join("")}
 			</div>
 
-			<div className="px-4">{user.name}</div>
+			<div className="px-4">{user.fullname}</div>
 		</div>
 	);
 };
@@ -137,7 +137,7 @@ export const AddPersonModal = ({
 }) => {
 	const [searchValue, setSearchValue] = useState<string>("");
 	const [isFocused, setIsFocused] = useState<boolean>(false);
-	const [people, setPeople] = useState<IUser[]>(users);
+	const [people, setPeople] = useState<string[]>([]);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleAddPerson = (e: React.FormEvent) => {
@@ -145,28 +145,19 @@ export const AddPersonModal = ({
 		console.log("Search value:", searchValue);
 	};
 
-	const suggestedUsers = users.filter(
-		(user) =>
-			!people.some((people) => people.id === user.id) &&
-			(user.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-				user.name.toLowerCase().includes(searchValue.toLowerCase())),
-	);
-
-	const addPeople = (user: IUser) => {
-		setPeople((prevPeople) => [...prevPeople, user]);
+	const addPeople = (email: string) => {
+		setPeople((prevPeople) => [...prevPeople, email]);
 		setSearchValue("");
 		inputRef.current?.focus();
 	};
 
 	const removePeople = (
-		memberId: string,
+		email: string,
 		e: React.MouseEvent<HTMLButtonElement>,
 	) => {
 		e.preventDefault();
 		e.stopPropagation();
-		setPeople((prevPeople) =>
-			prevPeople.filter((person) => person.id !== memberId),
-		);
+		setPeople((prevPeople) => prevPeople.filter((person) => person !== email));
 		inputRef.current?.focus();
 	};
 	return (
@@ -188,21 +179,13 @@ export const AddPersonModal = ({
 						>
 							{people.map((person) => (
 								<div
-									key={person.id}
+									key={person}
 									className="flex items-center gap-1 px-2 py-1.5 rounded-full text-sm bg-primary/10"
 								>
-									<div
-										className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${person.colorAvatar}`}
-									>
-										{person.name
-											.split(" ")
-											.map((x) => x[0])
-											.join("")}
-									</div>
-									<span className="text-primary/80">{person.name}</span>
+									<span className="text-primary/80">{person}</span>
 									<button
 										type="button"
-										onClick={(e) => removePeople(person.id, e)}
+										onClick={(e) => removePeople(person, e)}
 										className="ml-1 hover:bg-blue-100 rounded-full p-0.5 cursor-pointer text-primary/80"
 									>
 										<X className="w-3 h-3" />
@@ -227,37 +210,18 @@ export const AddPersonModal = ({
 									<div className="p-3 text-sm text-muted-foreground">
 										Enter an email address
 									</div>
-								) : suggestedUsers.length > 0 ? (
-									<div className="overflow-y-auto max-h-48 space-y-1">
-										{suggestedUsers.map((user) => (
-											<div
-												key={user.id}
-												onMouseDown={(e) => {
-													e.preventDefault(); // Ngăn input bị blur
-													addPeople(user);
-												}}
-												className="px-2 py-1.5 hover:bg-gray-100 cursor-pointer flex items-center gap-3"
-											>
-												<div
-													className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${user.colorAvatar}`}
-												>
-													{user.name
-														.split(" ")
-														.map((x) => x[0])
-														.join("")}
-												</div>
-												<div>
-													<div className="text-sm font-medium">{user.name}</div>
-													<div className="text-xs text-muted-foreground">
-														{user.email}
-													</div>
-												</div>
-											</div>
-										))}
-									</div>
 								) : (
-									<div className="p-3 text-sm text-muted-foreground">
-										No users found
+									<div
+										onMouseDown={(e) => {
+											e.preventDefault();
+											addPeople(`${searchValue}@gmail.com`);
+										}}
+										className="p-3 flex items-center gap-x-2 cursor-pointer hover:bg-sidebar-accent"
+									>
+										<Mail className="w-4 h-4" />
+										<p className="text-sm text-muted-foreground">
+											{searchValue}@gmail.com
+										</p>
 									</div>
 								)}
 							</div>

@@ -62,7 +62,7 @@ export const CreateTeamModal = ({
 	const [members, setMembers] = useState<IUser[]>([
 		{
 			id: "1",
-			name: "John Doe",
+			fullname: "John Doe",
 			username: "johndoe",
 			email: "john@example.com",
 			colorAvatar: "bg-blue-400",
@@ -98,21 +98,21 @@ export const CreateTeamModal = ({
 	const allUsers: IUser[] = [
 		{
 			id: "2",
-			name: "Jane Smith",
+			fullname: "Jane Smith",
 			username: "janesmith",
 			email: "jane@example.com",
 			colorAvatar: "bg-green-400",
 		},
 		{
 			id: "3",
-			name: "Bob Johnson",
+			fullname: "Bob Johnson",
 			username: "bobjohnson",
 			email: "bob@example.com",
 			colorAvatar: "bg-purple-400",
 		},
 		{
 			id: "4",
-			name: "Alice Williams",
+			fullname: "Alice Williams",
 			username: "alicew",
 			email: "alice@example.com",
 			colorAvatar: "bg-pink-400",
@@ -123,14 +123,14 @@ export const CreateTeamModal = ({
 		(user) =>
 			!members.some((member) => member.id === user.id) &&
 			(user.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-				user.name.toLowerCase().includes(searchValue.toLowerCase())),
+				user.fullname.toLowerCase().includes(searchValue.toLowerCase())),
 	);
 
 	return (
 		<CustomModal open={isOpen} onClose={onClose} size="w-100">
 			<div className="flex h-full flex-col gap-8 px-4">
 				<h2 className="text-xl font-semibold">Create team</h2>
-				<div className="space-y-6">
+				<div className="space-y-4">
 					<div className="space-y-1">
 						<Label className="w-fit text-sm font-medium mb-2" htmlFor="name">
 							Name
@@ -165,16 +165,16 @@ export const CreateTeamModal = ({
 									<div
 										className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${member.colorAvatar}`}
 									>
-										{member.name
+										{member.fullname
 											.split(" ")
 											.map((x) => x[0])
 											.join("")}
 									</div>
-									<span className="text-primary/80">{member.name}</span>
+									<span className="text-primary/80">{member.fullname}</span>
 									<button
 										type="button"
 										onClick={(e) => removeMember(member.id, e)}
-										className="ml-1 hover:bg-blue-100 rounded-full p-0.5 cursor-pointer text-primary/80"
+										className="ml-1 hover:bg-primary/20 rounded-full p-0.5 cursor-pointer text-primary/80"
 									>
 										<X className="w-3 h-3" />
 									</button>
@@ -204,7 +204,7 @@ export const CreateTeamModal = ({
 											<div
 												key={user.id}
 												onMouseDown={(e) => {
-													e.preventDefault(); // Ngăn input bị blur
+													e.preventDefault();
 													addMember(user);
 												}}
 												className="px-2 py-1.5 hover:bg-gray-100 cursor-pointer flex items-center gap-3"
@@ -212,13 +212,15 @@ export const CreateTeamModal = ({
 												<div
 													className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${user.colorAvatar}`}
 												>
-													{user.name
+													{user.fullname
 														.split(" ")
 														.map((x) => x[0])
 														.join("")}
 												</div>
 												<div>
-													<div className="text-sm font-medium">{user.name}</div>
+													<div className="text-sm font-medium">
+														{user.fullname}
+													</div>
 													<div className="text-xs text-muted-foreground">
 														{user.email}
 													</div>
@@ -239,7 +241,7 @@ export const CreateTeamModal = ({
 							className="gap-2 cursor-pointer flex w-full md:w-auto"
 							onClick={handleCreateTeam}
 						>
-							Create
+							Add
 						</Button>
 					</div>
 				</div>
