@@ -1,26 +1,8 @@
-import { config } from "../../config";
-import client, { Channel, ChannelModel } from "amqplib";
+import { Channel } from "amqplib";
+import { createQueueChannel } from "../connection";
 
 async function userConnection(): Promise<Channel> {
-	try {
-		const connection: ChannelModel = await client.connect(
-			`${config.RABBITMQ_ENDPOINT}`,
-		);
-		const channel: Channel = await connection.createChannel();
-		console.log("User server connected to queue successfully...");
-		closeConnection(channel, connection);
-		return channel;
-	} catch (error) {
-		console.error("Failed to establish user queue connection:", error);
-		throw error;
-	}
-}
-
-function closeConnection(channel: Channel, connection: ChannelModel): void {
-	process.once("SIGINT", async () => {
-		await channel.close();
-		await connection.close();
-	});
+	return createQueueChannel({ logContext: "User server" });
 }
 
 export { userConnection };
