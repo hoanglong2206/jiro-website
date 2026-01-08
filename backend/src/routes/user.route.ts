@@ -1,4 +1,5 @@
 import express, { Router } from "express";
+import { verifyJWT } from "../helpers/auth.middleware";
 import userController from "../controllers/user.controller";
 
 class UserRoutes {
@@ -9,12 +10,17 @@ class UserRoutes {
 	}
 
 	public routes(): Router {
-		this.router.get("/email/:email", userController.getUserByEmail);
+		this.router.get(
+			"/email/:email",
+			verifyJWT,
+			userController.getUserByEmail
+		);
 		this.router.get(
 			"/username/:username",
+			verifyJWT,
 			userController.getUserByUsername
 		);
-		this.router.get("/", userController.getAllUsers);
+		this.router.get("/", verifyJWT, userController.getAllUsers);
 		return this.router;
 	}
 }

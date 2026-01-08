@@ -21,7 +21,7 @@ class AuthService {
 		this.authModel = new AuthModel();
 	}
 
-	async findByEmail(email: string): Promise<AuthRecord | undefined> {
+	async findByEmail(email: string): Promise<AuthRecord | null> {
 		const rows = await db
 			.select()
 			.from(authTable)
@@ -30,7 +30,7 @@ class AuthService {
 		return rows[0];
 	}
 
-	async findById(id: string): Promise<AuthRecord | undefined> {
+	async findById(id: string): Promise<AuthRecord | null> {
 		const rows = await db
 			.select()
 			.from(authTable)
@@ -39,7 +39,7 @@ class AuthService {
 		return rows[0];
 	}
 
-	async findByUsername(username: string): Promise<AuthRecord | undefined> {
+	async findByUsername(username: string): Promise<AuthRecord | null> {
 		const rows = await db
 			.select()
 			.from(authTable)
@@ -68,7 +68,10 @@ class AuthService {
 			email: payload.email,
 			password: hashed,
 		};
-		const inserted = await db.insert(authTable).values(toInsert).returning();
+		const inserted = await db
+			.insert(authTable)
+			.values(toInsert)
+			.returning();
 		const user = inserted[0];
 
 		const messageDetails = {
@@ -89,10 +92,13 @@ class AuthService {
 				logMessage: `Published user registration event for ${user.email}`,
 			});
 		} catch (queueError) {
-			console.error("Failed to publish user registration event:", queueError);
+			console.error(
+				"Failed to publish user registration event:",
+				queueError
+			);
 			await db.delete(authTable).where(eq(authTable.id, user.id!));
 			throw new Error(
-				"Registration failed while queuing user profile creation",
+				"Registration failed while queuing user profile creation"
 			);
 		}
 		const token = this.signToken({
@@ -122,7 +128,7 @@ class AuthService {
 		}
 		const match = await this.authModel.comparePassword(
 			payload.password,
-			user.password!,
+			user.password!
 		);
 		if (!match) {
 			throw new Error("Invalid credentials");
@@ -144,7 +150,9 @@ class AuthService {
 	}
 
 	signToken(payload: IAuthPayload): string {
-		return jwt.sign(payload, config.JWT_SECRET as string, { expiresIn: "2d" });
+		return jwt.sign(payload, config.JWT_SECRET as string, {
+			expiresIn: "2d",
+		});
 	}
 
 	signRefreshToken(payload: IAuthPayload): string {
@@ -169,7 +177,7 @@ class AuthService {
 
 		const matched = await this.authModel.comparePassword(
 			payload.currentPassword,
-			user.password!,
+			user.password!
 		);
 		if (!matched) {
 			throw new Error("Current password is incorrect");
@@ -177,11 +185,11 @@ class AuthService {
 
 		const isSamePassword = await this.authModel.comparePassword(
 			payload.newPassword,
-			user.password!,
+			user.password!
 		);
 		if (isSamePassword) {
 			throw new Error(
-				"New password must be different from the current password",
+				"New password must be different from the current password"
 			);
 		}
 
