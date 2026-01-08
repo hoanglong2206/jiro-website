@@ -76,14 +76,17 @@ export default function ForYouPage() {
 	const [spaceFilter, setSpaceFilter] = useState<SpaceFilter>("recommended");
 
 	const getOpenWorkItems = (projectId: string) => {
-		return tasks.filter((t) => t.projectId === projectId && t.status !== "done")
-			.length;
+		return tasks.filter(
+			(t) => t.projectId === projectId && t.status !== "done"
+		).length;
 	};
 
 	return (
 		<div className="flex-1 overflow-auto bg-background">
-			<div className="max-w-6xl mx-auto p-4 md:p-8">
-				<h1 className="text-2xl font-semibold text-foreground">For you</h1>
+			<div className="mx-auto p-4 md:p-8">
+				<h1 className="text-2xl font-semibold text-foreground">
+					For you
+				</h1>
 				<hr className="my-4" />
 
 				<div className="mb-8">
@@ -100,7 +103,7 @@ export default function ForYouPage() {
 									"px-3 py-1.5 text-sm rounded-md transition-colors border cursor-pointer",
 									spaceFilter === "recommended"
 										? "border-primary text-primary hover:bg-primary/10"
-										: "border-transparent hover:bg-muted",
+										: "border-transparent hover:bg-muted"
 								)}
 							>
 								Recommended
@@ -111,7 +114,7 @@ export default function ForYouPage() {
 									"px-3 py-1.5 text-sm rounded-md transition-colors border cursor-pointer",
 									spaceFilter === "recent"
 										? "border-primary text-primary hover:bg-primary/10"
-										: "border-transparent hover:bg-muted",
+										: "border-transparent hover:bg-muted"
 								)}
 							>
 								Recent
@@ -124,7 +127,7 @@ export default function ForYouPage() {
 							</Link>
 						</div>
 					</div>
-					<div className="flex gap-4 overflow-auto">
+					<div className="flex gap-4 overflow-auto py-1">
 						{spaceFilter === "recommended" ? (
 							<>
 								{projects.slice(0, 3).map((project) => (
@@ -157,7 +160,8 @@ export default function ForYouPage() {
 										<div className="flex items-start gap-3 px-4">
 											<div className="min-w-0">
 												<h3 className="font-medium truncate">
-													{project.name === "Billing System Dev"
+													{project.name ===
+													"Billing System Dev"
 														? "(Example) Billing System..."
 														: project.name}
 												</h3>
@@ -173,8 +177,13 @@ export default function ForYouPage() {
 											</p>
 											<div className="flex items-center justify-between text-xs  transition-colors">
 												<span>My open work items</span>
-												<Badge variant="secondary" className="bg-primary/20">
-													{getOpenWorkItems(project.id)}
+												<Badge
+													variant="secondary"
+													className="bg-primary/20"
+												>
+													{getOpenWorkItems(
+														project.id
+													)}
 												</Badge>
 											</div>
 											<div className="flex items-center text-xs transition-colors">
@@ -208,31 +217,34 @@ export default function ForYouPage() {
 					</TabsList>
 					<TabsContent value="worked-on">
 						<h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">
-							In the last week
+							In the last weekk
 						</h3>
 						<div className="space-y-1">
 							{activities.map((activity) => {
 								const project = projects.find(
-									(p) => p.id === activity.task.projectId,
+									(p) => p.id === activity.task.projectId
 								);
 								return (
 									<div
 										key={activity.id}
 										className="flex items-center justify-between py-3 px-2 rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
 									>
-										<div className="flex items-center gap-3 max-w-[220px] lg:w-auto">
+										<div className="flex items-center gap-3 max-w-55 lg:w-auto">
 											<div>
 												<p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
 													{activity.task.title}
 												</p>
 												<p className="text-xs text-muted-foreground truncate">
-													{activity.task.key} · (Example) {project?.name}
+													{activity.task.key} ·
+													(Example) {project?.name}
 												</p>
 											</div>
 										</div>
 										<div className="flex items-center gap-1">
 											<span className="text-xs lg:text-sm text-muted-foreground truncate">
-												{getActionLabel(activity.action)}
+												{getActionLabel(
+													activity.action
+												)}
 											</span>
 											<Avatar className="h-8 w-8 bg-orange-500">
 												<AvatarFallback className="bg-orange-500 text-white text-xs">

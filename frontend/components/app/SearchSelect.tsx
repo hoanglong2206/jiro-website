@@ -34,12 +34,15 @@ export const SearchSelect = ({
 }: SearchSelectProps) => {
 	const [selectItem, setSelectItem] = useState<any>(value || options[0]);
 	const [searchItem, setSearchItem] = useState<string>("");
+	const [isOpen, setIsOpen] = useState<boolean>(false);
 
 	const handleSelectItem = (item: any) => {
 		setSelectItem(item);
 		if (onChange) {
 			onChange(item);
 		}
+		setIsOpen(false);
+		setSearchItem("");
 	};
 
 	const filteredOptions = options.filter((option) => {
@@ -58,7 +61,7 @@ export const SearchSelect = ({
 			<Label className="block text-sm font-medium mb-2" htmlFor={label}>
 				{label} {isRequired && <span className="text-red-500">*</span>}
 			</Label>
-			<Popover>
+			<Popover open={isOpen} onOpenChange={setIsOpen}>
 				<PopoverTrigger asChild>
 					<button
 						className="w-full flex items-center px-1 justify-between cursor-pointer hover:bg-sidebar-accent rounded-md border"

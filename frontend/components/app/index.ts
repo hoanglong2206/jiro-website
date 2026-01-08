@@ -11,3 +11,5 @@ export { KanbanCard } from "./KanbanCard";
 export { TaskModal } from "./TaskModal";
 export { AddTaskModal } from "./AddTaskModal";
 export { SearchSelect } from "./SearchSelect";
+
+export { TeamHeader } from "./TeamHeader";

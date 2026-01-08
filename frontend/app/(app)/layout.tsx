@@ -16,7 +16,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
 		<SidebarProvider>
 			<div className="h-screen flex flex-col">
 				<Header />
-				<main className="flex-1 overflow-auto no-scrollbar">{children}</main>
+				<main className="flex-1 overflow-auto no-scrollbar">
+					{children}
+				</main>
 			</div>
 		</SidebarProvider>
 	);

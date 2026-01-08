@@ -16,6 +16,7 @@ import {
 	Users,
 	ExternalLink,
 	X,
+	Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { projects } from "@/lib/data";
@@ -203,9 +204,9 @@ export function Sidebar() {
 								open={plansOpen}
 								onOpenChange={setPlansOpen}
 							>
-								<div className="flex items-center">
+								<div className="flex items-center hover:bg-sidebar-accent rounded-md">
 									<CollapsibleTrigger asChild>
-										<button className="flex flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
+										<button className="flex flex-1 items-center gap-3 px-3 py-2 text-sm transition-colors cursor-pointer">
 											<Map className="h-4 w-4" />
 											Plans
 										</button>
@@ -214,14 +215,14 @@ export function Sidebar() {
 										<Button
 											variant="ghost"
 											size="icon"
-											className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+											className="h-6 w-6 hover:bg-sidebar-ring/15 cursor-pointer"
 										>
 											<Plus className="h-3 w-3" />
 										</Button>
 										<Button
 											variant="ghost"
 											size="icon"
-											className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+											className="h-6 w-6 hover:bg-sidebar-ring/15 cursor-pointer"
 										>
 											<MoreHorizontal className="h-3 w-3" />
 										</Button>
@@ -248,9 +249,9 @@ export function Sidebar() {
 							open={spacesOpen}
 							onOpenChange={setSpacesOpen}
 						>
-							<div className="flex items-center">
+							<div className="flex items-center hover:bg-sidebar-accent rounded-md">
 								<CollapsibleTrigger asChild>
-									<button className="flex flex-1 items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer">
+									<button className="flex flex-1 items-center gap-3 px-3 py-2 text-sm transition-colors cursor-pointer">
 										<FolderKanban className="h-4 w-4" />
 										Spaces
 									</button>
@@ -259,14 +260,14 @@ export function Sidebar() {
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+										className="h-6 w-6 hover:bg-sidebar-ring/15 cursor-pointer"
 									>
 										<Plus className="h-3 w-3" />
 									</Button>
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+										className="h-6 w-6 hover:bg-sidebar-ring/15 cursor-pointer"
 									>
 										<MoreHorizontal className="h-3 w-3" />
 									</Button>
@@ -351,16 +352,30 @@ export function Sidebar() {
 						</Collapsible>
 
 						<nav className="mt-4 space-y-1">
-							<div
+							<Link
+								href="/teams"
 								className={cn(
-									"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-									pathname === "/teams" && "bg-sidebar-accent"
+									"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer",
+									(pathname === "/teams" ||
+										pathname.includes("/people")) &&
+										"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary"
 								)}
 							>
 								<Users className="h-4 w-4" />
 								Teams
 								<ExternalLink className="ml-auto h-3 w-3 text-sidebar-foreground/50" />
-							</div>
+							</Link>
+							<Link
+								href="/notifications"
+								className={cn(
+									"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer",
+									pathname === "/notifications" &&
+										"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary"
+								)}
+							>
+								<Bell className="h-4 w-4" />
+								Notifications
+							</Link>
 						</nav>
 					</div>
 				</ScrollArea>

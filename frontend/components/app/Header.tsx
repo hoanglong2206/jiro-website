@@ -97,7 +97,7 @@ export function Header() {
 						<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 						<Input
 							placeholder="Search"
-							className="h-9 bg-muted pl-9 focus-visible:ring-primary"
+							className="h-9 pl-9 focus-visible:ring-primary"
 						/>
 					</div>
 					<Button
