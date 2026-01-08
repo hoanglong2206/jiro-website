@@ -40,9 +40,9 @@ export const CustomModal = ({
 							leaveTo="opacity-0 scale-95"
 						>
 							<DialogPanel
-								className={`overflow-hidden rounded-lg text-left align-middle ${size}`}
+								className={`rounded-lg text-left align-middle ${size}`}
 							>
-								<div className="relative flex h-full w-full flex-col bg-white shadow-2xl">
+								<div className="relative rounded-lg flex h-full w-full flex-col bg-white shadow-2xl">
 									<div className="absolute right-4 top-4">
 										<Button
 											variant="ghost"

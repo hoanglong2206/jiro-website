@@ -142,7 +142,10 @@ export const AddTaskModal = ({ isOpen, onClose }: AddTaskModalProps) => {
 										{statusTask.replace(/-/g, " ")}
 									</Button>
 								</DropdownMenuTrigger>
-								<DropdownMenuContent className="z-9999">
+								<DropdownMenuContent
+									className="z-9999 min-w-32"
+									align="start"
+								>
 									<DropdownMenuItem
 										className="cursor-pointer"
 										onClick={() => setStatusTask("todo")}
