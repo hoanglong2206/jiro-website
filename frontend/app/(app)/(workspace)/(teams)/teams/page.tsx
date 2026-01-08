@@ -30,8 +30,8 @@ const TeamsPage = () => {
 						Bring everyone together onto one team
 					</h2>
 					<p className="text-muted-foreground mb-8 font-medium">
-						Don't go it alone—create a team to start connecting work
-						across apps and celebrating your collective success.
+						Don&apos;t go it alone—create a team to start connecting work across
+						apps and celebrating your collective success.
 					</p>
 					<Button
 						onClick={() => setIsModalOpen(true)}
@@ -41,7 +41,7 @@ const TeamsPage = () => {
 					</Button>
 				</div>
 			</div>
-			<CreateTeamnModal
+			<CreateTeamModal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 			/>
@@ -51,7 +51,7 @@ const TeamsPage = () => {
 
 export default TeamsPage;
 
-export const CreateTeamnModal = ({
+export const CreateTeamModal = ({
 	isOpen,
 	onClose,
 }: {
@@ -79,24 +79,20 @@ export const CreateTeamnModal = ({
 
 	const removeMember = (
 		memberId: string,
-		e: React.MouseEvent<HTMLButtonElement>
+		e: React.MouseEvent<HTMLButtonElement>,
 	) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setMembers((prevMembers) =>
-			prevMembers.filter((member) => member.id !== memberId)
+			prevMembers.filter((member) => member.id !== memberId),
 		);
 		inputRef.current?.focus();
-		console.log("rm", isFocused);
-		console.log("rm", inputRef.current);
 	};
 
 	const addMember = (user: IUser) => {
 		setMembers((prevMembers) => [...prevMembers, user]);
 		setSearchValue("");
 		inputRef.current?.focus();
-		console.log("add", isFocused);
-		console.log("add", inputRef.current);
 	};
 
 	const allUsers: IUser[] = [
@@ -127,7 +123,7 @@ export const CreateTeamnModal = ({
 		(user) =>
 			!members.some((member) => member.id === user.id) &&
 			(user.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-				user.name.toLowerCase().includes(searchValue.toLowerCase()))
+				user.name.toLowerCase().includes(searchValue.toLowerCase())),
 	);
 
 	return (
@@ -136,10 +132,7 @@ export const CreateTeamnModal = ({
 				<h2 className="text-xl font-semibold">Create team</h2>
 				<div className="space-y-6">
 					<div className="space-y-1">
-						<Label
-							className="w-fit text-sm font-medium mb-2"
-							htmlFor="name"
-						>
+						<Label className="w-fit text-sm font-medium mb-2" htmlFor="name">
 							Name
 							<span className="text-red-500">*</span>
 						</Label>
@@ -153,10 +146,7 @@ export const CreateTeamnModal = ({
 						/>
 					</div>
 					<div className="space-y-1">
-						<Label
-							className="w-fit text-sm font-medium mb-2"
-							htmlFor="members"
-						>
+						<Label className="w-fit text-sm font-medium mb-2" htmlFor="members">
 							Add members
 							<span className="text-red-500">*</span>
 						</Label>
@@ -180,14 +170,10 @@ export const CreateTeamnModal = ({
 											.map((x) => x[0])
 											.join("")}
 									</div>
-									<span className="text-primary/80">
-										{member.name}
-									</span>
+									<span className="text-primary/80">{member.name}</span>
 									<button
 										type="button"
-										onClick={(e) =>
-											removeMember(member.id, e)
-										}
+										onClick={(e) => removeMember(member.id, e)}
 										className="ml-1 hover:bg-blue-100 rounded-full p-0.5 cursor-pointer text-primary/80"
 									>
 										<X className="w-3 h-3" />
@@ -232,9 +218,7 @@ export const CreateTeamnModal = ({
 														.join("")}
 												</div>
 												<div>
-													<div className="text-sm font-medium">
-														{user.name}
-													</div>
+													<div className="text-sm font-medium">{user.name}</div>
 													<div className="text-xs text-muted-foreground">
 														{user.email}
 													</div>
