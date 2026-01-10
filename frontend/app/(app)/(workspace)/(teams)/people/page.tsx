@@ -6,24 +6,48 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { CustomModal } from "@/components/ui/modal";
 import { Label } from "@/components/ui/label";
-import { IUser } from "@/types/user.interface";
+import { IUser, IUserRequestInvite } from "@/types/user.interface";
 import { Grid2X2, List, Mail, Search, X } from "lucide-react";
 import { useRef, useState } from "react";
+import { PeopleTable } from "@/components/app";
 
-const users: IUser[] = [
+const people: IUser[] = [
 	{
 		id: "1",
 		fullname: "John Doe",
 		username: "johndoe",
-		email: "john@example.com",
-		colorAvatar: "bg-blue-400",
+		email: "johndoe@gmail.com",
+		colorAvatar: "bg-red-400",
+		jobTitle: "Software Engineer",
 	},
 	{
 		id: "2",
 		fullname: "Jane Smith",
 		username: "janesmith",
-		email: "jane@example.com",
-		colorAvatar: "bg-green-400",
+		email: "janesmith@gmail.com",
+		colorAvatar: "bg-yellow-400",
+		jobTitle: "Product Manager",
+	},
+];
+
+const peopleRequest: IUserRequestInvite[] = [
+	{
+		id: "1",
+		fullname: "John Doe",
+		username: "johndoe",
+		email: "johndoe@gmail.com",
+		colorAvatar: "bg-red-400",
+		jobTitle: "Software Engineer",
+		status: "accepted",
+	},
+	{
+		id: "2",
+		fullname: "Jane Smith",
+		username: "jansmith",
+		email: "jansmith@gmail.com",
+		colorAvatar: "bg-yellow-400",
+		jobTitle: "Product Manager",
+		status: "pending",
 	},
 ];
 
@@ -65,8 +89,7 @@ const PeoplePage = () => {
 							Add people
 						</Button>
 					</div>
-					<div className="flex items-center justify-between">
-						<h2 className="text-lg font-medium text-foreground">People</h2>
+					<div className="flex items-center justify-end">
 						<ButtonGroup className="h-fit">
 							<Button
 								variant="outline"
@@ -74,7 +97,7 @@ const PeoplePage = () => {
 								className={cn(
 									"cursor-pointer",
 									typeList === "grid" &&
-										"bg-primary/30 text-primary/60 hover:text-primary/70 border-primary hover:bg-primary/50",
+										"bg-primary/30 text-primary/60 hover:text-primary/70 border-primary hover:bg-primary/50"
 								)}
 								onClick={() => setTypeList("grid")}
 							>
@@ -86,7 +109,7 @@ const PeoplePage = () => {
 								className={cn(
 									"cursor-pointer",
 									typeList === "list" &&
-										"bg-primary/30 text-primary/60 hover:text-primary/70 border-primary border hover:bg-primary/50",
+										"bg-primary/30 text-primary/60 hover:text-primary/70 border-primary border hover:bg-primary/50"
 								)}
 								onClick={() => setTypeList("list")}
 							>
@@ -94,10 +117,17 @@ const PeoplePage = () => {
 							</Button>
 						</ButtonGroup>
 					</div>
-					<div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-2">
-						{users.map((user) => (
-							<PersonItem key={user.id} user={user} />
-						))}
+					<div className="space-y-1">
+						<div className="text-sm text-muted-foreground font-medium">
+							People
+						</div>
+						<PeopleTable data={people} type="people" />
+					</div>
+					<div className="space-y-1">
+						<div className="text-sm text-muted-foreground font-medium">
+							Request
+						</div>
+						<PeopleTable data={peopleRequest} type="request" />
 					</div>
 				</div>
 			</div>
@@ -110,23 +140,6 @@ const PeoplePage = () => {
 };
 
 export default PeoplePage;
-
-const PersonItem = ({ user }: { user: IUser }) => {
-	return (
-		<div className="w-48 sm:w-52 h-20 rounded-md flex items-center border border-border py-1 hover:shadow-md transition-shadow cursor-pointer">
-			<div
-				className={`flex rounded-l-md items-center justify-center text-white font-medium tracking-wider text-2xl h-20 w-20 ${user.colorAvatar}`}
-			>
-				{user.fullname
-					.split(" ")
-					.map((x) => x[0])
-					.join("")}
-			</div>
-
-			<div className="px-4">{user.fullname}</div>
-		</div>
-	);
-};
 
 export const AddPersonModal = ({
 	isOpen,
@@ -153,11 +166,13 @@ export const AddPersonModal = ({
 
 	const removePeople = (
 		email: string,
-		e: React.MouseEvent<HTMLButtonElement>,
+		e: React.MouseEvent<HTMLButtonElement>
 	) => {
 		e.preventDefault();
 		e.stopPropagation();
-		setPeople((prevPeople) => prevPeople.filter((person) => person !== email));
+		setPeople((prevPeople) =>
+			prevPeople.filter((person) => person !== email)
+		);
 		inputRef.current?.focus();
 	};
 	return (
@@ -166,7 +181,10 @@ export const AddPersonModal = ({
 				<h2 className="text-xl font-semibold">Add people</h2>
 				<form className="space-y-8" onSubmit={handleAddPerson}>
 					<div className="space-y-1">
-						<Label className="block text-sm font-medium mb-2" htmlFor="search">
+						<Label
+							className="block text-sm font-medium mb-2"
+							htmlFor="search"
+						>
 							Name or email
 							<span className="text-red-500">*</span>
 						</Label>
@@ -182,7 +200,9 @@ export const AddPersonModal = ({
 									key={person}
 									className="flex items-center gap-1 px-2 py-1.5 rounded-full text-sm bg-primary/10"
 								>
-									<span className="text-primary/80">{person}</span>
+									<span className="text-primary/80">
+										{person}
+									</span>
 									<button
 										type="button"
 										onClick={(e) => removePeople(person, e)}
@@ -214,7 +234,9 @@ export const AddPersonModal = ({
 									<div
 										onMouseDown={(e) => {
 											e.preventDefault();
-											addPeople(`${searchValue}@gmail.com`);
+											addPeople(
+												`${searchValue}@gmail.com`
+											);
 										}}
 										className="p-3 flex items-center gap-x-2 cursor-pointer hover:bg-sidebar-accent"
 									>

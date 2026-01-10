@@ -13,3 +13,5 @@ export { AddTaskModal } from "./AddTaskModal";
 export { SearchSelect } from "./SearchSelect";
 
 export { TeamHeader } from "./TeamHeader";
+
+export { PeopleTable } from "./PeopleTable";
