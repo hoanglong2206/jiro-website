@@ -6,19 +6,6 @@ export interface IAuthUser {
 	profilePicture: string | null;
 }
 
-export interface IAuthDocument {
-	id?: string;
-	fullname?: string;
-	username?: string;
-	email?: string;
-	password?: string;
-	profilePicture?: string;
-	createdAt?: Date;
-	updatedAt?: Date;
-	passwordResetToken?: string;
-	passwordResetExpires?: Date;
-}
-
 export interface ISignUpPayload {
 	[key: string]: string | null | undefined;
 	fullname: string;
@@ -40,7 +27,7 @@ export interface IChangePasswordPayload {
 }
 
 export interface IReduxAuthPayload {
-	authInfo?: IAuthDocument;
+	authInfo?: IAuthUser;
 }
 
 export interface IReduxAddAuthUser {

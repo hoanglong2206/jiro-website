@@ -181,7 +181,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 			</div>
 
 			{/* Tabs */}
-			<div className="flex items-center gap-1 px-6">
+			<div className="flex items-center gap-1 px-6 overflow-auto">
 				{tabs.map((tab) => {
 					const isActive = pathname === tab.href;
 					const Icon = tab.icon;
