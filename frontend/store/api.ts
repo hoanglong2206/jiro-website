@@ -45,11 +45,13 @@ const baseQueryWithReAuth: BaseQueryFn<
 			const refreshResult = await baseQuery(
 				`auth/refresh-token/${username}`,
 				api,
-				extraOptions,
+				extraOptions
 			);
 
 			if (refreshResult.data && typeof window !== "undefined") {
-				const { token: newToken } = refreshResult.data as { token?: string };
+				const { token: newToken } = refreshResult.data as {
+					token?: string;
+				};
 				if (newToken) {
 					sessionStorage.setItem("token", JSON.stringify(newToken));
 					result = await baseQuery(args, api, extraOptions);
@@ -68,6 +70,6 @@ const baseQueryWithReAuth: BaseQueryFn<
 export const api = createApi({
 	reducerPath: "clientApi",
 	baseQuery: baseQueryWithReAuth,
-	tagTypes: ["Auth"],
+	tagTypes: ["Auth", "User"],
 	endpoints: () => ({}),
 });

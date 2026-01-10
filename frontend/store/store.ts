@@ -4,11 +4,13 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 import { api } from "./api";
 import authReducer from "./reducers/auth.reducer";
+import userReducer from "./reducers/user.reducer";
 import logoutReducer from "./reducers/logout.reducer";
 
 const rootReducer = combineReducers({
 	[api.reducerPath]: api.reducer,
 	auth: authReducer,
+	user: userReducer,
 	logout: logoutReducer,
 });
 
