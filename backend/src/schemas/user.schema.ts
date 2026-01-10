@@ -4,20 +4,18 @@ class userSchema {
 	updateUserSchema(): ObjectSchema {
 		return Joi.object({
 			fullname: Joi.string().min(3).max(50).messages({
-				"string.min": "Full name must be at least {#limit} characters long",
-				"string.max": "Full name must be at most {#limit} characters long",
-				"string.empty": "Full name cannot be empty",
+				"string.min":
+					"Full name must be at least {#limit} characters long",
+				"string.max":
+					"Full name must be at most {#limit} characters long",
 			}),
-			username: Joi.string().alphanum().min(3).max(30).messages({
-				"string.min": "Username must be at least {#limit} characters long",
-				"string.max": "Username must be at most {#limit} characters long",
-				"string.empty": "Username cannot be empty",
-				"string.alphanum": "Username can only contain letters and numbers",
+			profilePicture: Joi.string().uri().messages({
+				"string.uri": "Invalid profile picture URL",
 			}),
-			email: Joi.string().email().messages({
-				"string.email": "Invalid email address",
-				"string.empty": "Email cannot be empty",
+			colorAvatar: Joi.string().hex().messages({
+				"string.hex": "Invalid color format",
 			}),
+			jobTitle: Joi.string(),
 		}).min(1);
 	}
 }

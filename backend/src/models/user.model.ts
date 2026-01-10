@@ -6,6 +6,8 @@ export const userTable = pgTable("user", {
 	username: varchar("username", { length: 50 }).notNull().unique(),
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	profilePicture: text("profile_picture"),
+	colorAvatar: varchar("color_avatar"),
+	jobTitle: varchar("job_title", { length: 50 }),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),

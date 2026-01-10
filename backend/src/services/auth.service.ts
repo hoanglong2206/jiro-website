@@ -75,7 +75,10 @@ class AuthService {
 			email: payload.email,
 			password: hashed,
 		};
-		const inserted = await db.insert(authTable).values(toInsert).returning();
+		const inserted = await db
+			.insert(authTable)
+			.values(toInsert)
+			.returning();
 		const user = inserted[0];
 
 		const messageDetails = {
@@ -83,6 +86,8 @@ class AuthService {
 			username: user.username,
 			email: user.email,
 			profilePicture: null,
+			colorAvatar: "#60a5fa",
+			jobTitle: null,
 			type: "auth",
 		};
 
@@ -97,10 +102,13 @@ class AuthService {
 				logMessage: `Published user registration event for ${user.email}`,
 			});
 		} catch (queueError) {
-			console.error("Failed to publish user registration event:", queueError);
+			console.error(
+				"Failed to publish user registration event:",
+				queueError
+			);
 			await db.delete(authTable).where(eq(authTable.id, user.id!));
 			throw new Error(
-				"Registration failed while queuing user profile creation",
+				"Registration failed while queuing user profile creation"
 			);
 		}
 		const token = this.signToken({
@@ -132,7 +140,7 @@ class AuthService {
 		}
 		const match = await this.authModel.comparePassword(
 			payload.password,
-			user.password!,
+			user.password!
 		);
 		if (!match) {
 			throw new Error("Invalid credentials");
@@ -179,7 +187,7 @@ class AuthService {
 
 		const matched = await this.authModel.comparePassword(
 			payload.currentPassword,
-			user.password!,
+			user.password!
 		);
 		if (!matched) {
 			throw new Error("Current password is incorrect");
@@ -187,11 +195,11 @@ class AuthService {
 
 		const isSamePassword = await this.authModel.comparePassword(
 			payload.newPassword,
-			user.password!,
+			user.password!
 		);
 		if (isSamePassword) {
 			throw new Error(
-				"New password must be different from the current password",
+				"New password must be different from the current password"
 			);
 		}
 
