@@ -13,7 +13,7 @@ import { useAppDispatch } from "@/store/store";
 import { clearAuthUser } from "@/store/reducers/auth.reducer";
 import { updateLogout } from "@/store/reducers/logout.reducer";
 import { addAUser, clearAUser } from "@/store/reducers/user.reducer";
-import { useGetUserByUsernameQuery } from "./user.service";
+import { useGetUserByUsernameQuery } from "../services/user.service";
 
 /**
  * useProtectRoute
@@ -22,20 +22,23 @@ import { useGetUserByUsernameQuery } from "./user.service";
  *
  * @param redirectTo Path to redirect when unauthenticated (default: "/login")
  */
-export const useProtectRoute = (redirectTo = "/login"): void => {
+export const useProtectRoute = (): void => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
 
-	const { data, isError, isFetching } = useGetCurrentUserQuery({});
+	const { data, isSuccess, isError, isFetching } = useGetCurrentUserQuery({});
 	const username = data?.user?.username;
 
-	const { data: result, isSuccess: isUserSuccess } =
-		useGetUserByUsernameQuery(username as string, {
+	const { data: result, isSuccess: isUserSuccess } = useGetUserByUsernameQuery(
+		username as string,
+		{
 			skip: !username,
-		});
+		},
+	);
 
 	useEffect(() => {
 		if (isUserSuccess && result) {
+			console.log("Fetched user info:", result);
 			dispatch(addAUser({ userInfo: result.user }));
 			saveToLocalStorage("user", JSON.stringify(result));
 		}
@@ -49,14 +52,19 @@ export const useProtectRoute = (redirectTo = "/login"): void => {
 			dispatch(updateLogout(true));
 			deleteFromSessionStorage();
 			deleteFromLocalStorage("user");
-			router.replace(redirectTo);
+			router.replace("/login");
 		}
-	}, [isError, dispatch, router, redirectTo]);
+	}, [isError, dispatch, router]);
 
 	useEffect(() => {
 		if (isFetching) {
 			return;
 		}
 		enforceAuthentication();
-	}, [enforceAuthentication, isFetching]);
+
+		if (isSuccess && data) {
+			console.log("UseUser authenticated, redirecting to app...");
+			router.replace("/for-you");
+		}
+	}, [enforceAuthentication, isFetching, isSuccess, data, router]);
 };

@@ -34,9 +34,11 @@ const rootReducer = combineReducers({
 
 type RootStateType = ReturnType<typeof rootReducer>;
 
+type RootAction = Parameters<typeof rootReducer>[1];
+
 const rootReducerWithReset = (
 	state: RootStateType | undefined,
-	action: any
+	action: RootAction,
 ): RootStateType => {
 	if (action.type === "logout/logout") {
 		storage.removeItem("persist:root");
@@ -46,28 +48,21 @@ const rootReducerWithReset = (
 	return rootReducer(state, action);
 };
 
-const persitstReducer = persistReducer(persistConfig, rootReducerWithReset);
+const persistsReducer = persistReducer(persistConfig, rootReducerWithReset);
 
 export const store = configureStore({
-	reducer: persitstReducer,
+	reducer: persistsReducer,
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			serializableCheck: {
-				ignoredActions: [
-					FLUSH,
-					REHYDRATE,
-					PAUSE,
-					PERSIST,
-					PURGE,
-					REGISTER,
-				],
+				ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
 			},
 		}).concat(api.middleware),
 });
 
 setupListeners(store.dispatch);
 
-export const persistor = persistStore(store);
+export const persister = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

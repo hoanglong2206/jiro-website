@@ -2,17 +2,26 @@
 
 import { ReactNode } from "react";
 import { Provider } from "react-redux";
-import { persistor, store } from "@/store/store";
+import { persister, store } from "@/store/store";
 import { PersistGate } from "redux-persist/integration/react";
+import { useProtectRoute } from "@/hooks/useProtectRoute";
 
 interface StoreProviderProps {
 	children: ReactNode;
 }
 
+function ProtectedProvider({ children }: StoreProviderProps) {
+	useProtectRoute();
+
+	return children;
+}
+
 export function StoreProvider({ children }: StoreProviderProps) {
 	return (
 		<Provider store={store}>
-			<PersistGate persistor={persistor}>{children}</PersistGate>
+			<PersistGate persistor={persister}>
+				<ProtectedProvider>{children}</ProtectedProvider>
+			</PersistGate>
 		</Provider>
 	);
 }

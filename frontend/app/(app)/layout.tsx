@@ -2,7 +2,7 @@
 import type React from "react";
 import { Header } from "@/components/app";
 import { SidebarProvider } from "@/components/providers/SidebarProvider";
-import { useProtectRoute } from "@/services/protectRoute";
+import { useProtectRoute } from "@/hooks/useProtectRoute";
 
 interface AppLayoutProps {
 	children: React.ReactNode;
@@ -10,15 +10,13 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
 	// Redirect to /login when unauthenticated
-	useProtectRoute("/login");
+	useProtectRoute();
 
 	return (
 		<SidebarProvider>
 			<div className="h-screen flex flex-col">
 				<Header />
-				<main className="flex-1 overflow-auto no-scrollbar">
-					{children}
-				</main>
+				<main className="flex-1 overflow-auto no-scrollbar">{children}</main>
 			</div>
 		</SidebarProvider>
 	);
