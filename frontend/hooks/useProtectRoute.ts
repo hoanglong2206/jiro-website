@@ -15,18 +15,11 @@ import { updateLogout } from "@/store/reducers/logout.reducer";
 import { addAUser, clearAUser } from "@/store/reducers/user.reducer";
 import { useGetUserByUsernameQuery } from "../services/user.service";
 
-/**
- * useProtectRoute
- * Redirects unauthenticated users to the login page.
- * Checks for a `token` in sessionStorage set during login.
- *
- * @param redirectTo Path to redirect when unauthenticated (default: "/login")
- */
 export const useProtectRoute = (): void => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
 
-	const { data, isSuccess, isError, isFetching } = useGetCurrentUserQuery({});
+	const { data, isError, isFetching } = useGetCurrentUserQuery({});
 	const username = data?.user?.username;
 
 	const { data: result, isSuccess: isUserSuccess } = useGetUserByUsernameQuery(
@@ -61,10 +54,5 @@ export const useProtectRoute = (): void => {
 			return;
 		}
 		enforceAuthentication();
-
-		if (isSuccess && data) {
-			console.log("UseUser authenticated, redirecting to app...");
-			router.replace("/for-you");
-		}
-	}, [enforceAuthentication, isFetching, isSuccess, data, router]);
+	}, [enforceAuthentication, isFetching]);
 };

@@ -1,12 +1,11 @@
 "use client";
-import { useProtectRoute } from "@/hooks/useProtectRoute";
-
+import { useCheckAuthenticated } from "@/hooks/useCheckAuthenticated";
 interface AuthLayoutProps {
 	children: React.ReactNode;
 }
 
 const AuthLayout = ({ children }: AuthLayoutProps) => {
-	useProtectRoute();
+	useCheckAuthenticated();
 
 	return (
 		<main className="flex min-h-screen items-center justify-center bg-background">
