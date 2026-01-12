@@ -19,7 +19,6 @@ export interface IAuth {
 	username?: string;
 	email?: string;
 	password?: string;
-	profilePicture?: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 	passwordResetToken?: string;

@@ -3,7 +3,6 @@ export interface IAuthUser {
 	fullname: string | null;
 	username: string | null;
 	email: string | null;
-	profilePicture: string | null;
 }
 
 export interface ISignUpPayload {

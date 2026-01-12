@@ -8,7 +8,6 @@ export const authTable = pgTable("auth", {
 	username: varchar("username", { length: 50 }).notNull().unique(),
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	password: varchar("password", { length: 255 }).notNull(),
-	profilePicture: text("profile_picture"),
 	passwordResetToken: varchar("password_reset_token", { length: 255 }),
 	passwordResetExpires: timestamp("password_reset_expires", {
 		withTimezone: true,
@@ -30,7 +29,6 @@ export class AuthModel implements IAuth {
 	username?: string;
 	email?: string;
 	password?: string;
-	profilePicture?: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 	passwordResetToken?: string;
@@ -38,7 +36,7 @@ export class AuthModel implements IAuth {
 
 	async comparePassword(
 		password: string,
-		hashedPassword: string,
+		hashedPassword: string
 	): Promise<boolean> {
 		return bcrypt.compare(password, hashedPassword);
 	}
