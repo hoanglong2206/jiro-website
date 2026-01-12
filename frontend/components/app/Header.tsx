@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	Tooltip,
 	TooltipContent,
@@ -32,7 +32,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { clearAuthUser } from "@/store/reducers/auth.reducer";
 import { useLogoutMutation } from "@/services/auth.service";
-import { useAppDispatch, useAppSelector, persistor } from "@/store/store";
+import { useAppDispatch, useAppSelector, persister } from "@/store/store";
 import {
 	deleteFromLocalStorage,
 	deleteFromSessionStorage,
@@ -62,7 +62,7 @@ export function Header() {
 			deleteFromSessionStorage();
 			deleteFromLocalStorage("user");
 
-			await persistor.purge();
+			await persister.purge();
 
 			router.push("/login");
 			toast.success("Đăng xuất thành công");
@@ -83,10 +83,7 @@ export function Header() {
 					>
 						<Menu className="h-5 w-5" />
 					</Button>
-					<Link
-						href="/for-you"
-						className="items-center hidden md:flex"
-					>
+					<Link href="/for-you" className="items-center hidden md:flex">
 						<Image
 							src="/logo_l.svg"
 							alt="Logo"
@@ -185,7 +182,14 @@ export function Header() {
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Avatar className="h-8 w-8 cursor-pointer hidden md:flex">
-								<AvatarFallback className="bg-orange-500 text-white">
+								<AvatarImage
+									src={userInfo?.profilePicture || ""}
+									alt={userInfo?.fullname || "r"}
+								/>
+								<AvatarFallback
+									className="text-white"
+									style={{ backgroundColor: userInfo?.colorAvatar || "" }}
+								>
 									{(userInfo?.fullname || "")
 										.split(" ")
 										.map((x) => x[0])
@@ -196,9 +200,7 @@ export function Header() {
 						<DropdownMenuContent align="end" className="w-56">
 							<DropdownMenuLabel>
 								<div className="flex flex-col space-y-1">
-									<p className="text-sm font-medium">
-										{userInfo?.fullname}
-									</p>
+									<p className="text-sm font-medium">{userInfo?.fullname}</p>
 									<p className="text-xs text-muted-foreground">
 										{userInfo?.username}
 									</p>
@@ -206,19 +208,13 @@ export function Header() {
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem asChild>
-								<Link
-									href="/profile/me"
-									className="cursor-pointer"
-								>
+								<Link href="/profile/me" className="cursor-pointer">
 									<User className="mr-2 h-4 w-4" />
 									Profile
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem asChild>
-								<Link
-									href="/profile/notifications"
-									className="cursor-pointer"
-								>
+								<Link href="/profile/notifications" className="cursor-pointer">
 									<Settings className="mr-2 h-4 w-4" />
 									Account Settings
 								</Link>

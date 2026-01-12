@@ -43,6 +43,8 @@ class UserService {
 			username: payload.username!,
 			email: payload.email!,
 			profilePicture: payload.profilePicture ?? null,
+			colorAvatar: payload.colorAvatar ?? null,
+			jobTitle: payload.jobTitle ?? null,
 		};
 		await db.insert(userTable).values(toInsert).returning();
 	}
