@@ -56,9 +56,7 @@ const createPeopleColumns = (): ColumnDef<IUser>[] => [
 						table.getIsAllPageRowsSelected() ||
 						(table.getIsSomePageRowsSelected() && "indeterminate")
 					}
-					onCheckedChange={(value) =>
-						table.toggleAllPageRowsSelected(!!value)
-					}
+					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 					aria-label="Select all"
 				/>
 			</div>
@@ -85,14 +83,12 @@ const createPeopleColumns = (): ColumnDef<IUser>[] => [
 					<div
 						className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${row.original.colorAvatar}`}
 					>
-						{row.original.fullname
+						{(row.original.fullname || "")
 							.split(" ")
 							.map((x) => x[0])
 							.join("")}
 					</div>
-					<span className="text-primary/80">
-						{row.original.fullname}
-					</span>
+					<span className="text-primary/80">{row.original.fullname}</span>
 				</div>
 			);
 		},
@@ -161,9 +157,7 @@ const createRequestColumns = (): ColumnDef<IUserRequestInvite>[] => [
 						table.getIsAllPageRowsSelected() ||
 						(table.getIsSomePageRowsSelected() && "indeterminate")
 					}
-					onCheckedChange={(value) =>
-						table.toggleAllPageRowsSelected(!!value)
-					}
+					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 					aria-label="Select all"
 				/>
 			</div>
@@ -195,9 +189,7 @@ const createRequestColumns = (): ColumnDef<IUserRequestInvite>[] => [
 							.map((x) => x[0])
 							.join("")}
 					</div>
-					<span className="text-primary/80">
-						{row.original.fullname}
-					</span>
+					<span className="text-primary/80">{row.original.fullname}</span>
 				</div>
 			);
 		},
@@ -257,9 +249,7 @@ type PeopleTableProps =
 
 export function PeopleTable({ data, type }: PeopleTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
-	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-		{}
-	);
+	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState({
@@ -268,10 +258,8 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 	});
 
 	const columns = useMemo(() => {
-		return type === "request"
-			? createRequestColumns()
-			: createPeopleColumns();
-	}, [type]) as ColumnDef<any>[];
+		return type === "request" ? createRequestColumns() : createPeopleColumns();
+	}, [type]) as ColumnDef<IUser | IUserRequestInvite>[];
 
 	const table = useReactTable({
 		data,
@@ -283,7 +271,7 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 			columnFilters,
 			pagination,
 		},
-		getRowId: (row) => row.id.toString(),
+		getRowId: (row) => (row.id || "").toString(),
 		enableRowSelection: true,
 		onRowSelectionChange: setRowSelection,
 		onSortingChange: setSorting,
@@ -317,9 +305,8 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 											{header.isPlaceholder
 												? null
 												: flexRender(
-														header.column.columnDef
-															.header,
-														header.getContext()
+														header.column.columnDef.header,
+														header.getContext(),
 												  )}
 										</TableHead>
 									);
@@ -332,9 +319,7 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									data-state={
-										row.getIsSelected() && "selected"
-									}
+									data-state={row.getIsSelected() && "selected"}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
@@ -345,7 +330,7 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 										>
 											{flexRender(
 												cell.column.columnDef.cell,
-												cell.getContext()
+												cell.getContext(),
 											)}
 										</TableCell>
 									))}
@@ -408,9 +393,7 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 							variant="outline"
 							className="hidden size-8 lg:flex"
 							size="icon"
-							onClick={() =>
-								table.setPageIndex(table.getPageCount() - 1)
-							}
+							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 							disabled={!table.getCanNextPage()}
 						>
 							<span className="sr-only">Go to last page</span>
