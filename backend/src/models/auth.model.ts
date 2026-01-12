@@ -36,7 +36,7 @@ export class AuthModel implements IAuth {
 
 	async comparePassword(
 		password: string,
-		hashedPassword: string
+		hashedPassword: string,
 	): Promise<boolean> {
 		return bcrypt.compare(password, hashedPassword);
 	}

@@ -2,6 +2,15 @@ import { Channel } from "amqplib";
 
 let authChannelRef: Channel | undefined;
 let userChannelRef: Channel | undefined;
+let friendChannelRef: Channel | undefined;
+
+export function setFriendChannel(channel: Channel): void {
+	friendChannelRef = channel;
+}
+
+export function getFriendChannel(): Channel | undefined {
+	return friendChannelRef;
+}
 
 export function setAuthChannel(channel: Channel): void {
 	authChannelRef = channel;
