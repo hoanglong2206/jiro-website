@@ -32,13 +32,18 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { clearAuthUser } from "@/store/reducers/auth.reducer";
 import { useLogoutMutation } from "@/services/auth.service";
-import { useAppDispatch } from "@/store/store";
-import { deleteFromSessionStorage } from "@/services/utils.service";
+import { useAppDispatch, useAppSelector, persistor } from "@/store/store";
+import {
+	deleteFromLocalStorage,
+	deleteFromSessionStorage,
+} from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
 import { toast } from "sonner";
 import { useSidebar } from "@/components/providers/SidebarProvider";
 import { AddTaskModal } from "./AddTaskModal";
 import { useState } from "react";
+import { clearAUser } from "@/store/reducers/user.reducer";
+import { IUser } from "@/types/user.interface";
 
 export function Header() {
 	const router = useRouter();
@@ -46,13 +51,19 @@ export function Header() {
 	const dispatch = useAppDispatch();
 	const { toggleSidebar } = useSidebar();
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const userInfo: IUser = useAppSelector((state) => state.user);
 
 	const handleLogout = async (): Promise<void> => {
 		try {
 			await logout({}).unwrap();
-			dispatch(clearAuthUser(undefined));
+			dispatch(clearAuthUser(null));
+			dispatch(clearAUser(null));
 			dispatch(updateLogout(true));
 			deleteFromSessionStorage();
+			deleteFromLocalStorage("user");
+
+			await persistor.purge();
+
 			router.push("/login");
 			toast.success("Đăng xuất thành công");
 		} catch (error) {
@@ -175,16 +186,21 @@ export function Header() {
 						<DropdownMenuTrigger asChild>
 							<Avatar className="h-8 w-8 cursor-pointer hidden md:flex">
 								<AvatarFallback className="bg-orange-500 text-white">
-									LS
+									{(userInfo?.fullname || "")
+										.split(" ")
+										.map((x) => x[0])
+										.join("")}
 								</AvatarFallback>
 							</Avatar>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-56">
 							<DropdownMenuLabel>
 								<div className="flex flex-col space-y-1">
-									<p className="text-sm font-medium">test</p>
+									<p className="text-sm font-medium">
+										{userInfo?.fullname}
+									</p>
 									<p className="text-xs text-muted-foreground">
-										test@test.com
+										{userInfo?.username}
 									</p>
 								</div>
 							</DropdownMenuLabel>

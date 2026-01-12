@@ -30,8 +30,9 @@ const TeamsPage = () => {
 						Bring everyone together onto one team
 					</h2>
 					<p className="text-muted-foreground mb-8 font-medium">
-						Don&apos;t go it alone—create a team to start connecting work across
-						apps and celebrating your collective success.
+						Don&apos;t go it alone—create a team to start connecting
+						work across apps and celebrating your collective
+						success.
 					</p>
 					<Button
 						onClick={() => setIsModalOpen(true)}
@@ -65,6 +66,8 @@ export const CreateTeamModal = ({
 			fullname: "John Doe",
 			username: "johndoe",
 			email: "john@example.com",
+			profilePicture: "",
+			jobTitle: "Software Engineer",
 			colorAvatar: "bg-blue-400",
 		},
 	]);
@@ -79,12 +82,12 @@ export const CreateTeamModal = ({
 
 	const removeMember = (
 		memberId: string,
-		e: React.MouseEvent<HTMLButtonElement>,
+		e: React.MouseEvent<HTMLButtonElement>
 	) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setMembers((prevMembers) =>
-			prevMembers.filter((member) => member.id !== memberId),
+			prevMembers.filter((member) => member.id !== memberId)
 		);
 		inputRef.current?.focus();
 	};
@@ -101,6 +104,8 @@ export const CreateTeamModal = ({
 			fullname: "Jane Smith",
 			username: "janesmith",
 			email: "jane@example.com",
+			profilePicture: "",
+			jobTitle: "Product Manager",
 			colorAvatar: "bg-green-400",
 		},
 		{
@@ -108,6 +113,8 @@ export const CreateTeamModal = ({
 			fullname: "Bob Johnson",
 			username: "bobjohnson",
 			email: "bob@example.com",
+			profilePicture: "",
+			jobTitle: "Software Engineer",
 			colorAvatar: "bg-purple-400",
 		},
 		{
@@ -115,6 +122,8 @@ export const CreateTeamModal = ({
 			fullname: "Alice Williams",
 			username: "alicew",
 			email: "alice@example.com",
+			profilePicture: "",
+			jobTitle: "Marketing Specialist",
 			colorAvatar: "bg-pink-400",
 		},
 	];
@@ -122,8 +131,12 @@ export const CreateTeamModal = ({
 	const suggestedUsers = allUsers.filter(
 		(user) =>
 			!members.some((member) => member.id === user.id) &&
-			(user.email.toLowerCase().includes(searchValue.toLowerCase()) ||
-				user.fullname.toLowerCase().includes(searchValue.toLowerCase())),
+			((user.email || "")
+				.toLowerCase()
+				.includes(searchValue.toLowerCase()) ||
+				(user.fullname || "")
+					.toLowerCase()
+					.includes(searchValue.toLowerCase()))
 	);
 
 	return (
@@ -132,7 +145,10 @@ export const CreateTeamModal = ({
 				<h2 className="text-xl font-semibold">Create team</h2>
 				<div className="space-y-4">
 					<div className="space-y-1">
-						<Label className="w-fit text-sm font-medium mb-2" htmlFor="name">
+						<Label
+							className="w-fit text-sm font-medium mb-2"
+							htmlFor="name"
+						>
 							Name
 							<span className="text-red-500">*</span>
 						</Label>
@@ -146,7 +162,10 @@ export const CreateTeamModal = ({
 						/>
 					</div>
 					<div className="space-y-1">
-						<Label className="w-fit text-sm font-medium mb-2" htmlFor="members">
+						<Label
+							className="w-fit text-sm font-medium mb-2"
+							htmlFor="members"
+						>
 							Add members
 							<span className="text-red-500">*</span>
 						</Label>
@@ -165,15 +184,19 @@ export const CreateTeamModal = ({
 									<div
 										className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${member.colorAvatar}`}
 									>
-										{member.fullname
+										{(member.fullname || "")
 											.split(" ")
 											.map((x) => x[0])
 											.join("")}
 									</div>
-									<span className="text-primary/80">{member.fullname}</span>
+									<span className="text-primary/80">
+										{member.fullname}
+									</span>
 									<button
 										type="button"
-										onClick={(e) => removeMember(member.id, e)}
+										onClick={(e) =>
+											removeMember(member.id || "", e)
+										}
 										className="ml-1 hover:bg-primary/20 rounded-full p-0.5 cursor-pointer text-primary/80"
 									>
 										<X className="w-3 h-3" />
@@ -212,7 +235,7 @@ export const CreateTeamModal = ({
 												<div
 													className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${user.colorAvatar}`}
 												>
-													{user.fullname
+													{(user.fullname || "")
 														.split(" ")
 														.map((x) => x[0])
 														.join("")}

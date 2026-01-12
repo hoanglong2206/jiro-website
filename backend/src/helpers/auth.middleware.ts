@@ -12,7 +12,7 @@ export function verifyJWT(req: Request, res: Response, next: NextFunction) {
 		const token = auth.substring(7);
 		const payload = jwt.verify(
 			token,
-			config.JWT_SECRET as string,
+			config.JWT_SECRET as string
 		) as IAuthPayload;
 		req.currentUser = payload;
 		return next();
@@ -24,7 +24,7 @@ export function verifyJWT(req: Request, res: Response, next: NextFunction) {
 export function verifyRefreshJWT(
 	req: Request,
 	res: Response,
-	next: NextFunction,
+	next: NextFunction
 ) {
 	try {
 		const refreshToken = req.cookies?.refreshToken;
@@ -33,7 +33,7 @@ export function verifyRefreshJWT(
 		}
 		const payload = jwt.verify(
 			refreshToken,
-			config.JWT_SECRET as string,
+			config.JWT_SECRET as string
 		) as IAuthPayload;
 		req.currentUser = payload;
 		return next();

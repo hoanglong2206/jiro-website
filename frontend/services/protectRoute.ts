@@ -3,11 +3,17 @@
 import { useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
-import { deleteFromSessionStorage } from "@/services/utils.service";
+import {
+	deleteFromLocalStorage,
+	deleteFromSessionStorage,
+	saveToLocalStorage,
+} from "@/services/utils.service";
 import { useGetCurrentUserQuery } from "@/services/auth.service";
 import { useAppDispatch } from "@/store/store";
 import { clearAuthUser } from "@/store/reducers/auth.reducer";
 import { updateLogout } from "@/store/reducers/logout.reducer";
+import { addAUser, clearAUser } from "@/store/reducers/user.reducer";
+import { useGetUserByUsernameQuery } from "./user.service";
 
 /**
  * useProtectRoute
@@ -19,16 +25,30 @@ import { updateLogout } from "@/store/reducers/logout.reducer";
 export const useProtectRoute = (redirectTo = "/login"): void => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
-	const { isError, isFetching } = useGetCurrentUserQuery(undefined, {
-		skip: typeof window === "undefined",
-	});
+
+	const { data, isError, isFetching } = useGetCurrentUserQuery({});
+	const username = data?.user?.username;
+
+	const { data: result, isSuccess: isUserSuccess } =
+		useGetUserByUsernameQuery(username as string, {
+			skip: !username,
+		});
+
+	useEffect(() => {
+		if (isUserSuccess && result) {
+			dispatch(addAUser({ userInfo: result.user }));
+			saveToLocalStorage("user", JSON.stringify(result));
+		}
+	}, [isUserSuccess, result, dispatch]);
 
 	const enforceAuthentication = useCallback(() => {
 		if (isError) {
 			console.warn("Session expired. Redirecting to login.");
-			dispatch(clearAuthUser(undefined));
+			dispatch(clearAuthUser(null));
+			dispatch(clearAUser(null));
 			dispatch(updateLogout(true));
 			deleteFromSessionStorage();
+			deleteFromLocalStorage("user");
 			router.replace(redirectTo);
 		}
 	}, [isError, dispatch, router, redirectTo]);

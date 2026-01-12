@@ -38,28 +38,27 @@ const baseQueryWithReAuth: BaseQueryFn<
 	FetchBaseQueryError
 > = async (args, api, extraOptions) => {
 	let result = await baseQuery(args, api, extraOptions);
-	const username = getDataFromSessionStorage("username");
 
-	if (username) {
-		if (result.error && result.error.status === 401) {
+	if (result.error && result.error.status === 401) {
+		const username: string = getDataFromSessionStorage("username");
+		if (username) {
 			const refreshResult = await baseQuery(
 				`auth/refresh-token/${username}`,
 				api,
 				extraOptions
 			);
 
-			if (refreshResult.data && typeof window !== "undefined") {
+			if (refreshResult.data) {
 				const { token: newToken } = refreshResult.data as {
-					token?: string;
+					token: string;
 				};
+
 				if (newToken) {
 					sessionStorage.setItem("token", JSON.stringify(newToken));
 					result = await baseQuery(args, api, extraOptions);
 				} else {
 					deleteFromSessionStorage();
 				}
-			} else if (typeof window !== "undefined") {
-				deleteFromSessionStorage();
 			}
 		}
 	}
