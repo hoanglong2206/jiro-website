@@ -1,36 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { ElementType, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-	ChevronRight,
-	Clock,
-	Filter,
-	FolderKanban,
 	Home,
-	Map,
-	MoreHorizontal,
 	Plus,
-	Star,
-	Users,
-	ExternalLink,
-	X,
-	Bell,
 	ChevronsUpDown,
 	Inbox,
 	MessageSquareText,
+	MoreHorizontal,
+	Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { projects } from "@/lib/data";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -48,6 +31,8 @@ import {
 	SidebarMenu,
 	SidebarMenuButton,
 	SidebarMenuItem,
+	SidebarGroup,
+	SidebarGroupLabel,
 	useSidebar,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
@@ -55,11 +40,26 @@ import { ProjectResponse } from "@/types/project.interface";
 import { IUser } from "@/types/user.interface";
 import { mockUsers, mockProjects } from "@/lib/mockData";
 
+const items: { label: string; icon: ElementType; href: string }[] = [
+	{
+		label: "Home",
+		icon: Home,
+		href: "home",
+	},
+	{
+		label: "Inbox",
+		icon: Inbox,
+		href: "inbox",
+	},
+	{
+		label: "Chat",
+		icon: MessageSquareText,
+		href: "chat",
+	},
+];
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const pathname = usePathname();
-	const [spacesOpen, setSpacesOpen] = useState(true);
-
-	const starredProjects = projects.slice(0, 1);
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
@@ -67,56 +67,59 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<ProjectSwitcher projects={mockProjects} />
 			</SidebarHeader>
 			<SidebarContent>
-				<div className="p-2">
-					<Link
-						href={`home`}
-						className={cn(
-							"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-							pathname.includes("home") &&
-								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary font-medium"
-						)}
-					>
-						<Home className="h-4 w-4" />
-						Home
-					</Link>
-					<Link
-						href={`inbox`}
-						className={cn(
-							"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-							pathname.includes("inbox") &&
-								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary font-medium"
-						)}
-					>
-						<Inbox className="h-4 w-4" />
-						Inbox
-					</Link>
-					<Link
-						href={`home`}
-						className={cn(
-							"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent",
-							pathname.includes("chat") &&
-								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary font-medium"
-						)}
-					>
-						<MessageSquareText className="h-4 w-4" />
-						Chat
-					</Link>
-
-					<Link
-						href={`teams`}
-						className={cn(
-							"flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent cursor-pointer",
-							(pathname.includes("teams") ||
-								pathname.includes("analytics") ||
-								pathname.includes("people")) &&
-								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary font-medium"
-						)}
-					>
-						<Users className="h-4 w-4" />
-						Teams
-						<ExternalLink className="ml-auto h-3 w-3 text-sidebar-foreground/50" />
-					</Link>
-				</div>
+				<SidebarGroup>
+					<SidebarMenu>
+						{items.map((item) => (
+							<SidebarMenuItem key={item.label}>
+								<SidebarMenuButton
+									tooltip={item.label}
+									className={cn(
+										"flex items-center gap-3 text-sm cursor-pointer transition-colors",
+										pathname.includes(item.href) &&
+											"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium"
+									)}
+								>
+									<Link
+										href={`${item.href}`}
+										className="flex items-center gap-2"
+									>
+										<item.icon className="h-4 w-4" />
+										{item.label}
+									</Link>
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+						))}
+					</SidebarMenu>
+				</SidebarGroup>
+				<SidebarGroup>
+					<SidebarGroupLabel className="flex items-center justify-between">
+						Spaces
+						<div className="flex items-center gap-1">
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+							>
+								<MoreHorizontal className="h-3 w-3" />
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+							>
+								<Search className="h-3 w-3" />
+							</Button>
+							<Button
+								variant="ghost"
+								size="icon"
+								className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+							>
+								<Plus className="h-3 w-3" />
+							</Button>
+						</div>
+					</SidebarGroupLabel>
+					<SidebarMenu></SidebarMenu>
+				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter></SidebarFooter>
 			<SidebarRail />
@@ -159,8 +162,8 @@ function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
 								<span className="truncate font-medium">
 									{activeProject.name}
 								</span>
-								<span className="truncate text-xs">
-									{activeProject.key}
+								<span className="text-xs capitalize italic">
+									{activeProject.type}
 								</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />
@@ -173,7 +176,7 @@ function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
 						sideOffset={4}
 					>
 						<DropdownMenuLabel className="text-muted-foreground text-xs">
-							Teams
+							Project
 						</DropdownMenuLabel>
 						{projects
 							.filter(
@@ -183,9 +186,9 @@ function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
 								<DropdownMenuItem
 									key={project.name}
 									onClick={() => setActiveProject(project)}
-									className="gap-2 p-2"
+									className="gap-2 p-2 cursor-pointer transition-colors"
 								>
-									<div className="flex size-6 items-center justify-center rounded-md border cursor-pointer">
+									<div className="flex size-6 items-center justify-center rounded-md border">
 										<Image
 											src={project.icon}
 											alt={project.name}
@@ -197,12 +200,12 @@ function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
 								</DropdownMenuItem>
 							))}
 						<DropdownMenuSeparator />
-						<DropdownMenuItem className="gap-2 p-2">
+						<DropdownMenuItem className="gap-2 p-2 cursor-pointer">
 							<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
 								<Plus className="size-4" />
 							</div>
 							<div className="text-muted-foreground font-medium">
-								Add team
+								Add new project
 							</div>
 						</DropdownMenuItem>
 					</DropdownMenuContent>

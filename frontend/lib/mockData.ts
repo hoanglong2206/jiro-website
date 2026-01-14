@@ -44,9 +44,9 @@ export const mockProjects: ProjectResponse[] = [
 	{
 		id: "proj-001",
 		name: "HR Management System",
-		key: "HMS",
 		description:
 			"Internal software for managing employee records and payroll.",
+		type: "work",
 		lead: mockUsers[3],
 		members: [mockUsers[1], mockUsers[2], mockUsers[0]],
 		icon: "https://cdn-icons-png.flaticon.com/512/2942/2942789.png",
@@ -56,9 +56,9 @@ export const mockProjects: ProjectResponse[] = [
 	{
 		id: "proj-002",
 		name: "E-Commerce Mobile App",
-		key: "ECA",
 		description:
 			"Multi-vendor online shopping platform with payment integration.",
+		type: "personal",
 		lead: mockUsers[3],
 		members: [mockUsers[0], mockUsers[1]],
 		icon: "https://cdn-icons-png.flaticon.com/512/3081/3081559.png",
@@ -68,9 +68,9 @@ export const mockProjects: ProjectResponse[] = [
 	{
 		id: "proj-003",
 		name: "Corporate Website Redesign",
-		key: "CWR",
 		description:
 			"Modernizing the landing page with focus on UX and performance.",
+		type: "work",
 		lead: mockUsers[3],
 		members: [mockUsers[2]],
 		icon: "https://cdn-icons-png.flaticon.com/512/1055/1055666.png",
