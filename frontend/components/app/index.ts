@@ -1,5 +1,5 @@
 export { Header } from "./Header";
-export { Sidebar } from "./Sidebar";
+export { AppSidebar } from "./AppSidebar";
 
 export { ProjectHeader } from "./ProjectHeader";
 export { BoardToolbar } from "./BoardToolbar";

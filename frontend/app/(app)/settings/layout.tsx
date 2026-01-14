@@ -10,7 +10,7 @@ interface ProfileLayoutProps {
 
 const sidebarItems: { label: string; href: string }[] = [
 	{ label: "Profile", href: "/profile/me" },
-	{ label: "Notifications", href: "/profile/notifications" },
+	{ label: "Settings", href: "/profile/settings" },
 	{ label: "Security", href: "/profile/security" },
 ];
 
@@ -34,7 +34,7 @@ export default function ProfileLayout({ children }: ProfileLayoutProps) {
 										"block rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
 										isActive
 											? "bg-primary/10 text-primary font-medium"
-											: "text-muted-foreground hover:text-foreground hover:bg-muted",
+											: "text-muted-foreground hover:text-foreground hover:bg-muted"
 									)}
 								>
 									{item.label}

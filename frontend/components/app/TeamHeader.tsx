@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { UsersRound, Component, MoreHorizontal } from "lucide-react";
+import { UsersRound, Component, MoreHorizontal, Radio } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,9 +13,11 @@ import { Button } from "@/components/ui/button";
 
 export const TeamHeader = () => {
 	const pathname = usePathname();
+	console.log(pathname);
 	const tabs = [
-		{ name: "Teams", href: "/teams", icon: Component },
-		{ name: "People", href: "/people", icon: UsersRound },
+		{ name: "Teams", href: "teams", icon: Component },
+		{ name: "People", href: "people", icon: UsersRound },
+		{ name: "Analytics", href: "analytics", icon: Radio },
 	];
 	return (
 		<div className="bg-card px-6 py-4">
@@ -27,7 +29,7 @@ export const TeamHeader = () => {
 					return (
 						<Link
 							key={tab.name}
-							href={tab.href}
+							href={`${tab.href}`}
 							className={cn(
 								"flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
 								isActive
@@ -43,7 +45,7 @@ export const TeamHeader = () => {
 			</div>
 			<div className="flex items-center justify-between border-b border-border py-4">
 				<div className="text-2xl font-semibold text-foreground">
-					{tabs.filter((tab) => tab.href === pathname)[0].name}
+					{tabs.filter((tab) => pathname.includes(tab.href))[0].name}
 				</div>
 				<div className="flex items-center gap-2">
 					<Tooltip>
