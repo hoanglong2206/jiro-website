@@ -22,6 +22,21 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { Icons } from "@/lib/icon";
+import { motion, AnimatePresence } from "framer-motion";
+
+const fadeInUp = {
+	initial: { opacity: 0, y: 20 },
+	animate: { opacity: 1, y: 0 },
+	transition: { duration: 0.5 },
+};
+
+const staggerContainer = {
+	animate: {
+		transition: {
+			staggerChildren: 0.1,
+		},
+	},
+};
 
 export default function Home() {
 	const [showBanner, setShowBanner] = useState<boolean>(true);
@@ -93,54 +108,78 @@ export default function Home() {
 		},
 	];
 
-	return (
-		<div className="min-h-screen">
-			{/* Banner */}
-			{showBanner && (
-				<div className="bg-primary text-white relative">
-					<div className="container px-4 py-3 flex items-center justify-center gap-4 text-sm mx-auto">
-						<span className="text-white/90">
-							<span className="font-semibold">Catch up on what you missed</span>
-							<span className="hidden lg:inline">
-								{" "}
-								- See what&apos;s new with AI-powered technology & other product
-								updates
-							</span>
-						</span>
-						<Link
-							href="#"
-							className="font-medium inline-flex items-center gap-1 whitespace-nowrap group hover:text-white/80 transition-colors"
-						>
-							Watch on demand{" "}
-							<ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
-						</Link>
-						<Button
-							onClick={() => setShowBanner(false)}
-							className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
-						>
-							<X className="h-4 w-4" />
-						</Button>
-					</div>
-				</div>
-			)}
-			{/* Header */}
-			<header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur shadow">
-				<div className="container flex h-16 items-center justify-between px-4 lg:px-8 max-w-7xl mx-auto">
-					<div className="flex items-center gap-x-8">
-						<div className="flex items-center gap-2">
-							<Image
-								src="/logo_l.svg"
-								alt="Logo"
-								width={100}
-								height={100}
-								loading="eager"
-							/>
-						</div>
-					</div>
-					<div className="flex items-center">
-						<SearchIcon className="h-5 w-5 hover:text-primary cursor-pointer transition-colors mr-1" />
-						<div className="border-l h-5 ml-4 mr-2"></div>
+	const handleCloseBanner = () => {
+		setShowBanner(false);
 
+		setTimeout(() => {
+			setShowBanner(true);
+		}, 60000);
+	};
+
+	return (
+		<div className="min-h-screen overflow-x-hidden">
+			<AnimatePresence>
+				{showBanner && (
+					<motion.div
+						initial={{ height: 0, opacity: 0 }}
+						animate={{ height: "auto", opacity: 1 }}
+						exit={{ height: 0, opacity: 0 }}
+						transition={{ duration: 0.3 }}
+						className="bg-primary text-white relative overflow-hidden"
+					>
+						<div className="container px-4 py-3 flex items-center justify-center gap-4 text-sm mx-auto">
+							<span className="text-white/90">
+								<span className="font-semibold">
+									Catch up on what you missed
+								</span>
+								<span className="hidden sm:inline">
+									{" "}
+									- See what&apos;s new with AI-powered
+									technology
+								</span>
+							</span>
+							<Link
+								href="#"
+								className="font-medium inline-flex items-center gap-1 whitespace-nowrap group hover:text-white/80 transition-colors"
+							>
+								Watch on demand{" "}
+								<ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+							</Link>
+							<Button
+								onClick={handleCloseBanner}
+								className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
+							>
+								<X className="h-4 w-4" />
+							</Button>
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+
+			{/* Header */}
+			<header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur shadow-sm">
+				<div className="container flex h-16 items-center justify-between px-4 lg:px-8 max-w-7xl mx-auto">
+					<motion.div
+						initial={{ opacity: 0, x: -20 }}
+						animate={{ opacity: 1, x: 0 }}
+						className="flex items-center gap-2"
+					>
+						<Image
+							src="/logo_l.svg"
+							alt="Logo"
+							width={100}
+							height={100}
+							priority
+						/>
+					</motion.div>
+
+					<motion.div
+						initial={{ opacity: 0, x: 20 }}
+						animate={{ opacity: 1, x: 0 }}
+						className="flex items-center gap-4"
+					>
+						<SearchIcon className="h-5 w-5 hover:text-primary cursor-pointer transition-colors" />
+						<div className="border-l h-5"></div>
 						<Link href="/login">
 							<Button
 								variant="ghost"
@@ -150,21 +189,27 @@ export default function Home() {
 								Sign in
 							</Button>
 						</Link>
-					</div>
+					</motion.div>
 				</div>
 			</header>
-			{/* Features Section */}
 
-			<section className="relative overflow-hidden">
-				<div className="container px-4 pt-12 mx-auto">
-					<div className="text-center max-w-4xl mx-auto mb-10 md:mb-14">
-						<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground mb-6">
-							The AI-powered Jira
-							<br />
+			{/* Hero Section */}
+			<section className="relative pt-20 pb-16 overflow-hidden">
+				<div className="container px-4 mx-auto text-center">
+					<motion.div
+						initial={{ opacity: 0, y: 30 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.6, ease: "easeOut" }}
+					>
+						<h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-8">
+							The AI-powered Jira <br />
 							from{" "}
-							<span className="relative inline-block">
-								<span className="text-primary">teams</span>
-								<svg
+							<span className="relative inline-block text-primary">
+								teams
+								<motion.svg
+									initial={{ pathLength: 0 }}
+									animate={{ pathLength: 1 }}
+									transition={{ duration: 1, delay: 0.5 }}
 									className="absolute -bottom-2 left-0 w-full"
 									viewBox="0 0 200 12"
 									fill="none"
@@ -175,70 +220,97 @@ export default function Home() {
 										strokeWidth="4"
 										strokeLinecap="round"
 									/>
-								</svg>
+								</motion.svg>
 							</span>{" "}
 							to dreams
 						</h1>
-						<Link href="/register">
-							<Button
-								size="lg"
-								className="cursor-pointer px-8 py-6 text-base font-medium rounded-full"
-							>
-								Get started
-							</Button>
-						</Link>
-					</div>
-				</div>
-			</section>
 
-			<section className="container px-4 lg:px-8 py-16 mx-auto" id="features">
-				<div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-					{features.map((feature) => (
-						<Card
-							key={feature.title}
-							className="border-2 hover:border-primary/50 hover:shadow-lg transition-all duration-300 group cursor-pointer"
+						<motion.div
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
 						>
-							<CardHeader className="space-y-3">
-								<div className="h-12 w-12 rounded-xl bg-linear-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-									<feature.icon className="h-6 w-6 text-primary" />
-								</div>
-								<CardTitle className="text-lg">{feature.title}</CardTitle>
-								<CardDescription className="text-sm leading-relaxed">
-									{feature.description}
-								</CardDescription>
-							</CardHeader>
-						</Card>
+							<Link href="/register">
+								<Button
+									size="lg"
+									className="cursor-pointer px-8 py-6 text-base font-medium rounded-full"
+								>
+									Get started
+								</Button>
+							</Link>
+						</motion.div>
+					</motion.div>
+				</div>
+			</section>
+
+			{/* Features Section */}
+			<section
+				className="container px-4 lg:px-8 py-16 mx-auto"
+				id="features"
+			>
+				<motion.div
+					variants={staggerContainer}
+					initial="initial"
+					whileInView="animate"
+					viewport={{ once: true, margin: "-100px" }}
+					className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
+				>
+					{features.map((feature, index) => (
+						<motion.div key={index} variants={fadeInUp}>
+							<Card className="border-2 hover:border-primary/50 hover:shadow-xl transition-all duration-300 group h-full cursor-pointer">
+								<CardHeader className="space-y-3">
+									<div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+										<feature.icon className="h-6 w-6 text-primary group-hover:text-white" />
+									</div>
+									<CardTitle className="text-lg">
+										{feature.title}
+									</CardTitle>
+									<CardDescription>
+										{feature.description}
+									</CardDescription>
+								</CardHeader>
+							</Card>
+						</motion.div>
 					))}
-				</div>
+				</motion.div>
 			</section>
 
-			<section className="bg-linear-to-br from-blue-500 via-blue-600 to-indigo-700 py-16 md:py-20">
-				<div className="container px-4 lg:px-8 max-w-4xl mx-auto text-center">
-					<h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance leading-tight">
+			{/* CTA Section */}
+			<motion.section
+				initial={{ opacity: 0 }}
+				whileInView={{ opacity: 1 }}
+				viewport={{ once: true }}
+				className="bg-linear-to-br from-blue-600 to-indigo-800 py-20 text-white"
+			>
+				<div className="container px-4 text-center max-w-4xl mx-auto">
+					<motion.h2
+						initial={{ y: 20, opacity: 0 }}
+						whileInView={{ y: 0, opacity: 1 }}
+						className="text-3xl md:text-5xl font-bold mb-6"
+					>
 						Ready to transform your workflow?
-					</h2>
+					</motion.h2>
 					<p className="text-sm md:text-md font-medium text-blue-100 mb-8 text-balance">
-						Join thousands of teams already using our platform to deliver better
-						results.
+						Join thousands of teams already using our platform to
+						deliver better results.
 					</p>
-					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-						<Link href="/login">
-							<Button
-								size="lg"
-								className="border-2 border-white h-12 px-8 text-base font-semibold cursor-pointer hover:bg-white/10 rounded-full"
-							>
-								Get started for free
-							</Button>
-						</Link>
-					</div>
+					<Button
+						size="lg"
+						className="border-2 border-white h-12 px-8 text-base font-semibold cursor-pointer hover:bg-white/10 rounded-full"
+					>
+						Get started for free
+					</Button>
 				</div>
-			</section>
+			</motion.section>
 
-			<footer className="bg-background/95 backdrop-blur pt-6 pb-2 border-t">
+			{/* Footer - Giữ nguyên logic nhưng thêm hiệu ứng nhẹ */}
+			<footer className="bg-background border-t pt-12 pb-6">
 				<div className="container px-8 mx-auto max-w-7xl">
 					<div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-4">
 						{footerFeatures.map((section) => (
-							<div key={section.title} className="flex flex-col gap-4">
+							<div
+								key={section.title}
+								className="flex flex-col gap-4"
+							>
 								{section.title === "./logo.svg" ? (
 									<Image
 										src="/logo_l.svg"
@@ -247,7 +319,9 @@ export default function Home() {
 										height={100}
 									/>
 								) : (
-									<h3 className="text-lg font-bold">{section.title}</h3>
+									<h3 className="text-lg font-bold">
+										{section.title}
+									</h3>
 								)}
 								<div className="flex flex-col gap-2">
 									{section.links.map((link) => (
@@ -255,7 +329,9 @@ export default function Home() {
 											key={link}
 											href="#"
 											className={`text-sm hover:opacity-75 transition-opacity cursor-pointer ${
-												section.title === "./logo.svg" ? "font-semibold" : ""
+												section.title === "./logo.svg"
+													? "font-semibold"
+													: ""
 											}`}
 										>
 											{link}
