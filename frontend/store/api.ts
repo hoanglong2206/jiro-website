@@ -45,7 +45,7 @@ const baseQueryWithReAuth: BaseQueryFn<
 			const refreshResult = await baseQuery(
 				`auth/refresh-token/${username}`,
 				api,
-				extraOptions
+				extraOptions,
 			);
 
 			if (refreshResult.data) {
@@ -69,6 +69,6 @@ const baseQueryWithReAuth: BaseQueryFn<
 export const api = createApi({
 	reducerPath: "clientApi",
 	baseQuery: baseQueryWithReAuth,
-	tagTypes: ["Auth", "User"],
+	tagTypes: ["Auth", "User", "Project"],
 	endpoints: () => ({}),
 });

@@ -10,8 +10,13 @@ import { appRoutes } from "./routes";
 import http from "http";
 import { authConnection } from "./queues/auth/connection";
 import { userConnection } from "./queues/user/connection";
+import { projectConnection } from "./queues/project/connection";
 import { consumeUserMessage } from "./queues/user/user.consumer";
-import { setAuthChannel, setUserChannel } from "./queues/channelStore";
+import {
+	setAuthChannel,
+	setProjectChannel,
+	setUserChannel,
+} from "./queues/channelStore";
 
 export class App {
 	private app: Application;
@@ -71,9 +76,11 @@ export class App {
 		try {
 			const authChannel = await authConnection();
 			const userChannel = await userConnection();
+			const projectChannel = await projectConnection();
 
 			setAuthChannel(authChannel);
 			setUserChannel(userChannel);
+			setProjectChannel(projectChannel);
 
 			await consumeUserMessage(userChannel);
 		} catch (error) {

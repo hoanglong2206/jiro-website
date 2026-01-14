@@ -1,22 +1,27 @@
 import { IUser } from "./user.interface";
 
-export interface ProjectPayLoad {
-	id: string;
+export type ProjectType = "work" | "personal";
+
+export interface ProjectPayload {
 	name: string;
-	description: string;
-	type: "work" | "personal";
-	leadId: string;
-	icon: string;
+	description?: string;
+	type: ProjectType;
+	icon?: string;
+	memberIds?: string[];
 }
 
 export interface ProjectResponse {
 	id: string;
 	name: string;
-	description: string;
-	type: "work" | "personal";
+	description?: string | null;
+	type: ProjectType;
+	leadId: string;
 	lead: IUser;
-	members: IUser[] | null;
-	icon: string;
-	createAt: Date;
-	updateAt: Date;
+	members: IUser[];
+	icon?: string | null;
+	createdAt: string;
+	updatedAt: string;
 }
+
+export interface ProjectInvite {}
+export interface ProjectMembers {}

@@ -18,6 +18,7 @@ import { api } from "./api";
 import authReducer from "./reducers/auth.reducer";
 import userReducer from "./reducers/user.reducer";
 import logoutReducer from "./reducers/logout.reducer";
+import projectReducer from "./reducers/project.reducer";
 
 const persistConfig = {
 	key: "root",
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
 	auth: authReducer,
 	user: userReducer,
 	logout: logoutReducer,
+	project: projectReducer,
 });
 
 type RootStateType = ReturnType<typeof rootReducer>;
