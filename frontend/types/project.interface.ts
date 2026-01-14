@@ -1,12 +1,11 @@
 import { IUser } from "./user.interface";
 
-export interface ProjectRequest {
+export interface ProjectPayLoad {
 	id: string;
 	name: string;
 	description: string;
 	type: "work" | "personal";
 	leadId: string;
-	memberIds: string[] | null;
 	icon: string;
 }
 
