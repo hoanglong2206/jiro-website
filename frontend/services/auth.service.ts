@@ -1,13 +1,16 @@
 import { api } from "@/store/api";
 import {
 	IChangePasswordPayload,
+	IAuthResponse,
+	ICurrentUserResponse,
+	IMessageResponse,
 	ISignInPayload,
 	ISignUpPayload,
 } from "@/types/auth.interface";
 
 export const authApi = api.injectEndpoints({
 	endpoints: (build) => ({
-		register: build.mutation({
+		register: build.mutation<IAuthResponse, ISignUpPayload>({
 			query: (body: ISignUpPayload) => ({
 				url: "auth/register",
 				method: "POST",
@@ -15,7 +18,7 @@ export const authApi = api.injectEndpoints({
 			}),
 			invalidatesTags: ["Auth"],
 		}),
-		login: build.mutation({
+		login: build.mutation<IAuthResponse, ISignInPayload>({
 			query: (body: ISignInPayload) => ({
 				url: "auth/login",
 				method: "POST",
@@ -23,18 +26,18 @@ export const authApi = api.injectEndpoints({
 			}),
 			invalidatesTags: ["Auth"],
 		}),
-		logout: build.mutation({
+		logout: build.mutation<IMessageResponse, void>({
 			query: () => ({
 				url: "auth/logout",
 				method: "POST",
 			}),
 			invalidatesTags: ["Auth"],
 		}),
-		getCurrentUser: build.query({
+		getCurrentUser: build.query<ICurrentUserResponse, void>({
 			query: () => "auth/me",
 			providesTags: ["Auth"],
 		}),
-		changePassword: build.mutation({
+		changePassword: build.mutation<IAuthResponse, IChangePasswordPayload>({
 			query: (body: IChangePasswordPayload) => ({
 				url: "auth/change-password",
 				method: "PUT",

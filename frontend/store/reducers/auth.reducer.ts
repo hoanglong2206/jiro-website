@@ -3,10 +3,10 @@ import { createSlice, Slice } from "@reduxjs/toolkit";
 import { IAuthUser, IReduxAddAuthUser } from "@/types/auth.interface";
 
 const initialValue: IAuthUser = {
-	id: null,
-	fullname: null,
-	username: null,
-	email: null,
+	id: "",
+	fullname: "",
+	username: "",
+	email: "",
 };
 
 const authSlice: Slice = createSlice({
@@ -16,10 +16,10 @@ const authSlice: Slice = createSlice({
 		addAuthUser: (state, action: IReduxAddAuthUser) => {
 			const { authInfo } = action.payload;
 			if (authInfo) {
-				state.id = authInfo.id ?? null;
-				state.fullname = authInfo.fullname ?? null;
-				state.username = authInfo.username ?? null;
-				state.email = authInfo.email ?? null;
+				state.id = authInfo.id;
+				state.fullname = authInfo.fullname;
+				state.username = authInfo.username;
+				state.email = authInfo.email;
 			}
 		},
 		clearAuthUser: () => {

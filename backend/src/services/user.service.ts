@@ -39,6 +39,7 @@ class UserService {
 			throw new Error("Email already in use");
 		}
 		const toInsert: NewUserRecord = {
+			id: payload.id,
 			fullname: payload.fullname!,
 			username: payload.username!,
 			email: payload.email!,

@@ -14,7 +14,10 @@ import {
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useChangePasswordMutation } from "@/services/auth.service";
-import { saveToSessionStorage } from "@/services/utils.service";
+import {
+	saveToSessionStorage,
+	extractErrorMessage,
+} from "@/services/utils.service";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { addAuthUser } from "@/store/reducers/auth.reducer";
 import { toast } from "sonner";
@@ -53,27 +56,22 @@ export default function SecurityPage() {
 				dispatch(
 					addAuthUser({
 						authInfo: result.user,
-					})
+					}),
 				);
 			}
 
 			if (result.token) {
-				const usernameSource =
-					result.user?.username ?? authUser.username;
+				const usernameSource = result.user?.username ?? authUser.username;
 				saveToSessionStorage(
 					JSON.stringify(true),
 					JSON.stringify(usernameSource ?? ""),
-					JSON.stringify(result.token)
+					JSON.stringify(result.token),
 				);
 			}
 			toast.success("Đổi mật khẩu thành công");
 			setPasswords({ current: "", new: "", confirm: "" });
-		} catch (error: any) {
-			let message = "Đổi mật khẩu thất bại";
-			if (error) {
-				message = error.data.message;
-			}
-			toast.error(message);
+		} catch (error: unknown) {
+			toast.error(extractErrorMessage(error, "Đổi mật khẩu thất bại"));
 		}
 	};
 
@@ -94,17 +92,11 @@ export default function SecurityPage() {
 				<CardContent className="space-y-4">
 					<form className="space-y-4" onSubmit={handleUpdatePassword}>
 						<div className="space-y-2">
-							<Label htmlFor="currentPassword">
-								Current Password
-							</Label>
+							<Label htmlFor="currentPassword">Current Password</Label>
 							<div className="relative">
 								<Input
 									id="currentPassword"
-									type={
-										showCurrentPassword
-											? "text"
-											: "password"
-									}
+									type={showCurrentPassword ? "text" : "password"}
 									value={passwords.current}
 									onChange={(e) =>
 										setPasswords({
@@ -116,11 +108,7 @@ export default function SecurityPage() {
 								/>
 								<button
 									type="button"
-									onClick={() =>
-										setShowCurrentPassword(
-											!showCurrentPassword
-										)
-									}
+									onClick={() => setShowCurrentPassword(!showCurrentPassword)}
 									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showCurrentPassword ? (
@@ -149,9 +137,7 @@ export default function SecurityPage() {
 								/>
 								<button
 									type="button"
-									onClick={() =>
-										setShowNewPassword(!showNewPassword)
-									}
+									onClick={() => setShowNewPassword(!showNewPassword)}
 									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showNewPassword ? (
@@ -164,17 +150,11 @@ export default function SecurityPage() {
 						</div>
 
 						<div className="space-y-2">
-							<Label htmlFor="confirmPassword">
-								Confirm New Password
-							</Label>
+							<Label htmlFor="confirmPassword">Confirm New Password</Label>
 							<div className="relative">
 								<Input
 									id="confirmPassword"
-									type={
-										showConfirmPassword
-											? "text"
-											: "password"
-									}
+									type={showConfirmPassword ? "text" : "password"}
 									value={passwords.confirm}
 									onChange={(e) =>
 										setPasswords({
@@ -186,11 +166,7 @@ export default function SecurityPage() {
 								/>
 								<button
 									type="button"
-									onClick={() =>
-										setShowConfirmPassword(
-											!showConfirmPassword
-										)
-									}
+									onClick={() => setShowConfirmPassword(!showConfirmPassword)}
 									className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
 								>
 									{showConfirmPassword ? (
@@ -202,11 +178,7 @@ export default function SecurityPage() {
 							</div>
 						</div>
 
-						<Button
-							className="mt-2"
-							type="submit"
-							disabled={isLoading}
-						>
+						<Button className="mt-2" type="submit" disabled={isLoading}>
 							{isLoading ? "Updating..." : "Update Password"}
 						</Button>
 					</form>
@@ -231,12 +203,9 @@ export default function SecurityPage() {
 						<div className="flex items-center gap-3">
 							<Smartphone className="h-8 w-8 text-muted-foreground" />
 							<div>
-								<p className="text-sm font-medium">
-									Authenticator App
-								</p>
+								<p className="text-sm font-medium">Authenticator App</p>
 								<p className="text-xs text-muted-foreground">
-									Use an authenticator app to generate
-									verification codes
+									Use an authenticator app to generate verification codes
 								</p>
 							</div>
 						</div>

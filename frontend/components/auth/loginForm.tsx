@@ -21,7 +21,10 @@ import { useLoginMutation } from "@/services/auth.service";
 import { useAppDispatch } from "@/store/store";
 import { addAuthUser } from "@/store/reducers/auth.reducer";
 import { useRouter } from "next/navigation";
-import { saveToSessionStorage } from "@/services/utils.service";
+import {
+	saveToSessionStorage,
+	extractErrorMessage,
+} from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -49,21 +52,19 @@ export function LoginForm() {
 				dispatch(
 					addAuthUser({
 						authInfo: result.user,
-					})
+					}),
 				);
 				dispatch(updateLogout(false));
 				saveToSessionStorage(
 					JSON.stringify(true),
 					JSON.stringify(result.user.username),
-					result.token ? JSON.stringify(result.token) : undefined
+					result.token ? JSON.stringify(result.token) : undefined,
 				);
 			}
 			toast.success("Đăng nhập thành công");
 			router.push("/for-you");
-		} catch (error: any) {
-			if (error) {
-				toast.error(error.data.message);
-			}
+		} catch (error: unknown) {
+			toast.error(extractErrorMessage(error, "Đăng nhập thất bại"));
 		}
 	}
 
@@ -80,10 +81,7 @@ export function LoginForm() {
 						whileHover={{ scale: 1.05 }}
 						className="flex items-center justify-center"
 					>
-						<Link
-							href="/"
-							className="flex items-center justify-center"
-						>
+						<Link href="/" className="flex items-center justify-center">
 							<Image
 								src="/logo_l.svg"
 								alt="Logo"
@@ -106,9 +104,7 @@ export function LoginForm() {
 								type="email"
 								placeholder="name@example.com"
 								value={email}
-								onChange={(event) =>
-									setEmail(event.target.value)
-								}
+								onChange={(event) => setEmail(event.target.value)}
 							/>
 						</div>
 						<div className="space-y-2">
@@ -121,34 +117,25 @@ export function LoginForm() {
 									type={showPassword ? "text" : "password"}
 									placeholder="Enter your password"
 									value={password}
-									onChange={(event) =>
-										setPassword(event.target.value)
-									}
+									onChange={(event) => setPassword(event.target.value)}
 								/>
 								<Button
 									type="button"
 									variant="ghost"
 									size="icon"
 									className="absolute right-0 top-0 h-full px-3 hover:bg-transparent cursor-pointer"
-									onClick={() =>
-										setShowPassword(!showPassword)
-									}
+									onClick={() => setShowPassword(!showPassword)}
 								>
 									{showPassword ? (
 										<EyeOff className="h-4 w-4 text-muted-foreground" />
 									) : (
 										<Eye className="h-4 w-4 text-muted-foreground" />
 									)}
-									<span className="sr-only">
-										Toggle password visibility
-									</span>
+									<span className="sr-only">Toggle password visibility</span>
 								</Button>
 							</div>
 							<div className="flex justify-end mt-1">
-								<Link
-									href="#"
-									className="text-sm text-primary hover:underline"
-								>
+								<Link href="#" className="text-sm text-primary hover:underline">
 									Forgot password?
 								</Link>
 							</div>
@@ -198,10 +185,7 @@ export function LoginForm() {
 						</Button>
 						<p className="text-center text-sm text-muted-foreground">
 							Don&apos;t have an account?{" "}
-							<Link
-								href="/register"
-								className="text-primary hover:underline"
-							>
+							<Link href="/register" className="text-primary hover:underline">
 								Create account
 							</Link>
 						</p>

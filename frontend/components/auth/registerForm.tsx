@@ -21,7 +21,10 @@ import { useRegisterMutation } from "@/services/auth.service";
 import { useAppDispatch } from "@/store/store";
 import { addAuthUser } from "@/store/reducers/auth.reducer";
 import { useRouter } from "next/navigation";
-import { saveToSessionStorage } from "@/services/utils.service";
+import {
+	saveToSessionStorage,
+	extractErrorMessage,
+} from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
@@ -56,21 +59,19 @@ export function RegisterForm() {
 				dispatch(
 					addAuthUser({
 						authInfo: result.user,
-					})
+					}),
 				);
 				dispatch(updateLogout(false));
 				saveToSessionStorage(
 					JSON.stringify(true),
 					JSON.stringify(result.user.username),
-					result.token ? JSON.stringify(result.token) : undefined
+					result.token ? JSON.stringify(result.token) : undefined,
 				);
 			}
 			toast.success("Tạo tài khoản thành công");
 			router.push("/for-you");
-		} catch (error: any) {
-			if (error) {
-				toast.error(error.data.message);
-			}
+		} catch (error: unknown) {
+			toast.error(extractErrorMessage(error, "Tạo tài khoản thất bại"));
 		}
 	}
 
@@ -87,10 +88,7 @@ export function RegisterForm() {
 						whileHover={{ scale: 1.05 }}
 						className="flex items-center justify-center"
 					>
-						<Link
-							href="/"
-							className="flex items-center justify-center"
-						>
+						<Link href="/" className="flex items-center justify-center">
 							<Image
 								src="/logo_l.svg"
 								alt="Logo"
@@ -142,27 +140,21 @@ export function RegisterForm() {
 									type={showPassword ? "text" : "password"}
 									placeholder="Create a password"
 									value={password}
-									onChange={(e) =>
-										setPassword(e.target.value)
-									}
+									onChange={(e) => setPassword(e.target.value)}
 								/>
 								<Button
 									type="button"
 									variant="ghost"
 									size="icon"
 									className="absolute right-0 top-0 h-full px-3 hover:bg-transparent cursor-pointer"
-									onClick={() =>
-										setShowPassword(!showPassword)
-									}
+									onClick={() => setShowPassword(!showPassword)}
 								>
 									{showPassword ? (
 										<EyeOff className="h-4 w-4 text-muted-foreground" />
 									) : (
 										<Eye className="h-4 w-4 text-muted-foreground" />
 									)}
-									<span className="sr-only">
-										Toggle password visibility
-									</span>
+									<span className="sr-only">Toggle password visibility</span>
 								</Button>
 							</div>
 						</div>
@@ -210,10 +202,7 @@ export function RegisterForm() {
 						</Button>
 						<p className="text-center text-sm text-muted-foreground">
 							Already have an account?{" "}
-							<Link
-								href="/login"
-								className="text-primary hover:underline"
-							>
+							<Link href="/login" className="text-primary hover:underline">
 								Sign in
 							</Link>
 						</p>

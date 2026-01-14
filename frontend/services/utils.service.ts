@@ -1,3 +1,7 @@
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
+
+type SerializedLikeError = { message?: unknown };
+
 export const lowerCase = (str: string): string => {
 	return str.toLowerCase();
 };
@@ -41,13 +45,44 @@ export const deleteFromLocalStorage = (key: string): void => {
 	window.localStorage.removeItem(key);
 };
 
-export const isFetchBaseQueryError = (error: unknown): boolean => {
+export const isFetchBaseQueryError = (
+	error: unknown,
+): error is FetchBaseQueryError & { data?: unknown } => {
 	return (
 		typeof error === "object" &&
 		error !== null &&
 		"status" in error &&
 		"data" in error
 	);
+};
+
+const isSerializedLikeError = (
+	value: unknown,
+): value is SerializedLikeError => {
+	return typeof value === "object" && value !== null && "message" in value;
+};
+
+export const extractErrorMessage = (
+	error: unknown,
+	fallbackMessage: string,
+): string => {
+	if (isFetchBaseQueryError(error)) {
+		const responseData = error.data;
+		if (
+			typeof responseData === "object" &&
+			responseData !== null &&
+			"message" in responseData &&
+			typeof (responseData as SerializedLikeError).message === "string"
+		) {
+			return (responseData as SerializedLikeError).message as string;
+		}
+	}
+
+	if (isSerializedLikeError(error) && typeof error.message === "string") {
+		return error.message;
+	}
+
+	return fallbackMessage;
 };
 
 export const generateRandomNumber = (length: number): number => {

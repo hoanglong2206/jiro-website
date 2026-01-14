@@ -35,6 +35,7 @@ import { useAppDispatch, useAppSelector, persister } from "@/store/store";
 import {
 	deleteFromLocalStorage,
 	deleteFromSessionStorage,
+	extractErrorMessage,
 } from "@/services/utils.service";
 import { updateLogout } from "@/store/reducers/logout.reducer";
 import { toast } from "sonner";
@@ -49,7 +50,7 @@ export function Header() {
 
 	const handleLogout = async (): Promise<void> => {
 		try {
-			await logout({}).unwrap();
+			await logout().unwrap();
 			dispatch(clearAuthUser(null));
 			dispatch(clearAUser(null));
 			dispatch(updateLogout(true));
@@ -60,9 +61,11 @@ export function Header() {
 
 			router.push("/login");
 			toast.success("Đăng xuất thành công");
-		} catch (error) {
+		} catch (error: unknown) {
 			console.error("Logout failed:", error);
-			toast.error("Đăng xuất thất bại. Vui lòng thử lại.");
+			toast.error(
+				extractErrorMessage(error, "Đăng xuất thất bại. Vui lòng thử lại."),
+			);
 		}
 	};
 	return (
@@ -144,8 +147,7 @@ export function Header() {
 							<AvatarFallback
 								className="text-white"
 								style={{
-									backgroundColor:
-										userInfo?.colorAvatar || "",
+									backgroundColor: userInfo?.colorAvatar || "",
 								}}
 							>
 								{(userInfo?.fullname || "")
@@ -165,8 +167,7 @@ export function Header() {
 								<AvatarFallback
 									className="text-white text-lg tracking-wider"
 									style={{
-										backgroundColor:
-											userInfo?.colorAvatar || "",
+										backgroundColor: userInfo?.colorAvatar || "",
 									}}
 								>
 									{(userInfo?.fullname || "")
@@ -176,9 +177,7 @@ export function Header() {
 								</AvatarFallback>
 							</Avatar>
 							<div className="space-y-0.5">
-								<p className="text-lg font-bold">
-									{userInfo?.fullname}
-								</p>
+								<p className="text-lg font-bold">{userInfo?.fullname}</p>
 								<p className="text-sm text-muted-foreground">
 									{userInfo?.email}
 								</p>
@@ -186,10 +185,7 @@ export function Header() {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
-							<Link
-								href="/settings/profile"
-								className="cursor-pointer"
-							>
+							<Link href="/settings/profile" className="cursor-pointer">
 								<Settings className="mr-2 h-4 w-4" />
 								Settings
 							</Link>

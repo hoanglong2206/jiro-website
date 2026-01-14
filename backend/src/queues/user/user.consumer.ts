@@ -22,11 +22,11 @@ const consumeUserMessage = async (channel: Channel): Promise<void> => {
 		});
 		await channel.bindQueue(q.queue, exchangeName, routingKey);
 		channel.consume(q.queue, async (msg: ConsumeMessage | null) => {
-			const { type, ...data } = msg
-				? JSON.parse(msg.content.toString())
-				: {};
+			const { type, ...data } = msg ? JSON.parse(msg.content.toString()) : {};
 			if (type === "auth") {
+				console.log(data);
 				const userPayload: IUser = {
+					id: data.id,
 					fullname: data.fullname,
 					username: data.username,
 					email: data.email,
