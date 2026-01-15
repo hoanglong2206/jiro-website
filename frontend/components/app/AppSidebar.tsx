@@ -11,6 +11,7 @@ import {
 	MessageSquareText,
 	MoreHorizontal,
 	Search,
+	LayoutGrid,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 										pathname.includes(item.href) &&
 											"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium"
 									)}
+									asChild
 								>
 									<Link
 										href={`${item.href}`}
@@ -118,7 +120,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							</Button>
 						</div>
 					</SidebarGroupLabel>
-					<SidebarMenu></SidebarMenu>
+					<SidebarMenu>
+						<SidebarMenuItem>
+							<SidebarMenuButton
+								tooltip="Spaces"
+								className="text-sm cursor-pointer transition-colors hidden group-has-data-[collapsible=icon]/sidebar-wrapper:flex"
+							>
+								<LayoutGrid className="h-4 w-4" />
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					</SidebarMenu>
 				</SidebarGroup>
 			</SidebarContent>
 			<SidebarFooter></SidebarFooter>
