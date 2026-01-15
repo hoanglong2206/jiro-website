@@ -24,7 +24,7 @@ export const TeamHeader = () => {
 			{/* Tabs */}
 			<div className="flex items-center gap-1 border-b border-border">
 				{tabs.map((tab) => {
-					const isActive = pathname === tab.href;
+					const isActive = pathname.includes(tab.href);
 					const Icon = tab.icon;
 					return (
 						<Link

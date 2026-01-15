@@ -15,7 +15,7 @@ export default async function ProjectLayout({
 	return (
 		<div className="flex flex-1 flex-col overflow-hidden">
 			<ProjectHeader project={project} />
-			<div className="flex-1 overflow-auto bg-background">{children}</div>
+			<div className="flex-1 bg-background">{children}</div>
 		</div>
 	);
 }
