@@ -12,17 +12,3 @@ export interface IAuthPayload {
 	username: string;
 	email: string;
 }
-
-export interface IAuth {
-	id?: string;
-	fullname?: string;
-	username?: string;
-	email?: string;
-	password?: string;
-	createdAt?: Date;
-	updatedAt?: Date;
-	passwordResetToken?: string;
-	passwordResetExpires?: Date;
-	comparePassword(password: string, hashedPassword: string): Promise<boolean>;
-	hashPassword(password: string): Promise<string>;
-}

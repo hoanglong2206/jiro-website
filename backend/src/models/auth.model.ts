@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
-import { pgTable, uuid, varchar, text, timestamp } from "drizzle-orm/pg-core";
-import { IAuth } from "../types/auth.interface";
+import { pgTable, uuid, varchar, timestamp } from "drizzle-orm/pg-core";
 
 export const authTable = pgTable("auth", {
 	id: uuid("id").defaultRandom().primaryKey(),
@@ -23,20 +22,10 @@ export const authTable = pgTable("auth", {
 
 const SALT_ROUNDS = 10;
 
-export class AuthModel implements IAuth {
-	id?: string;
-	fullname?: string;
-	username?: string;
-	email?: string;
-	password?: string;
-	createdAt?: Date;
-	updatedAt?: Date;
-	passwordResetToken?: string;
-	passwordResetExpires?: Date;
-
+export class AuthModel {
 	async comparePassword(
 		password: string,
-		hashedPassword: string,
+		hashedPassword: string
 	): Promise<boolean> {
 		return bcrypt.compare(password, hashedPassword);
 	}

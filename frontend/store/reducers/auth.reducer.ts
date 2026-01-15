@@ -1,6 +1,6 @@
 import { createSlice, Slice } from "@reduxjs/toolkit";
 
-import { IAuthUser, IReduxAddAuthUser } from "@/types/auth.interface";
+import { IAuthUser, IReduxAuth } from "@/types/auth.interface";
 
 const initialValue: IAuthUser = {
 	id: "",
@@ -13,7 +13,7 @@ const authSlice: Slice = createSlice({
 	name: "auth",
 	initialState: initialValue,
 	reducers: {
-		addAuthUser: (state, action: IReduxAddAuthUser) => {
+		addAuthUser: (state, action: IReduxAuth) => {
 			const { authInfo } = action.payload;
 			if (authInfo) {
 				state.id = authInfo.id;

@@ -37,12 +37,10 @@ export interface IChangePasswordPayload {
 	confirmPassword: string;
 }
 
-export interface IReduxAuthPayload {
-	authInfo?: IAuthUser;
-}
-
-export interface IReduxAddAuthUser {
-	payload: IReduxAuthPayload;
+export interface IReduxAuth {
+	payload: {
+		authInfo?: IAuthUser;
+	};
 }
 
 export interface IReduxLogout {

@@ -15,10 +15,8 @@ export interface IUpdatedUserPayload {
 	jobTitle: string;
 }
 
-export interface IReduxUserPayload {
-	userInfo?: IUser;
-}
-
 export interface IReduxUser {
-	payload: IReduxUserPayload;
+	payload: {
+		userInfo?: IUser;
+	};
 }
