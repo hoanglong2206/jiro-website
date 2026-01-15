@@ -47,6 +47,43 @@ class UserController {
 				.json({ message: error.message });
 		}
 	}
+
+	async updateUser(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { userId } = req.params;
+			if (req.currentUser.id !== userId) {
+				return res
+					.status(StatusCodes.FORBIDDEN)
+					.json({ message: "Access denied" });
+			}
+
+			const { fullname, profilePicture, colorAvatar, jobTitle } = req.body;
+			const user = await userService.updateUser(userId, {
+				fullname,
+				profilePicture,
+				colorAvatar,
+				jobTitle,
+			});
+
+			return res.status(StatusCodes.OK).json({
+				message: "Profile updated successfully",
+				user,
+			});
+		} catch (error: any) {
+			const message = error?.message || "Unable to update user";
+			const status =
+				message === "User not found"
+					? StatusCodes.NOT_FOUND
+					: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
 }
 
 export default new UserController();

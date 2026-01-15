@@ -9,10 +9,11 @@ export interface IUser {
 }
 
 export interface IUpdatedUserPayload {
-	fullname: string;
-	profilePicture: string;
-	colorAvatar: string;
-	jobTitle: string;
+	userId: string;
+	fullname?: string;
+	profilePicture?: string | null;
+	colorAvatar?: string | null;
+	jobTitle?: string | null;
 }
 
 export interface IReduxUser {
