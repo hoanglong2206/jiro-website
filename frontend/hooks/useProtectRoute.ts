@@ -19,15 +19,13 @@ export const useProtectRoute = (): void => {
 	const dispatch = useAppDispatch();
 	const router = useRouter();
 
-	const { data, isError, isFetching } = useGetCurrentUserQuery({});
+	const { data, isError, isFetching } = useGetCurrentUserQuery(undefined);
 	const username = data?.user?.username;
 
-	const { data: result, isSuccess: isUserSuccess } = useGetUserByUsernameQuery(
-		username as string,
-		{
+	const { data: result, isSuccess: isUserSuccess } =
+		useGetUserByUsernameQuery(username as string, {
 			skip: !username,
-		},
-	);
+		});
 
 	useEffect(() => {
 		if (isUserSuccess && result) {
