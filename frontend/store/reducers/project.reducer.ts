@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ProjectResponse } from "@/types/project.interface";
+import { IProjectWithMembershipResponse } from "@/types/project.interface";
 
 interface ProjectState {
-	items: ProjectResponse[];
+	items: IProjectWithMembershipResponse[];
 	selectedProjectId: string | null;
 }
 
@@ -15,44 +15,31 @@ const projectSlice = createSlice({
 	name: "project",
 	initialState,
 	reducers: {
-		setProjects: (state, action: PayloadAction<ProjectResponse[]>) => {
+		setProjects: (
+			state,
+			action: PayloadAction<IProjectWithMembershipResponse[]>,
+		) => {
 			state.items = action.payload;
-			if (!state.selectedProjectId && action.payload.length) {
-				state.selectedProjectId = action.payload[0].id;
-			}
 		},
-		addProject: (state, action: PayloadAction<ProjectResponse>) => {
-			state.items.unshift(action.payload);
-			state.selectedProjectId = action.payload.id;
-		},
-		updateProject: (state, action: PayloadAction<ProjectResponse>) => {
-			const index = state.items.findIndex(
-				(project) => project.id === action.payload.id,
-			);
-			if (index >= 0) {
-				state.items[index] = action.payload;
-			}
-		},
-		removeProject: (state, action: PayloadAction<string>) => {
-			state.items = state.items.filter(
-				(project) => project.id !== action.payload,
-			);
-			if (state.selectedProjectId === action.payload) {
-				state.selectedProjectId = state.items[0]?.id ?? null;
-			}
+		addProject: (
+			state,
+			action: PayloadAction<IProjectWithMembershipResponse>,
+		) => {
+			state.items = [
+				action.payload,
+				...state.items.filter(
+					(item) => item.project.id !== action.payload.project.id,
+				),
+			];
 		},
 		setSelectedProject: (state, action: PayloadAction<string | null>) => {
 			state.selectedProjectId = action.payload;
 		},
+		clearProjects: () => ({ ...initialState }),
 	},
 });
 
-export const {
-	setProjects,
-	addProject,
-	updateProject,
-	removeProject,
-	setSelectedProject,
-} = projectSlice.actions;
+export const { setProjects, addProject, setSelectedProject, clearProjects } =
+	projectSlice.actions;
 
 export default projectSlice.reducer;

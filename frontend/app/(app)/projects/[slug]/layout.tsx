@@ -7,7 +7,7 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import {
 	Home,
 	Inbox,
@@ -16,7 +16,13 @@ import {
 	Component,
 	Radio,
 } from "lucide-react";
-import { ElementType } from "react";
+import { ElementType, useEffect } from "react";
+import { useGetProjectByIdQuery } from "@/services/project.service";
+import { useAppDispatch } from "@/store/store";
+import {
+	addProject,
+	setSelectedProject,
+} from "@/store/reducers/project.reducer";
 
 interface AppLayoutProps {
 	children: React.ReactNode;
@@ -24,6 +30,39 @@ interface AppLayoutProps {
 
 export default function AppLayout({ children }: AppLayoutProps) {
 	const pathname = usePathname();
+	const params = useParams<{ slug: string }>();
+	const dispatch = useAppDispatch();
+	const projectId = Array.isArray(params?.slug)
+		? params?.slug[0]
+		: params?.slug;
+	const {
+		data: projectData,
+		isFetching,
+		isError,
+	} = useGetProjectByIdQuery(projectId ?? "", {
+		skip: !projectId,
+	});
+
+	useEffect(() => {
+		if (projectData) {
+			dispatch(addProject(projectData));
+			dispatch(setSelectedProject(projectData.project.id));
+		}
+	}, [dispatch, projectData]);
+
+	useEffect(() => {
+		if (isError) {
+			dispatch(setSelectedProject(null));
+		}
+	}, [dispatch, isError]);
+
+	if (!projectId) {
+		return (
+			<div className="flex h-screen items-center justify-center text-sm text-muted-foreground">
+				Invalid project reference.
+			</div>
+		);
+	}
 
 	const lastSegment = pathname.split("/").filter(Boolean).pop() || "home";
 
@@ -68,7 +107,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
 					</div>
 				</header>
 				<div className="flex flex-1 flex-col overflow-auto">
-					{children}
+					{isFetching && !projectData ? (
+						<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
+							Loading project...
+						</div>
+					) : isError ? (
+						<div className="flex flex-1 items-center justify-center text-sm text-destructive">
+							Unable to load this project.
+						</div>
+					) : (
+						children
+					)}
 				</div>
 			</SidebarInset>
 		</SidebarProvider>
