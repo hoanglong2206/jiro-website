@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { CustomModal } from "@/components/ui/modal";
 import { Label } from "@/components/ui/label";
-import { IUser, IUserRequestInvite } from "@/types/user.interface";
+import { IUser } from "@/types/user.interface";
 import { Grid2X2, List, Mail, Search, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { PeopleTable } from "@/components/app";
@@ -29,28 +29,6 @@ const people: IUser[] = [
 		profilePicture: "",
 		colorAvatar: "bg-yellow-400",
 		jobTitle: "Product Manager",
-	},
-];
-
-const peopleRequest: IUserRequestInvite[] = [
-	{
-		id: "1",
-		fullname: "John Doe",
-		username: "johndoe",
-		email: "johndoe@gmail.com",
-		colorAvatar: "bg-red-400",
-		jobTitle: "Software Engineer",
-		status: "accepted",
-	},
-	{
-		id: "2",
-		fullname: "Jane Smith",
-		username: "jansmith",
-		email: "jansmith@gmail.com",
-		profilePicture: "",
-		colorAvatar: "bg-yellow-400",
-		jobTitle: "Product Manager",
-		status: "pending",
 	},
 ];
 
@@ -130,7 +108,7 @@ const PeoplePage = () => {
 						<div className="text-sm text-muted-foreground font-medium">
 							Request
 						</div>
-						<PeopleTable data={peopleRequest} type="request" />
+						{/* <PeopleTable data={peopleRequest} type="request" /> */}
 					</div>
 				</div>
 			</div>
