@@ -7,10 +7,10 @@ export default async function ProjectLayout({
 	params,
 }: {
 	children: React.ReactNode;
-	params: Promise<{ id: string }>;
+	params: Promise<{ slug: string }>;
 }) {
-	const { id } = await params;
-	const project = projects.find((p) => p.id === id) || projects[0];
+	const { slug } = await params;
+	const project = projects.find((p) => p.id === slug) || projects[0];
 
 	return (
 		<div className="flex flex-1 flex-col overflow-hidden">
