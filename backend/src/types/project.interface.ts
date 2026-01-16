@@ -1,13 +1,15 @@
 export type ProjectType = "work" | "personal";
 export type ProjectMemberRole = "owner" | "admin" | "member" | "viewer";
+export type ProjectAcessLevel = "private" | "public";
 
 export interface IProject {
 	id: string;
 	name: string;
-	description?: string | null;
+	description?: string;
 	type: ProjectType;
-	leadId: string;
-	icon?: string | null;
+	accessLevel: ProjectAcessLevel;
+	ownerId: string;
+	icon?: string;
 	createdAt: Date;
 	updatedAt: Date;
 }

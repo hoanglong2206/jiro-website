@@ -15,12 +15,17 @@ export const projectMemberRoleEnum = pgEnum("project_member_role", [
 	"member",
 	"viewer",
 ]);
+export const projectAccessLevelEnum = pgEnum("project_access_level", [
+	"private",
+	"public",
+]);
 
 export const projectTable = pgTable("project", {
 	id: uuid("id").defaultRandom().primaryKey(),
 	name: varchar("name", { length: 120 }).notNull(),
 	description: text("description"),
 	type: projectTypeEnum("type").notNull(),
+	accessLevel: projectAccessLevelEnum("access_level").notNull(),
 	ownerId: uuid("owner_id").notNull(),
 	icon: varchar("icon"),
 	createdAt: timestamp("created_at", { withTimezone: true })

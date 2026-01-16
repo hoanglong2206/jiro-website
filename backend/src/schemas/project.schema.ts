@@ -5,6 +5,14 @@ const projectType = Joi.string().valid("work", "personal").required().messages({
 	"string.empty": "Project type is required",
 });
 
+const projectAccessLevel = Joi.string()
+	.valid("private", "public")
+	.required()
+	.messages({
+		"any.only": "Project access level must be either 'private' or 'public'",
+		"string.empty": "Project access level is required",
+	});
+
 class ProjectSchema {
 	create(): ObjectSchema {
 		return Joi.object({
@@ -15,8 +23,9 @@ class ProjectSchema {
 					"Project name must be at most {#limit} characters long",
 				"string.empty": "Project name is required",
 			}),
-			description: Joi.string().allow(null, "").max(1000),
 			type: projectType,
+			accessLevel: projectAccessLevel,
+			description: Joi.string().allow(null, "").max(1000),
 			icon: Joi.string().uri().allow(null, "").messages({
 				"string.uri": "Icon must be a valid URL",
 			}),
