@@ -38,12 +38,12 @@ import {
 	ChevronRight,
 	ChevronsLeft,
 	ChevronsRight,
-	CircleCheck,
-	CircleDashed,
+	// CircleCheck,
+	// CircleDashed,
 	MoreVertical,
 } from "lucide-react";
-import { Badge } from "../ui/badge";
-import { IUser, IUserRequestInvite } from "@/types/user.interface";
+// import { Badge } from "../ui/badge";
+import { IUser } from "@/types/user.interface";
 
 const createPeopleColumns = (): ColumnDef<IUser>[] => [
 	{
@@ -56,7 +56,9 @@ const createPeopleColumns = (): ColumnDef<IUser>[] => [
 						table.getIsAllPageRowsSelected() ||
 						(table.getIsSomePageRowsSelected() && "indeterminate")
 					}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+					onCheckedChange={(value) =>
+						table.toggleAllPageRowsSelected(!!value)
+					}
 					aria-label="Select all"
 				/>
 			</div>
@@ -88,7 +90,9 @@ const createPeopleColumns = (): ColumnDef<IUser>[] => [
 							.map((x) => x[0])
 							.join("")}
 					</div>
-					<span className="text-primary/80">{row.original.fullname}</span>
+					<span className="text-primary/80">
+						{row.original.fullname}
+					</span>
 				</div>
 			);
 		},
@@ -146,110 +150,116 @@ const createPeopleColumns = (): ColumnDef<IUser>[] => [
 	},
 ];
 
-const createRequestColumns = (): ColumnDef<IUserRequestInvite>[] => [
-	{
-		id: "select",
-		size: 50,
-		header: ({ table }) => (
-			<div className="flex items-center justify-center">
-				<Checkbox
-					checked={
-						table.getIsAllPageRowsSelected() ||
-						(table.getIsSomePageRowsSelected() && "indeterminate")
-					}
-					onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-					aria-label="Select all"
-				/>
-			</div>
-		),
-		cell: ({ row }) => (
-			<div className="flex items-center justify-center">
-				<Checkbox
-					checked={row.getIsSelected()}
-					onCheckedChange={(value) => row.toggleSelected(!!value)}
-					aria-label="Select row"
-				/>
-			</div>
-		),
-		enableSorting: false,
-		enableHiding: false,
-	},
-	{
-		accessorKey: "fullname",
-		header: "Full Name",
-		size: 200,
-		cell: ({ row }) => {
-			return (
-				<div className="flex items-center gap-1 text-sm">
-					<div
-						className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${row.original.colorAvatar}`}
-					>
-						{row.original.fullname
-							.split(" ")
-							.map((x) => x[0])
-							.join("")}
-					</div>
-					<span className="text-primary/80">{row.original.fullname}</span>
-				</div>
-			);
-		},
-		enableHiding: false,
-	},
-	{
-		accessorKey: "username",
-		header: "Username",
-		size: 150,
-		cell: ({ row }) => {
-			return <div className="capitalize">{row.original.username}</div>;
-		},
-		enableHiding: false,
-	},
-	{
-		accessorKey: "email",
-		header: "Email",
-		size: 200,
-		cell: ({ row }) => {
-			return <div>{row.original.email}</div>;
-		},
-	},
-	{
-		accessorKey: "jobTitle",
-		header: "Job Title",
-		size: 180,
-		cell: ({ row }) => {
-			return <div>{row.original.jobTitle}</div>;
-		},
-	},
-	{
-		accessorKey: "status",
-		header: "Status",
-		size: 150,
-		cell: ({ row }) => (
-			<Badge variant="outline" className="text-muted-foreground px-1.5">
-				{row.original.status === "accepted" ? (
-					<CircleCheck className="fill-green-500" />
-				) : (
-					<CircleDashed className="fill-red-500" />
-				)}
-				<span className="ml-1 capitalize">{row.original.status}</span>
-			</Badge>
-		),
-	},
-];
+// const createRequestColumns = (): ColumnDef<IUserRequestInvite>[] => [
+// 	{
+// 		id: "select",
+// 		size: 50,
+// 		header: ({ table }) => (
+// 			<div className="flex items-center justify-center">
+// 				<Checkbox
+// 					checked={
+// 						table.getIsAllPageRowsSelected() ||
+// 						(table.getIsSomePageRowsSelected() && "indeterminate")
+// 					}
+// 					onCheckedChange={(value) =>
+// 						table.toggleAllPageRowsSelected(!!value)
+// 					}
+// 					aria-label="Select all"
+// 				/>
+// 			</div>
+// 		),
+// 		cell: ({ row }) => (
+// 			<div className="flex items-center justify-center">
+// 				<Checkbox
+// 					checked={row.getIsSelected()}
+// 					onCheckedChange={(value) => row.toggleSelected(!!value)}
+// 					aria-label="Select row"
+// 				/>
+// 			</div>
+// 		),
+// 		enableSorting: false,
+// 		enableHiding: false,
+// 	},
+// 	{
+// 		accessorKey: "fullname",
+// 		header: "Full Name",
+// 		size: 200,
+// 		cell: ({ row }) => {
+// 			return (
+// 				<div className="flex items-center gap-1 text-sm">
+// 					<div
+// 						className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${row.original.colorAvatar}`}
+// 					>
+// 						{row.original.fullname ||
+// 							""
+// 								.split(" ")
+// 								.map((x) => x[0])
+// 								.join("")}
+// 					</div>
+// 					<span className="text-primary/80">
+// 						{row.original.fullname}
+// 					</span>
+// 				</div>
+// 			);
+// 		},
+// 		enableHiding: false,
+// 	},
+// 	{
+// 		accessorKey: "username",
+// 		header: "Username",
+// 		size: 150,
+// 		cell: ({ row }) => {
+// 			return <div className="capitalize">{row.original.username}</div>;
+// 		},
+// 		enableHiding: false,
+// 	},
+// 	{
+// 		accessorKey: "email",
+// 		header: "Email",
+// 		size: 200,
+// 		cell: ({ row }) => {
+// 			return <div>{row.original.email}</div>;
+// 		},
+// 	},
+// 	{
+// 		accessorKey: "jobTitle",
+// 		header: "Job Title",
+// 		size: 180,
+// 		cell: ({ row }) => {
+// 			return <div>{row.original.jobTitle}</div>;
+// 		},
+// 	},
+// 	{
+// 		accessorKey: "status",
+// 		header: "Status",
+// 		size: 150,
+// 		cell: ({ row }) => (
+// 			<Badge variant="outline" className="text-muted-foreground px-1.5">
+// 				{row.original.status === "accepted" ? (
+// 					<CircleCheck className="fill-green-500" />
+// 				) : (
+// 					<CircleDashed className="fill-red-500" />
+// 				)}
+// 				<span className="ml-1 capitalize">{row.original.status}</span>
+// 			</Badge>
+// 		),
+// 	},
+// ];
 
-type PeopleTableProps =
-	| {
-			data: IUser[];
-			type: "people";
-	  }
-	| {
-			data: IUserRequestInvite[];
-			type: "request";
-	  };
+type PeopleTableProps = {
+	data: IUser[];
+	type: "people";
+};
+// | {
+// 		data: IUserRequestInvite[];
+// 		type: "request";
+//   };
 
 export function PeopleTable({ data, type }: PeopleTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
-	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+		{}
+	);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState({
@@ -257,9 +267,15 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 		pageSize: 5,
 	});
 
+	// const columns = useMemo(() => {
+	// 	return type === "request"
+	// 		? createRequestColumns()
+	// 		: createPeopleColumns();
+	// }, [type]) as ColumnDef<IUser | IUserRequestInvite>[];
+
 	const columns = useMemo(() => {
-		return type === "request" ? createRequestColumns() : createPeopleColumns();
-	}, [type]) as ColumnDef<IUser | IUserRequestInvite>[];
+		return createPeopleColumns();
+	}, [type]) as ColumnDef<IUser>[];
 
 	const table = useReactTable({
 		data,
@@ -305,8 +321,9 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 											{header.isPlaceholder
 												? null
 												: flexRender(
-														header.column.columnDef.header,
-														header.getContext(),
+														header.column.columnDef
+															.header,
+														header.getContext()
 												  )}
 										</TableHead>
 									);
@@ -319,7 +336,9 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
+									data-state={
+										row.getIsSelected() && "selected"
+									}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
@@ -330,7 +349,7 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 										>
 											{flexRender(
 												cell.column.columnDef.cell,
-												cell.getContext(),
+												cell.getContext()
 											)}
 										</TableCell>
 									))}
@@ -393,7 +412,9 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 							variant="outline"
 							className="hidden size-8 lg:flex"
 							size="icon"
-							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+							onClick={() =>
+								table.setPageIndex(table.getPageCount() - 1)
+							}
 							disabled={!table.getCanNextPage()}
 						>
 							<span className="sr-only">Go to last page</span>
