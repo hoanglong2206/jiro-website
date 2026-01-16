@@ -56,9 +56,9 @@ const Profile = () => {
 	const [fullname, setFullname] = useState<string>("");
 	const [jobTitle, setJobTitle] = useState<string>("");
 	const [color, setColor] = useState<string>("");
-	const [profilePictureValue, setProfilePictureValue] = useState<string | null>(
-		null,
-	);
+	const [profilePictureValue, setProfilePictureValue] = useState<
+		string | null
+	>(null);
 	const [profilePicturePreview, setProfilePicturePreview] = useState<
 		string | null
 	>(null);
@@ -104,11 +104,6 @@ const Profile = () => {
 	const handleRemoveAvatar = () => {
 		setProfilePictureValue(null);
 		setProfilePicturePreview(null);
-	};
-
-	const handleModalSubmit = (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
-		setIsModalOpen(false);
 	};
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -194,20 +189,35 @@ const Profile = () => {
 								</span>
 							</div>
 							<div className="md:col-span-2 col-span-3">
-								<form className="space-y-4" onSubmit={handleSubmit}>
+								<form
+									className="space-y-4"
+									onSubmit={handleSubmit}
+								>
 									<div className="space-y-2">
-										<h2 className="font-medium text-sm">Avatar</h2>
+										<h2 className="font-medium text-sm">
+											Avatar
+										</h2>
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
 												<Avatar className="h-24 w-24 cursor-pointer">
 													<AvatarImage
-														src={profilePicturePreview ?? undefined}
-														alt={fullname || user.fullname || ""}
+														src={
+															profilePicturePreview ??
+															undefined
+														}
+														alt={
+															fullname ||
+															user.fullname ||
+															""
+														}
 													/>
 													<AvatarFallback
 														className="text-white text-2xl"
 														style={{
-															backgroundColor: color || user.colorAvatar || "",
+															backgroundColor:
+																color ||
+																user.colorAvatar ||
+																"",
 														}}
 													>
 														{initials}
@@ -226,38 +236,58 @@ const Profile = () => {
 												<RadioGroup
 													className="grid grid-cols-5 gap-1.5"
 													value={color}
-													onValueChange={(e) => setColor(e)}
+													onValueChange={(e) =>
+														setColor(e)
+													}
 												>
 													{colorList.map((swatch) => (
-														<Tooltip key={swatch.label}>
-															<TooltipTrigger asChild>
+														<Tooltip
+															key={swatch.label}
+														>
+															<TooltipTrigger
+																asChild
+															>
 																<div>
 																	<RadioGroupItem
-																		value={swatch.value}
-																		id={swatch.label}
+																		value={
+																			swatch.value
+																		}
+																		id={
+																			swatch.label
+																		}
 																		className="peer sr-only "
 																	/>
 																	<Label
-																		htmlFor={swatch.label}
+																		htmlFor={
+																			swatch.label
+																		}
 																		className=" flex w-6 h-6 items-center justify-center rounded-full border-2 border-muted bg-popover p-2 cursor-pointer  hover:ring-2 hover:ring-sidebar-ring peer-data-[state=checked]:ring-2 peer-data-[state=checked]:ring-(--checked-color) peer-data-[state=checked]:hover:ring-(--checked-color)"
 																		style={
 																			{
-																				backgroundColor: swatch.value,
-																				"--checked-color": swatch.value,
+																				backgroundColor:
+																					swatch.value,
+																				"--checked-color":
+																					swatch.value,
 																			} as CSSProperties
 																		}
 																	></Label>
 																</div>
 															</TooltipTrigger>
 															<TooltipContent side="bottom">
-																<p>{swatch.label}</p>
+																<p>
+																	{
+																		swatch.label
+																	}
+																</p>
 															</TooltipContent>
 														</Tooltip>
 													))}
 												</RadioGroup>
 												<DropdownMenuSeparator />
 												<DropdownMenuItem
-													onClick={() => setIsModalOpen(true)}
+													onClick={() =>
+														setIsModalOpen(true)
+													}
 													className="gap-2 p-2 cursor-pointer"
 												>
 													<Upload className="size-4" />
@@ -269,21 +299,29 @@ const Profile = () => {
 										</DropdownMenu>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="fullname">Full name</Label>
+										<Label htmlFor="fullname">
+											Full name
+										</Label>
 										<Input
 											id="fullname"
 											type="text"
 											value={fullname}
-											onChange={(event) => setFullname(event.target.value)}
+											onChange={(event) =>
+												setFullname(event.target.value)
+											}
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="jobTitle">Job title</Label>
+										<Label htmlFor="jobTitle">
+											Job title
+										</Label>
 										<Input
 											id="jobTitle"
 											type="text"
 											value={jobTitle}
-											onChange={(event) => setJobTitle(event.target.value)}
+											onChange={(event) =>
+												setJobTitle(event.target.value)
+											}
 										/>
 									</div>
 									<div className="flex items-center justify-end">
@@ -292,7 +330,9 @@ const Profile = () => {
 											className="cursor-pointer"
 											disabled={isLoading}
 										>
-											{isLoading ? "Saving..." : "Save Changes"}
+											{isLoading
+												? "Saving..."
+												: "Save Changes"}
 										</Button>
 									</div>
 								</form>
@@ -306,12 +346,15 @@ const Profile = () => {
 								</span>
 							</div>
 							<div className="md:col-span-2 col-span-3 flex flex-col md:flex-row gap-4 items-center justify-between">
-								<div className="text-muted-foreground">
-									Log out all sessions including any session on mobile, iPad,
-									and other browsers
+								<div className="text-muted-foreground max-w-lg">
+									Log out all sessions including any session
+									on mobile, iPad, and other browsers
 								</div>
 								<div className="flex flex-col items-end gap-2 w-full md:w-auto">
-									<Button variant={"outline"} className="cursor-pointer w-full">
+									<Button
+										variant={"outline"}
+										className="cursor-pointer w-full"
+									>
 										Log out of all sessions
 									</Button>
 									<Button
@@ -332,7 +375,7 @@ const Profile = () => {
 				size="w-64"
 			>
 				<div className="flex h-full flex-col gap-6 px-4 pb-4">
-					<form className="space-y-6" onSubmit={handleModalSubmit}>
+					<div className="space-y-6">
 						<div className="relative border rounded-md overflow-hidden w-40 h-40 mt-6 self-center">
 							{profilePicturePreview ? (
 								<Image
@@ -370,15 +413,7 @@ const Profile = () => {
 								Remove avatar
 							</Button>
 						</div>
-						<div className="flex items-center justify-end">
-							<Button
-								className="flex w-full md:w-auto cursor-pointer"
-								type="submit"
-							>
-								Close
-							</Button>
-						</div>
-					</form>
+					</div>
 				</div>
 			</CustomModal>
 		</>

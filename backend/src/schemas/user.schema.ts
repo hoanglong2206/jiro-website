@@ -12,9 +12,7 @@ class userSchema {
 			profilePicture: Joi.string().uri().messages({
 				"string.uri": "Invalid profile picture URL",
 			}),
-			colorAvatar: Joi.string().hex().messages({
-				"string.hex": "Invalid color format",
-			}),
+			colorAvatar: Joi.string(),
 			jobTitle: Joi.string(),
 		}).min(1);
 	}
