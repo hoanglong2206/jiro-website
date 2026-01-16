@@ -12,6 +12,7 @@ import {
 	MoreHorizontal,
 	Search,
 	LayoutGrid,
+	UsersRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -54,10 +55,45 @@ const items: { label: string; icon: ElementType; href: string }[] = [
 		icon: MessageSquareText,
 		href: "chat",
 	},
+	{
+		label: "Teams",
+		icon: UsersRound,
+		href: "teams",
+	},
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const pathname = usePathname();
+
+	const memoizedMenuItems = useMemo(
+		() =>
+			items.map((item) => (
+				<SidebarMenuItem key={item.label}>
+					<SidebarMenuButton
+						tooltip={item.label}
+						className={cn(
+							"flex items-center gap-3 text-sm cursor-pointer transition-colors",
+							(item.href === "teams"
+								? pathname.includes(item.href) ||
+								  pathname.includes("people") ||
+								  pathname.includes("analytics")
+								: pathname.includes(item.href)) &&
+								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium"
+						)}
+						asChild
+					>
+						<Link
+							href={`${item.href}`}
+							className="flex items-center gap-2"
+						>
+							<item.icon className="h-4 w-4" />
+							{item.label}
+						</Link>
+					</SidebarMenuButton>
+				</SidebarMenuItem>
+			)),
+		[pathname]
+	);
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
@@ -66,29 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
-					<SidebarMenu>
-						{items.map((item) => (
-							<SidebarMenuItem key={item.label}>
-								<SidebarMenuButton
-									tooltip={item.label}
-									className={cn(
-										"flex items-center gap-3 text-sm cursor-pointer transition-colors",
-										pathname.includes(item.href) &&
-											"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium"
-									)}
-									asChild
-								>
-									<Link
-										href={`${item.href}`}
-										className="flex items-center gap-2"
-									>
-										<item.icon className="h-4 w-4" />
-										{item.label}
-									</Link>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						))}
-					</SidebarMenu>
+					<SidebarMenu>{memoizedMenuItems}</SidebarMenu>
 				</SidebarGroup>
 				<SidebarGroup>
 					<SidebarGroupLabel className="flex items-center justify-between">
