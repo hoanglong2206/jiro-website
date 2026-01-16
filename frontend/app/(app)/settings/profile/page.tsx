@@ -376,7 +376,7 @@ const Profile = () => {
 			>
 				<div className="flex h-full flex-col gap-6 px-4 pb-4">
 					<div className="space-y-6">
-						<div className="relative border rounded-md overflow-hidden w-40 h-40 mt-6 self-center">
+						<div className="relative border rounded-md overflow-hidden w-44 h-44 mt-10 self-center">
 							{profilePicturePreview ? (
 								<Image
 									src={profilePicturePreview}
@@ -401,12 +401,13 @@ const Profile = () => {
 								id="profilePicture"
 								type="file"
 								accept="image/*"
+								className="cursor-pointer"
 								onChange={handleAvatarChange}
 							/>
 							<Button
 								type="button"
 								variant="outline"
-								className="w-full"
+								className="w-full cursor-pointer"
 								onClick={handleRemoveAvatar}
 								disabled={!profilePicturePreview}
 							>

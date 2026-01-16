@@ -7,13 +7,7 @@ const nextConfig: NextConfig = {
 		remotePatterns: [
 			{
 				protocol: "https",
-				hostname: "cdn-icons-png.flaticon.com",
-				port: "",
-				pathname: "/**",
-			},
-			{
-				protocol: "https",
-				hostname: "i.pravatar.cc",
+				hostname: "res.cloudinary.com",
 				port: "",
 				pathname: "/**",
 			},
