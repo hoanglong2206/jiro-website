@@ -37,9 +37,6 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
-import { ProjectResponse } from "@/types/project.interface";
-import { IUser } from "@/types/user.interface";
-import { mockUsers, mockProjects } from "@/lib/mockData";
 
 const items: { label: string; icon: ElementType; href: string }[] = [
 	{
@@ -65,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
-				<ProjectSwitcher projects={mockProjects} />
+				<ProjectSwitcher />
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
@@ -138,20 +135,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	);
 }
 
-function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
-	const currentUser: IUser = useMemo(() => mockUsers[3], []);
-	const initProject: ProjectResponse = useMemo(
-		() =>
-			projects.filter((project) => project.lead.id === currentUser.id)[0],
-		[currentUser, projects]
-	);
-	const [activeProject, setActiveProject] = useState<ProjectResponse | null>(
-		initProject
-	);
+function ProjectSwitcher() {
 	const { isMobile } = useSidebar();
-	if (!activeProject) {
-		return null;
-	}
+
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
@@ -162,19 +148,19 @@ function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<div className="bg-muted-foreground/40  flex aspect-square size-8 items-center justify-center rounded-lg">
-								<Image
-									src={activeProject.icon}
-									alt={activeProject.name}
+								{/* <Image
+									src={""}
+									alt={""}
 									width={15}
 									height={15}
-								/>
+								/> */}
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">
-									{activeProject.name}
+									{""}
 								</span>
 								<span className="text-xs capitalize italic">
-									{activeProject.type}
+									{""}
 								</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />
@@ -189,7 +175,7 @@ function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
 						<DropdownMenuLabel className="text-muted-foreground text-xs">
 							Project
 						</DropdownMenuLabel>
-						{projects
+						{/* {projects
 							.filter(
 								(project) => project.lead.id === currentUser.id
 							)
@@ -209,7 +195,7 @@ function ProjectSwitcher({ projects }: { projects: ProjectResponse[] }) {
 									</div>
 									{project.name}
 								</DropdownMenuItem>
-							))}
+							))} */}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem className="gap-2 p-2 cursor-pointer">
 							<div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
