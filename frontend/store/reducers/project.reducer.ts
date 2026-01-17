@@ -2,13 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IProjectWithMembershipResponse } from "@/types/project.interface";
 
 interface ProjectState {
-	items: IProjectWithMembershipResponse[];
-	selectedProjectId: string | null;
+	projects: IProjectWithMembershipResponse[];
+	currentProject: IProjectWithMembershipResponse | null;
 }
 
 const initialState: ProjectState = {
-	items: [],
-	selectedProjectId: null,
+	projects: [],
+	currentProject: null,
 };
 
 const projectSlice = createSlice({
@@ -17,29 +17,35 @@ const projectSlice = createSlice({
 	reducers: {
 		setProjects: (
 			state,
-			action: PayloadAction<IProjectWithMembershipResponse[]>,
+			action: PayloadAction<IProjectWithMembershipResponse[]>
 		) => {
-			state.items = action.payload;
+			state.projects = action.payload;
 		},
 		addProject: (
 			state,
-			action: PayloadAction<IProjectWithMembershipResponse>,
+			action: PayloadAction<IProjectWithMembershipResponse>
 		) => {
-			state.items = [
-				action.payload,
-				...state.items.filter(
-					(item) => item.project.id !== action.payload.project.id,
-				),
-			];
+			state.projects = [...state.projects, action.payload];
 		},
-		setSelectedProject: (state, action: PayloadAction<string | null>) => {
-			state.selectedProjectId = action.payload;
+		setCurrentProject: (
+			state,
+			action: PayloadAction<IProjectWithMembershipResponse>
+		) => {
+			state.currentProject = action.payload;
+		},
+		clearCurrentProject: (state) => {
+			state.currentProject = null;
 		},
 		clearProjects: () => ({ ...initialState }),
 	},
 });
 
-export const { setProjects, addProject, setSelectedProject, clearProjects } =
-	projectSlice.actions;
+export const {
+	setProjects,
+	addProject,
+	setCurrentProject,
+	clearCurrentProject,
+	clearProjects,
+} = projectSlice.actions;
 
 export default projectSlice.reducer;

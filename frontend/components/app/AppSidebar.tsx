@@ -40,10 +40,11 @@ import {
 import { useGetProjectsQuery } from "@/services/project.service";
 import {
 	setProjects,
-	setSelectedProject,
+	setCurrentProject,
 } from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { IProjectWithMembershipResponse } from "@/types/project.interface";
+import Image from "next/image";
 
 const navigationItems: { label: string; icon: ElementType; href: string }[] = [
 	{
@@ -72,19 +73,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const dispatch = useAppDispatch();
-	const { items: projectItems, selectedProjectId } = useAppSelector(
-		(state) => state.project,
+	const { projects: projectItems, currentProject } = useAppSelector(
+		(state) => state.project
 	);
 	const { data, isFetching } = useGetProjectsQuery();
 
 	useEffect(() => {
 		if (data?.projects) {
 			dispatch(setProjects(data.projects));
-			if (!selectedProjectId && data.projects.length) {
-				dispatch(setSelectedProject(data.projects[0].project.id));
-			}
 		}
-	}, [data, dispatch, selectedProjectId]);
+	}, [data, dispatch]);
 
 	const memoizedMenuItems = useMemo(
 		() =>
@@ -99,18 +97,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								  pathname.includes("people") ||
 								  pathname.includes("analytics")
 								: pathname.includes(item.href)) &&
-								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium",
+								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium"
 						)}
 						asChild
 					>
-						<Link href={`${item.href}`} className="flex items-center gap-2">
+						<Link
+							href={`${item.href}`}
+							className="flex items-center gap-2"
+						>
 							<item.icon className="h-4 w-4" />
 							{item.label}
 						</Link>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
 			)),
-		[pathname],
+		[pathname]
 	);
 
 	return (
@@ -119,15 +120,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<ProjectSwitcher
 					projects={projectItems}
 					isLoading={isFetching}
-					selectedProjectId={selectedProjectId}
-					onSelect={(id) => {
-						if (!id) {
-							dispatch(setSelectedProject(null));
-							return;
-						}
-						dispatch(setSelectedProject(id));
-						router.push(`/projects/${id}/home`);
-					}}
+					currentProject={currentProject}
 				/>
 			</SidebarHeader>
 			<SidebarContent>
@@ -182,28 +175,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 interface ProjectSwitcherProps {
 	projects: IProjectWithMembershipResponse[];
 	isLoading: boolean;
-	selectedProjectId: string | null;
-	onSelect: (projectId: string | null) => void;
+	currentProject: IProjectWithMembershipResponse | null;
 }
 
 function ProjectSwitcher({
 	projects,
 	isLoading,
-	selectedProjectId,
-	onSelect,
+	currentProject,
 }: ProjectSwitcherProps) {
 	const { isMobile } = useSidebar();
-	const selectedProject = projects.find(
-		(project) => project.project.id === selectedProjectId,
-	);
-	const selectedDisplayName =
-		selectedProject?.project.name ?? "Select a project";
-	const selectedType = selectedProject?.project.type ?? "";
 
-	const renderProjectIcon = (name: string) => {
-		const initial = name ? name.charAt(0).toUpperCase() : "?";
+	const renderProjectIcon = (name: string, color: string) => {
+		const initial = name
+			.split(" ")
+			.map((x) => x[0])
+			.join("");
 		return (
-			<div className="flex size-8 items-center justify-center rounded-lg bg-muted text-sm font-medium">
+			<div
+				className="flex aspect-square size-8 items-center justify-center rounded-lg text-background"
+				style={{ backgroundColor: color }}
+			>
 				{initial}
 			</div>
 		);
@@ -218,13 +209,28 @@ function ProjectSwitcher({
 							size="lg"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
-							{renderProjectIcon(selectedProject?.project.name ?? "")}
+							{currentProject?.project.icon ? (
+								<div className="bg-muted-foreground/40  flex aspect-square size-8 items-center justify-center rounded-lg">
+									<Image
+										src={currentProject?.project.icon}
+										alt={currentProject?.project.name}
+										width={15}
+										height={15}
+									/>
+								</div>
+							) : (
+								renderProjectIcon(
+									currentProject?.project.name ?? "",
+									currentProject?.project.color ?? ""
+								)
+							)}
+
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">
-									{selectedDisplayName}
+									{currentProject?.project.name}
 								</span>
 								<span className="text-xs capitalize italic">
-									{selectedType}
+									{currentProject?.project.type}
 								</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />
@@ -244,21 +250,18 @@ function ProjectSwitcher({
 								Loading projects...
 							</DropdownMenuItem>
 						)}
-						{!isLoading && projects.length === 0 && (
-							<DropdownMenuItem className="p-2 text-sm text-muted-foreground">
-								No projects found
-							</DropdownMenuItem>
-						)}
 						{projects.map((project) => {
 							const projectName = project.project.name;
 							return (
 								<DropdownMenuItem
 									key={project.project.id}
-									onClick={() => onSelect(project.project.id)}
 									className="gap-2 p-2 cursor-pointer transition-colors"
 								>
 									<div className="flex size-6 items-center justify-center rounded-md border bg-transparent text-xs font-medium">
-										{projectName.charAt(0).toUpperCase()}
+										{projectName
+											.split(" ")
+											.map((x) => x[0])
+											.join("")}
 									</div>
 									{projectName}
 								</DropdownMenuItem>

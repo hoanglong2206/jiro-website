@@ -12,13 +12,17 @@ class ProjectRoutes {
 	}
 
 	routes(): Router {
-		this.router.get("/", verifyJWT, projectController.getProjects);
-		this.router.get("/:projectId", verifyJWT, projectController.getProjectById);
+		this.router.get("/getAll", verifyJWT, projectController.getProjects);
+		this.router.get(
+			"/:projectId",
+			verifyJWT,
+			projectController.getProjectById
+		);
 		this.router.post(
-			"/",
+			"/create",
 			verifyJWT,
 			validate(schema.create()),
-			projectController.createProject,
+			projectController.createProject
 		);
 		return this.router;
 	}

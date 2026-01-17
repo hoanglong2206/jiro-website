@@ -28,6 +28,7 @@ export const projectTable = pgTable("project", {
 	accessLevel: projectAccessLevelEnum("access_level").notNull(),
 	ownerId: uuid("owner_id").notNull(),
 	icon: varchar("icon"),
+	color: varchar("color"),
 	createdAt: timestamp("created_at", { withTimezone: true })
 		.defaultNow()
 		.notNull(),
@@ -45,6 +46,7 @@ export const projectMembersTable = pgTable("project_members", {
 	userId: uuid("user_id").notNull(),
 	userEmail: varchar("user_email", { length: 255 }),
 	userFullname: varchar("user_fullname", { length: 255 }),
+	userColorAvatar: varchar("user_color_avatar"),
 	userProfilePicture: text("user_profile_picture"),
 	role: projectMemberRoleEnum("role").notNull(), // 'owner', 'admin', 'member', 'viewer'
 	invitedBy: uuid("invited_by"),
@@ -62,6 +64,7 @@ export const workspaces = pgTable("workspaces", {
 		.notNull()
 		.references(() => projectTable.id, { onDelete: "cascade" }),
 	name: varchar("name", { length: 255 }).notNull(),
+	key: varchar("key", { length: 255 }).notNull(),
 	color: varchar("color", { length: 50 }),
 	createdBy: uuid("created_by").notNull(),
 	createdAt: timestamp("created_at").defaultNow().notNull(),

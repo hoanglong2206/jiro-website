@@ -16,22 +16,29 @@ type CreateProjectPayload = {
 	description?: string | null;
 	type: ProjectType;
 	accessLevel: ProjectAccessLevel;
+	color?: string | null;
 	icon?: string | null;
 };
 
 class ProjectService {
 	async createProject(
 		payload: CreateProjectPayload,
-		user: IUser,
+		user: IUser
 	): Promise<{ project: ProjectRecord; membership: ProjectMemberRecord }> {
 		return db.transaction(async (trx) => {
 			const normalizedDescription =
-				payload.description !== undefined && payload.description !== null
+				payload.description !== undefined &&
+				payload.description !== null
 					? payload.description.trim() || null
 					: null;
 			const normalizedIcon =
 				payload.icon !== undefined && payload.icon !== null
 					? payload.icon.trim() || null
+					: null;
+
+			const normalizedColor =
+				payload.color !== undefined && payload.color !== null
+					? payload.color.trim() || null
 					: null;
 
 			const projectToInsert: NewProjectRecord = {
@@ -40,6 +47,7 @@ class ProjectService {
 				type: payload.type,
 				accessLevel: payload.accessLevel,
 				ownerId: user.id,
+				color: normalizedColor,
 				icon: normalizedIcon,
 			};
 
@@ -59,6 +67,7 @@ class ProjectService {
 				userEmail: user.email,
 				userFullname: user.fullname,
 				userProfilePicture: user.profilePicture ?? null,
+				userColorAvatar: user.colorAvatar ?? null,
 				role: "admin",
 				invitedBy: user.id,
 			};
@@ -78,7 +87,7 @@ class ProjectService {
 	}
 
 	async getProjectsForUser(
-		userId: string,
+		userId: string
 	): Promise<
 		Array<{ project: ProjectRecord; membership: ProjectMemberRecord }>
 	> {
@@ -87,7 +96,7 @@ class ProjectService {
 			.from(projectMembersTable)
 			.innerJoin(
 				projectTable,
-				eq(projectMembersTable.projectId, projectTable.id),
+				eq(projectMembersTable.projectId, projectTable.id)
 			)
 			.where(eq(projectMembersTable.userId, userId));
 
@@ -96,7 +105,7 @@ class ProjectService {
 
 	async getProjectByIdForUser(
 		projectId: string,
-		userId: string,
+		userId: string
 	): Promise<{
 		project: ProjectRecord;
 		membership: ProjectMemberRecord;
@@ -106,13 +115,13 @@ class ProjectService {
 			.from(projectMembersTable)
 			.innerJoin(
 				projectTable,
-				eq(projectMembersTable.projectId, projectTable.id),
+				eq(projectMembersTable.projectId, projectTable.id)
 			)
 			.where(
 				and(
 					eq(projectMembersTable.projectId, projectId),
-					eq(projectMembersTable.userId, userId),
-				),
+					eq(projectMembersTable.userId, userId)
+				)
 			)
 			.limit(1);
 

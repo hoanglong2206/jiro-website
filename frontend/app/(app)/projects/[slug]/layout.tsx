@@ -20,8 +20,8 @@ import { ElementType, useEffect } from "react";
 import { useGetProjectByIdQuery } from "@/services/project.service";
 import { useAppDispatch } from "@/store/store";
 import {
-	addProject,
-	setSelectedProject,
+	clearCurrentProject,
+	setCurrentProject,
 } from "@/store/reducers/project.reducer";
 
 interface AppLayoutProps {
@@ -45,14 +45,13 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
 	useEffect(() => {
 		if (projectData) {
-			dispatch(addProject(projectData));
-			dispatch(setSelectedProject(projectData.project.id));
+			dispatch(setCurrentProject(projectData));
 		}
 	}, [dispatch, projectData]);
 
 	useEffect(() => {
 		if (isError) {
-			dispatch(setSelectedProject(null));
+			dispatch(clearCurrentProject());
 		}
 	}, [dispatch, isError]);
 
@@ -110,10 +109,6 @@ export default function AppLayout({ children }: AppLayoutProps) {
 					{isFetching && !projectData ? (
 						<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
 							Loading project...
-						</div>
-					) : isError ? (
-						<div className="flex flex-1 items-center justify-center text-sm text-destructive">
-							Unable to load this project.
 						</div>
 					) : (
 						children

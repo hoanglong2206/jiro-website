@@ -16,11 +16,9 @@ import { ProjectAccessLevel, ProjectType } from "@/types/project.interface";
 import { Lock, LockOpen, Loader2, UsersRound, Warehouse } from "lucide-react";
 import { useCreateProjectMutation } from "@/services/project.service";
 import { toast } from "sonner";
-import { useAppDispatch } from "@/store/store";
-import {
-	addProject,
-	setSelectedProject,
-} from "@/store/reducers/project.reducer";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { addProject } from "@/store/reducers/project.reducer";
+import { IUser } from "@/types/user.interface";
 
 interface CreateProjectModalProps {
 	isOpen: boolean;
@@ -41,6 +39,7 @@ export function CreateProjectModal({
 	const [accessLevel, setAccessLevel] =
 		useState<ProjectAccessLevel>(DEFAULT_ACCESS);
 	const [createProject, { isLoading }] = useCreateProjectMutation();
+	const userInfo: IUser = useAppSelector((state) => state.user);
 
 	useEffect(() => {
 		if (!isOpen) {
@@ -69,15 +68,18 @@ export function CreateProjectModal({
 				description: description.trim() || undefined,
 				type,
 				accessLevel,
+				color: "#60a5fa",
+				user: userInfo,
 			}).unwrap();
 
 			dispatch(addProject(result));
-			dispatch(setSelectedProject(result.project.id));
 			toast.success("Project created successfully");
 			onClose();
 		} catch (error: any) {
 			const message =
-				error?.data?.message || error?.message || "Failed to create project";
+				error?.data?.message ||
+				error?.message ||
+				"Failed to create project";
 			toast.error(message);
 		}
 	};
@@ -110,8 +112,16 @@ export function CreateProjectModal({
 							value={type}
 							icon={type === "personal" ? UsersRound : Warehouse}
 							options={[
-								{ label: "Personal", value: "personal", icon: UsersRound },
-								{ label: "Work", value: "work", icon: Warehouse },
+								{
+									label: "Personal",
+									value: "personal",
+									icon: UsersRound,
+								},
+								{
+									label: "Work",
+									value: "work",
+									icon: Warehouse,
+								},
 							]}
 							onChange={(value) => setType(value as ProjectType)}
 						/>
@@ -121,10 +131,20 @@ export function CreateProjectModal({
 							value={accessLevel}
 							icon={accessLevel === "private" ? Lock : LockOpen}
 							options={[
-								{ label: "Private", value: "private", icon: Lock },
-								{ label: "Public", value: "public", icon: LockOpen },
+								{
+									label: "Private",
+									value: "private",
+									icon: Lock,
+								},
+								{
+									label: "Public",
+									value: "public",
+									icon: LockOpen,
+								},
 							]}
-							onChange={(value) => setAccessLevel(value as ProjectAccessLevel)}
+							onChange={(value) =>
+								setAccessLevel(value as ProjectAccessLevel)
+							}
 						/>
 					</div>
 					<div className="space-y-1">
@@ -137,7 +157,9 @@ export function CreateProjectModal({
 						<Textarea
 							id="project-description"
 							value={description}
-							onChange={(event) => setDescription(event.target.value)}
+							onChange={(event) =>
+								setDescription(event.target.value)
+							}
 							placeholder="Describe the project"
 						/>
 					</div>
@@ -147,7 +169,9 @@ export function CreateProjectModal({
 							type="submit"
 							disabled={isSubmitDisabled}
 						>
-							{isLoading && <Loader2 className="size-4 animate-spin" />}
+							{isLoading && (
+								<Loader2 className="size-4 animate-spin" />
+							)}
 							Create
 						</Button>
 					</div>

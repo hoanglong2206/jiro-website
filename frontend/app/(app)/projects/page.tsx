@@ -7,34 +7,23 @@ import { CreateProjectModal } from "@/components/app/CreateProjectModal";
 import { useGetProjectsQuery } from "@/services/project.service";
 import {
 	setProjects,
-	setSelectedProject,
+	setCurrentProject,
 } from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 
 const ProjectsPage = () => {
 	const dispatch = useAppDispatch();
-	const { items, selectedProjectId } = useAppSelector((state) => state.project);
+	const { projects } = useAppSelector((state) => state.project);
 	const { data, isFetching, isError, refetch } = useGetProjectsQuery();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
 	useEffect(() => {
 		if (data?.projects) {
 			dispatch(setProjects(data.projects));
-			if (!selectedProjectId && data.projects.length) {
-				dispatch(setSelectedProject(data.projects[0].project.id));
-			}
 		}
-	}, [data, dispatch, selectedProjectId]);
+	}, [data, dispatch]);
 
-	const handleSelect = (projectId: string) => {
-		if (selectedProjectId === projectId) {
-			dispatch(setSelectedProject(null));
-			return;
-		}
-		dispatch(setSelectedProject(projectId));
-	};
-
-	if (isFetching && !items.length) {
+	if (isFetching && !projects.length) {
 		return (
 			<div className="p-6 text-sm text-muted-foreground">
 				Loading projects...
@@ -45,7 +34,9 @@ const ProjectsPage = () => {
 	if (isError) {
 		return (
 			<div className="p-6 space-y-3">
-				<div className="text-sm text-red-500">Unable to load projects.</div>
+				<div className="text-sm text-red-500">
+					Unable to load projects.
+				</div>
 				<Button size="sm" variant="outline" onClick={() => refetch()}>
 					Retry
 				</Button>
@@ -64,29 +55,17 @@ const ProjectsPage = () => {
 						</p>
 					</div>
 					<div className="flex items-center gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							className="hidden md:inline-flex"
-							onClick={() => dispatch(setSelectedProject(null))}
-						>
-							Clear selection
-						</Button>
 						<Button size="sm" onClick={() => setIsModalOpen(true)}>
 							New project
 						</Button>
 					</div>
 				</div>
-				{items.length === 0 ? (
+				{projects.length === 0 ? (
 					<div className="rounded-md border border-dashed p-6 text-sm text-muted-foreground">
 						No projects yet. Create one to get started.
 					</div>
 				) : (
-					<ProjectsTable
-						data={items}
-						selectedProjectId={selectedProjectId}
-						onSelect={handleSelect}
-					/>
+					<ProjectsTable data={projects} />
 				)}
 			</div>
 			<CreateProjectModal

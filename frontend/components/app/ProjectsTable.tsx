@@ -29,15 +29,9 @@ import { IProjectWithMembershipResponse } from "@/types/project.interface";
 
 interface ProjectsTableProps {
 	data: IProjectWithMembershipResponse[];
-	selectedProjectId: string | null;
-	onSelect: (projectId: string) => void;
 }
 
-export function ProjectsTable({
-	data,
-	selectedProjectId,
-	onSelect,
-}: ProjectsTableProps) {
+export function ProjectsTable({ data }: ProjectsTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
 	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 8 });
 
@@ -50,7 +44,8 @@ export function ProjectsTable({
 						<Checkbox
 							checked={
 								table.getIsAllPageRowsSelected() ||
-								(table.getIsSomePageRowsSelected() && "indeterminate")
+								(table.getIsSomePageRowsSelected() &&
+									"indeterminate")
 							}
 							onCheckedChange={(value) =>
 								table.toggleAllPageRowsSelected(!!value)
@@ -63,7 +58,9 @@ export function ProjectsTable({
 					<div className="flex items-center justify-center">
 						<Checkbox
 							checked={row.getIsSelected()}
-							onCheckedChange={(value) => row.toggleSelected(!!value)}
+							onCheckedChange={(value) =>
+								row.toggleSelected(!!value)
+							}
 							aria-label="Select row"
 						/>
 					</div>
@@ -78,7 +75,8 @@ export function ProjectsTable({
 				size: 240,
 				cell: ({ row }) => {
 					const { project } = row.original;
-					const initial = project.name?.charAt(0).toUpperCase() || "?";
+					const initial =
+						project.name?.charAt(0).toUpperCase() || "?";
 					return (
 						<div className="flex items-center gap-3">
 							<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
@@ -89,7 +87,8 @@ export function ProjectsTable({
 									{project.name}
 								</p>
 								<p className="text-xs text-muted-foreground line-clamp-1">
-									{project.description || "No description provided."}
+									{project.description ||
+										"No description provided."}
 								</p>
 							</div>
 						</div>
@@ -126,27 +125,8 @@ export function ProjectsTable({
 					</Badge>
 				),
 			},
-			{
-				id: "actions",
-				size: 140,
-				header: "",
-				cell: ({ row }) => {
-					const projectId = row.original.project.id;
-					const isSelected = projectId === selectedProjectId;
-					return (
-						<Button
-							variant={isSelected ? "default" : "outline"}
-							size="sm"
-							onClick={() => onSelect(projectId)}
-						>
-							{isSelected ? "Selected" : "Select"}
-						</Button>
-					);
-				},
-				enableSorting: false,
-			},
 		],
-		[selectedProjectId, onSelect],
+		[]
 	);
 
 	const table = useReactTable({
@@ -179,8 +159,9 @@ export function ProjectsTable({
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
+													header.column.columnDef
+														.header,
+													header.getContext()
 											  )}
 									</TableHead>
 								))}
@@ -192,16 +173,20 @@ export function ProjectsTable({
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
+									data-state={
+										row.getIsSelected() && "selected"
+									}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
 											key={cell.id}
-											style={{ width: cell.column.getSize() }}
+											style={{
+												width: cell.column.getSize(),
+											}}
 										>
 											{flexRender(
 												cell.column.columnDef.cell,
-												cell.getContext(),
+												cell.getContext()
 											)}
 										</TableCell>
 									))}
@@ -222,8 +207,8 @@ export function ProjectsTable({
 			</div>
 			<div className="flex items-center justify-between gap-4">
 				<div className="text-sm text-muted-foreground">
-					{table.getState().pagination.pageIndex + 1} of {table.getPageCount()}{" "}
-					pages
+					{table.getState().pagination.pageIndex + 1} of{" "}
+					{table.getPageCount()} pages
 				</div>
 				<div className="flex items-center gap-2">
 					<Button
@@ -258,7 +243,9 @@ export function ProjectsTable({
 						variant="outline"
 						size="icon"
 						className="hidden h-8 w-8 p-0 lg:flex"
-						onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+						onClick={() =>
+							table.setPageIndex(table.getPageCount() - 1)
+						}
 						disabled={!table.getCanNextPage()}
 					>
 						<span className="sr-only">Go to last page</span>

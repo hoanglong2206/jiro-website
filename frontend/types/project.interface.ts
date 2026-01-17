@@ -1,3 +1,5 @@
+import { IUser } from "./user.interface";
+
 export type ProjectMemberRole = "owner" | "admin" | "member" | "viewer";
 export type ProjectType = "work" | "personal";
 export type ProjectAccessLevel = "private" | "public";
@@ -9,6 +11,7 @@ export interface IProjectResponse {
 	type: ProjectType;
 	accessLevel: ProjectAccessLevel;
 	ownerId: string;
+	color?: string | null;
 	icon?: string | null;
 }
 
@@ -17,7 +20,8 @@ export interface ICreateProjectPayload {
 	description?: string;
 	type: ProjectType;
 	accessLevel: ProjectAccessLevel;
-	icon?: string;
+	color: string;
+	user: IUser;
 }
 
 export interface IUpdateProjectPayload {
@@ -26,6 +30,7 @@ export interface IUpdateProjectPayload {
 	description?: string;
 	type?: ProjectType;
 	accessLevel?: ProjectAccessLevel;
+	color?: string;
 	icon?: string;
 }
 
@@ -35,6 +40,7 @@ export interface IProjectMemberResponse {
 	userId: string;
 	userEmail?: string | null;
 	userFullname?: string | null;
+	userColorAvatar?: string | null;
 	userProfilePicture?: string | null;
 	role: ProjectMemberRole;
 	invitedBy?: string | null;

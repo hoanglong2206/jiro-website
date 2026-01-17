@@ -25,6 +25,7 @@ class ProjectSchema {
 			}),
 			type: projectType,
 			accessLevel: projectAccessLevel,
+			color: Joi.string().allow(null, ""),
 			description: Joi.string().allow(null, "").max(1000),
 			icon: Joi.string().uri().allow(null, "").messages({
 				"string.uri": "Icon must be a valid URL",
@@ -41,9 +42,9 @@ class ProjectSchema {
 					"Project name must be at most {#limit} characters long",
 			}),
 			description: Joi.string().allow(null, "").max(1000),
-			type: Joi.string().valid("work", "personal").messages({
-				"any.only": "Project type must be either 'work' or 'personal'",
-			}),
+			type: projectType,
+			accessLevel: projectAccessLevel,
+			color: Joi.string().allow(null, ""),
 			icon: Joi.string().uri().allow(null, "").messages({
 				"string.uri": "Icon must be a valid URL",
 			}),
