@@ -17,10 +17,8 @@ class ProjectSchema {
 	create(): ObjectSchema {
 		return Joi.object({
 			name: Joi.string().min(2).max(120).required().messages({
-				"string.min":
-					"Project name must be at least {#limit} characters long",
-				"string.max":
-					"Project name must be at most {#limit} characters long",
+				"string.min": "Project name must be at least {#limit} characters long",
+				"string.max": "Project name must be at most {#limit} characters long",
 				"string.empty": "Project name is required",
 			}),
 			type: projectType,
@@ -30,16 +28,15 @@ class ProjectSchema {
 			icon: Joi.string().uri().allow(null, "").messages({
 				"string.uri": "Icon must be a valid URL",
 			}),
+			user: Joi.object().required(),
 		});
 	}
 
 	update(): ObjectSchema {
 		return Joi.object({
 			name: Joi.string().min(2).max(120).messages({
-				"string.min":
-					"Project name must be at least {#limit} characters long",
-				"string.max":
-					"Project name must be at most {#limit} characters long",
+				"string.min": "Project name must be at least {#limit} characters long",
+				"string.max": "Project name must be at most {#limit} characters long",
 			}),
 			description: Joi.string().allow(null, "").max(1000),
 			type: projectType,

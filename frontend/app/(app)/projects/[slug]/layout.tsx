@@ -44,8 +44,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
 	});
 
 	useEffect(() => {
-		if (projectData) {
-			dispatch(setCurrentProject(projectData));
+		if (projectData?.project) {
+			dispatch(setCurrentProject(projectData.project));
 		}
 	}, [dispatch, projectData]);
 
@@ -106,7 +106,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 					</div>
 				</header>
 				<div className="flex flex-1 flex-col overflow-auto">
-					{isFetching && !projectData ? (
+					{isFetching && !projectData?.project ? (
 						<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
 							Loading project...
 						</div>

@@ -72,14 +72,12 @@ export function CreateProjectModal({
 				user: userInfo,
 			}).unwrap();
 
-			dispatch(addProject(result));
+			dispatch(addProject(result.project));
 			toast.success("Project created successfully");
 			onClose();
 		} catch (error: any) {
 			const message =
-				error?.data?.message ||
-				error?.message ||
-				"Failed to create project";
+				error?.data?.message || error?.message || "Failed to create project";
 			toast.error(message);
 		}
 	};
@@ -142,9 +140,7 @@ export function CreateProjectModal({
 									icon: LockOpen,
 								},
 							]}
-							onChange={(value) =>
-								setAccessLevel(value as ProjectAccessLevel)
-							}
+							onChange={(value) => setAccessLevel(value as ProjectAccessLevel)}
 						/>
 					</div>
 					<div className="space-y-1">
@@ -157,9 +153,7 @@ export function CreateProjectModal({
 						<Textarea
 							id="project-description"
 							value={description}
-							onChange={(event) =>
-								setDescription(event.target.value)
-							}
+							onChange={(event) => setDescription(event.target.value)}
 							placeholder="Describe the project"
 						/>
 					</div>
@@ -169,9 +163,7 @@ export function CreateProjectModal({
 							type="submit"
 							disabled={isSubmitDisabled}
 						>
-							{isLoading && (
-								<Loader2 className="size-4 animate-spin" />
-							)}
+							{isLoading && <Loader2 className="size-4 animate-spin" />}
 							Create
 						</Button>
 					</div>

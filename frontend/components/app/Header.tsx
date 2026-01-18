@@ -141,16 +141,16 @@ export function Header() {
 					<DropdownMenuTrigger asChild>
 						<Avatar className="h-8 w-8 cursor-pointer hidden md:flex">
 							<AvatarImage
-								src={userInfo?.profilePicture || ""}
-								alt={userInfo?.fullname || "r"}
+								src={userInfo.profilePicture || ""}
+								alt={userInfo.fullname}
 							/>
 							<AvatarFallback
 								className="text-white"
 								style={{
-									backgroundColor: userInfo?.colorAvatar || "",
+									backgroundColor: userInfo.colorAvatar || "",
 								}}
 							>
-								{(userInfo?.fullname || "")
+								{userInfo.fullname
 									.split(" ")
 									.map((x) => x[0])
 									.join("")}
@@ -161,25 +161,25 @@ export function Header() {
 						<DropdownMenuLabel className="flex items-center bg-sidebar gap-x-2">
 							<Avatar className="h-15 w-15 cursor-pointer hidden md:flex">
 								<AvatarImage
-									src={userInfo?.profilePicture || ""}
-									alt={userInfo?.fullname || "r"}
+									src={userInfo.profilePicture}
+									alt={userInfo.fullname || "r"}
 								/>
 								<AvatarFallback
 									className="text-white text-lg tracking-wider"
 									style={{
-										backgroundColor: userInfo?.colorAvatar || "",
+										backgroundColor: userInfo.colorAvatar || "",
 									}}
 								>
-									{(userInfo?.fullname || "")
+									{userInfo.fullname
 										.split(" ")
 										.map((x) => x[0])
 										.join("")}
 								</AvatarFallback>
 							</Avatar>
 							<div className="space-y-0.5">
-								<p className="text-lg font-bold">{userInfo?.fullname}</p>
+								<p className="text-lg font-bold">{userInfo.fullname}</p>
 								<p className="text-sm text-muted-foreground">
-									{userInfo?.email}
+									{userInfo.email}
 								</p>
 							</div>
 						</DropdownMenuLabel>

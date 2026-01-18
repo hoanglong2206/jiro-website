@@ -25,17 +25,17 @@ import {
 	ChevronLeft,
 	ChevronRight,
 } from "lucide-react";
-import { IProjectWithMembershipResponse } from "@/types/project.interface";
+import { IProjectResponse } from "@/types/project.interface";
 
 interface ProjectsTableProps {
-	data: IProjectWithMembershipResponse[];
+	data: IProjectResponse[];
 }
 
 export function ProjectsTable({ data }: ProjectsTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
 	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 8 });
 
-	const columns = useMemo<ColumnDef<IProjectWithMembershipResponse>[]>(
+	const columns = useMemo<ColumnDef<IProjectResponse>[]>(
 		() => [
 			{
 				id: "select",
@@ -44,8 +44,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 						<Checkbox
 							checked={
 								table.getIsAllPageRowsSelected() ||
-								(table.getIsSomePageRowsSelected() &&
-									"indeterminate")
+								(table.getIsSomePageRowsSelected() && "indeterminate")
 							}
 							onCheckedChange={(value) =>
 								table.toggleAllPageRowsSelected(!!value)
@@ -58,9 +57,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 					<div className="flex items-center justify-center">
 						<Checkbox
 							checked={row.getIsSelected()}
-							onCheckedChange={(value) =>
-								row.toggleSelected(!!value)
-							}
+							onCheckedChange={(value) => row.toggleSelected(!!value)}
 							aria-label="Select row"
 						/>
 					</div>
@@ -70,13 +67,12 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 				size: 48,
 			},
 			{
-				accessorKey: "project.name",
+				accessorKey: "name",
 				header: "Project",
 				size: 240,
 				cell: ({ row }) => {
-					const { project } = row.original;
-					const initial =
-						project.name?.charAt(0).toUpperCase() || "?";
+					const project = row.original;
+					const initial = project.name?.charAt(0).toUpperCase() || "?";
 					return (
 						<div className="flex items-center gap-3">
 							<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
@@ -87,8 +83,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 									{project.name}
 								</p>
 								<p className="text-xs text-muted-foreground line-clamp-1">
-									{project.description ||
-										"No description provided."}
+									{project.description || "No description provided."}
 								</p>
 							</div>
 						</div>
@@ -96,37 +91,27 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 				},
 			},
 			{
-				accessorKey: "project.type",
+				accessorKey: "type",
 				header: "Type",
 				size: 120,
 				cell: ({ row }) => (
 					<Badge variant="outline" className="capitalize">
-						{row.original.project.type}
+						{row.original.type}
 					</Badge>
 				),
 			},
 			{
-				accessorKey: "project.accessLevel",
+				accessorKey: "accessLevel",
 				header: "Access",
 				size: 120,
 				cell: ({ row }) => (
 					<Badge variant="secondary" className="capitalize">
-						{row.original.project.accessLevel}
-					</Badge>
-				),
-			},
-			{
-				accessorKey: "membership.role",
-				header: "Role",
-				size: 120,
-				cell: ({ row }) => (
-					<Badge variant="outline" className="capitalize">
-						{row.original.membership.role}
+						{row.original.accessLevel}
 					</Badge>
 				),
 			},
 		],
-		[]
+		[],
 	);
 
 	const table = useReactTable({
@@ -138,7 +123,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 		},
 		onRowSelectionChange: setRowSelection,
 		onPaginationChange: setPagination,
-		getRowId: (row) => row.project.id,
+		getRowId: (row) => row.id,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 	});
@@ -159,10 +144,9 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef
-														.header,
-													header.getContext()
-											  )}
+													header.column.columnDef.header,
+													header.getContext(),
+												)}
 									</TableHead>
 								))}
 							</TableRow>
@@ -173,9 +157,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									data-state={
-										row.getIsSelected() && "selected"
-									}
+									data-state={row.getIsSelected() && "selected"}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
@@ -186,7 +168,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 										>
 											{flexRender(
 												cell.column.columnDef.cell,
-												cell.getContext()
+												cell.getContext(),
 											)}
 										</TableCell>
 									))}
@@ -207,8 +189,8 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 			</div>
 			<div className="flex items-center justify-between gap-4">
 				<div className="text-sm text-muted-foreground">
-					{table.getState().pagination.pageIndex + 1} of{" "}
-					{table.getPageCount()} pages
+					{table.getState().pagination.pageIndex + 1} of {table.getPageCount()}{" "}
+					pages
 				</div>
 				<div className="flex items-center gap-2">
 					<Button
@@ -243,9 +225,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 						variant="outline"
 						size="icon"
 						className="hidden h-8 w-8 p-0 lg:flex"
-						onClick={() =>
-							table.setPageIndex(table.getPageCount() - 1)
-						}
+						onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 						disabled={!table.getCanNextPage()}
 					>
 						<span className="sr-only">Go to last page</span>

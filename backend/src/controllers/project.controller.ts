@@ -8,7 +8,7 @@ class ProjectController {
 			const { name, description, type, accessLevel, color, icon, user } =
 				req.body;
 			console.log(req.body);
-			const result = await projectService.createProject(
+			const project = await projectService.createProject(
 				{
 					name,
 					description: description ?? null,
@@ -17,19 +17,16 @@ class ProjectController {
 					color: color ?? null,
 					icon: icon ?? null,
 				},
-				user
+				user,
 			);
 
 			return res.status(StatusCodes.CREATED).json({
 				message: "Project created successfully",
-				project: result.project,
-				membership: result.membership,
+				project,
 			});
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: "Unable to create project";
+				error instanceof Error ? error.message : "Unable to create project";
 			const status = message.startsWith("Failed to")
 				? StatusCodes.INTERNAL_SERVER_ERROR
 				: StatusCodes.BAD_REQUEST;
@@ -46,17 +43,13 @@ class ProjectController {
 
 		try {
 			const projects = await projectService.getProjectsForUser(
-				req.currentUser.id
+				req.currentUser.id,
 			);
 			return res.status(StatusCodes.OK).json({ projects });
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: "Unable to fetch projects";
-			return res
-				.status(StatusCodes.INTERNAL_SERVER_ERROR)
-				.json({ message });
+				error instanceof Error ? error.message : "Unable to fetch projects";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
 		}
 	}
 
@@ -77,7 +70,7 @@ class ProjectController {
 
 			const project = await projectService.getProjectByIdForUser(
 				projectId,
-				req.currentUser.id
+				req.currentUser.id,
 			);
 
 			if (!project) {
@@ -86,15 +79,11 @@ class ProjectController {
 					.json({ message: "Project not found" });
 			}
 
-			return res.status(StatusCodes.OK).json(project);
+			return res.status(StatusCodes.OK).json({ project });
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: "Unable to fetch project";
-			return res
-				.status(StatusCodes.INTERNAL_SERVER_ERROR)
-				.json({ message });
+				error instanceof Error ? error.message : "Unable to fetch project";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
 		}
 	}
 }

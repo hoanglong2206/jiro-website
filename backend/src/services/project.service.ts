@@ -3,7 +3,6 @@ import { db } from "../database";
 import {
 	NewProjectMemberRecord,
 	NewProjectRecord,
-	ProjectMemberRecord,
 	ProjectRecord,
 	projectMembersTable,
 	projectTable,
@@ -23,12 +22,11 @@ type CreateProjectPayload = {
 class ProjectService {
 	async createProject(
 		payload: CreateProjectPayload,
-		user: IUser
-	): Promise<{ project: ProjectRecord; membership: ProjectMemberRecord }> {
+		user: IUser,
+	): Promise<ProjectRecord> {
 		return db.transaction(async (trx) => {
 			const normalizedDescription =
-				payload.description !== undefined &&
-				payload.description !== null
+				payload.description !== undefined && payload.description !== null
 					? payload.description.trim() || null
 					: null;
 			const normalizedIcon =
@@ -82,50 +80,43 @@ class ProjectService {
 				throw new Error("Failed to add project member");
 			}
 
-			return { project, membership };
+			return project;
 		});
 	}
 
-	async getProjectsForUser(
-		userId: string
-	): Promise<
-		Array<{ project: ProjectRecord; membership: ProjectMemberRecord }>
-	> {
+	async getProjectsForUser(userId: string): Promise<ProjectRecord[]> {
 		const rows = await db
-			.select({ project: projectTable, membership: projectMembersTable })
+			.select({ project: projectTable })
 			.from(projectMembersTable)
 			.innerJoin(
 				projectTable,
-				eq(projectMembersTable.projectId, projectTable.id)
+				eq(projectMembersTable.projectId, projectTable.id),
 			)
 			.where(eq(projectMembersTable.userId, userId));
 
-		return rows;
+		return rows.map((row) => row.project);
 	}
 
 	async getProjectByIdForUser(
 		projectId: string,
-		userId: string
-	): Promise<{
-		project: ProjectRecord;
-		membership: ProjectMemberRecord;
-	} | null> {
+		userId: string,
+	): Promise<ProjectRecord | null> {
 		const rows = await db
-			.select({ project: projectTable, membership: projectMembersTable })
+			.select({ project: projectTable })
 			.from(projectMembersTable)
 			.innerJoin(
 				projectTable,
-				eq(projectMembersTable.projectId, projectTable.id)
+				eq(projectMembersTable.projectId, projectTable.id),
 			)
 			.where(
 				and(
 					eq(projectMembersTable.projectId, projectId),
-					eq(projectMembersTable.userId, userId)
-				)
+					eq(projectMembersTable.userId, userId),
+				),
 			)
 			.limit(1);
 
-		return rows[0] ?? null;
+		return rows[0]?.project ?? null;
 	}
 }
 

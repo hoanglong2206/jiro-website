@@ -41,10 +41,15 @@ import { useGetProjectsQuery } from "@/services/project.service";
 import {
 	setProjects,
 	setCurrentProject,
+	clearCurrentProject,
 } from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { IProjectWithMembershipResponse } from "@/types/project.interface";
+import { IProjectResponse } from "@/types/project.interface";
 import Image from "next/image";
+import {
+	saveToLocalStorage,
+	getDataFromLocalStorage,
+} from "@/services/utils.service";
 
 const navigationItems: { label: string; icon: ElementType; href: string }[] = [
 	{
@@ -71,17 +76,17 @@ const navigationItems: { label: string; icon: ElementType; href: string }[] = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const pathname = usePathname();
-	const router = useRouter();
 	const dispatch = useAppDispatch();
-	const { projects: projectItems, currentProject } = useAppSelector(
-		(state) => state.project
-	);
-	const { data, isFetching } = useGetProjectsQuery();
+	const { projects: projectItems } = useAppSelector((state) => state.project);
+	const { data, isFetching } = useGetProjectsQuery(undefined, {
+		refetchOnMountOrArgChange: true,
+	});
 
 	useEffect(() => {
-		if (data?.projects) {
-			dispatch(setProjects(data.projects));
+		if (!data?.projects) {
+			return;
 		}
+		dispatch(setProjects(data.projects));
 	}, [data, dispatch]);
 
 	const memoizedMenuItems = useMemo(
@@ -94,34 +99,27 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							"flex items-center gap-3 text-sm cursor-pointer transition-colors",
 							(item.href === "teams"
 								? pathname.includes(item.href) ||
-								  pathname.includes("people") ||
-								  pathname.includes("analytics")
+									pathname.includes("people") ||
+									pathname.includes("analytics")
 								: pathname.includes(item.href)) &&
-								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium"
+								"bg-sidebar-primary/20 hover:bg-sidebar-primary/40 text-primary/90 hover:text-primary font-medium",
 						)}
 						asChild
 					>
-						<Link
-							href={`${item.href}`}
-							className="flex items-center gap-2"
-						>
+						<Link href={`${item.href}`} className="flex items-center gap-2">
 							<item.icon className="h-4 w-4" />
 							{item.label}
 						</Link>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
 			)),
-		[pathname]
+		[pathname],
 	);
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
-				<ProjectSwitcher
-					projects={projectItems}
-					isLoading={isFetching}
-					currentProject={currentProject}
-				/>
+				<ProjectSwitcher projects={projectItems} isLoading={isFetching} />
 			</SidebarHeader>
 			<SidebarContent>
 				<SidebarGroup>
@@ -173,29 +171,63 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 }
 
 interface ProjectSwitcherProps {
-	projects: IProjectWithMembershipResponse[];
+	projects: IProjectResponse[];
 	isLoading: boolean;
-	currentProject: IProjectWithMembershipResponse | null;
 }
 
-function ProjectSwitcher({
-	projects,
-	isLoading,
-	currentProject,
-}: ProjectSwitcherProps) {
+function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 	const { isMobile } = useSidebar();
+	const dispatch = useAppDispatch();
+	const { currentProject } = useAppSelector((state) => state.project);
+	const router = useRouter();
 
-	const renderProjectIcon = (name: string, color: string) => {
-		const initial = name
-			.split(" ")
-			.map((x) => x[0])
+	useEffect(() => {
+		if (!projects.length) {
+			dispatch(clearCurrentProject());
+			return;
+		}
+
+		if (
+			currentProject &&
+			projects.some((item) => item.id === currentProject.id)
+		) {
+			return;
+		}
+
+		const storedProject = (() => {
+			try {
+				return getDataFromLocalStorage(
+					"currentProject",
+				) as IProjectResponse | null;
+			} catch {
+				return null;
+			}
+		})();
+
+		const fallbackProject =
+			storedProject && projects.some((item) => item.id === storedProject.id)
+				? storedProject
+				: projects[0];
+
+		if (fallbackProject) {
+			dispatch(setCurrentProject(fallbackProject));
+			saveToLocalStorage("currentProject", JSON.stringify(fallbackProject));
+		}
+	}, [projects, currentProject, dispatch]);
+
+	const renderProjectIcon = (name: string, color?: string | null) => {
+		const initials = name
+			.trim()
+			.split(/\s+/)
+			.filter(Boolean)
+			.map((part) => part.charAt(0).toUpperCase())
 			.join("");
 		return (
 			<div
 				className="flex aspect-square size-8 items-center justify-center rounded-lg text-background"
-				style={{ backgroundColor: color }}
+				style={{ backgroundColor: color || "#1f2937" }}
 			>
-				{initial}
+				{initials || "?"}
 			</div>
 		);
 	};
@@ -209,28 +241,28 @@ function ProjectSwitcher({
 							size="lg"
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
-							{currentProject?.project.icon ? (
+							{currentProject?.icon ? (
 								<div className="bg-muted-foreground/40  flex aspect-square size-8 items-center justify-center rounded-lg">
 									<Image
-										src={currentProject?.project.icon}
-										alt={currentProject?.project.name}
+										src={currentProject.icon}
+										alt={currentProject.name ?? "Project icon"}
 										width={15}
 										height={15}
 									/>
 								</div>
 							) : (
 								renderProjectIcon(
-									currentProject?.project.name ?? "",
-									currentProject?.project.color ?? ""
+									currentProject?.name ?? "",
+									currentProject?.color,
 								)
 							)}
 
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">
-									{currentProject?.project.name}
+									{currentProject?.name ?? "No project"}
 								</span>
 								<span className="text-xs capitalize italic">
-									{currentProject?.project.type}
+									{currentProject?.type ?? "unknown"}
 								</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />
@@ -251,13 +283,24 @@ function ProjectSwitcher({
 							</DropdownMenuItem>
 						)}
 						{projects.map((project) => {
-							const projectName = project.project.name;
+							const projectName = project.name;
 							return (
 								<DropdownMenuItem
-									key={project.project.id}
+									key={project.id}
+									onClick={() => {
+										dispatch(setCurrentProject(project));
+										saveToLocalStorage(
+											"currentProject",
+											JSON.stringify(project),
+										);
+										router.push(`/projects/${project.id}/home`);
+									}}
 									className="gap-2 p-2 cursor-pointer transition-colors"
 								>
-									<div className="flex size-6 items-center justify-center rounded-md border bg-transparent text-xs font-medium">
+									<div
+										className="flex size-7 items-center justify-center rounded-md border text-xs font-medium text-background"
+										style={{ backgroundColor: project.color || "" }}
+									>
 										{projectName
 											.split(" ")
 											.map((x) => x[0])

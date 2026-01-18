@@ -21,6 +21,7 @@ export interface ICreateProjectPayload {
 	type: ProjectType;
 	accessLevel: ProjectAccessLevel;
 	color: string;
+	icon?: string;
 	user: IUser;
 }
 
@@ -49,19 +50,15 @@ export interface IProjectMemberResponse {
 	updatedAt: string;
 }
 
-export interface IProjectWithMembershipResponse {
-	project: IProjectResponse;
-	membership: IProjectMemberResponse;
-}
-
 export interface IProjectsResponse {
-	projects: IProjectWithMembershipResponse[];
+	projects: IProjectResponse[];
 }
 
-export type IProjectDetailResponse = IProjectWithMembershipResponse;
+export interface IProjectDetailResponse {
+	project: IProjectResponse;
+}
 
 export interface ICreateProjectResponse {
 	message: string;
 	project: IProjectResponse;
-	membership: IProjectMemberResponse;
 }

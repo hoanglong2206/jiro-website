@@ -3,17 +3,17 @@ export interface IUser {
 	fullname: string;
 	username: string;
 	email: string;
-	profilePicture: string | null;
+	profilePicture: string;
 	colorAvatar: string;
-	jobTitle: string | null;
+	jobTitle: string;
 }
 
 export interface IUpdatedUserPayload {
 	userId: string;
 	fullname?: string;
-	profilePicture?: string | null;
-	colorAvatar?: string | null;
-	jobTitle?: string | null;
+	profilePicture?: string;
+	colorAvatar?: string;
+	jobTitle?: string;
 }
 
 export interface IReduxUser {

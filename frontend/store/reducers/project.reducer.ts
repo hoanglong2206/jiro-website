@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IProjectWithMembershipResponse } from "@/types/project.interface";
+import { IProjectResponse } from "@/types/project.interface";
 
 interface ProjectState {
-	projects: IProjectWithMembershipResponse[];
-	currentProject: IProjectWithMembershipResponse | null;
+	projects: IProjectResponse[];
+	currentProject: IProjectResponse | null;
 }
 
 const initialState: ProjectState = {
@@ -15,22 +15,13 @@ const projectSlice = createSlice({
 	name: "project",
 	initialState,
 	reducers: {
-		setProjects: (
-			state,
-			action: PayloadAction<IProjectWithMembershipResponse[]>
-		) => {
+		setProjects: (state, action: PayloadAction<IProjectResponse[]>) => {
 			state.projects = action.payload;
 		},
-		addProject: (
-			state,
-			action: PayloadAction<IProjectWithMembershipResponse>
-		) => {
+		addProject: (state, action: PayloadAction<IProjectResponse>) => {
 			state.projects = [...state.projects, action.payload];
 		},
-		setCurrentProject: (
-			state,
-			action: PayloadAction<IProjectWithMembershipResponse>
-		) => {
+		setCurrentProject: (state, action: PayloadAction<IProjectResponse>) => {
 			state.currentProject = action.payload;
 		},
 		clearCurrentProject: (state) => {
