@@ -5,10 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ProjectsTable } from "@/components/app/ProjectsTable";
 import { CreateProjectModal } from "@/components/app/CreateProjectModal";
 import { useGetProjectsQuery } from "@/services/project.service";
-import {
-	setProjects,
-	setCurrentProject,
-} from "@/store/reducers/project.reducer";
+import { setProjects } from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 
 const ProjectsPage = () => {
@@ -55,7 +52,10 @@ const ProjectsPage = () => {
 						</p>
 					</div>
 					<div className="flex items-center gap-2">
-						<Button size="sm" onClick={() => setIsModalOpen(true)}>
+						<Button
+							className="cursor-pointer"
+							onClick={() => setIsModalOpen(true)}
+						>
 							New project
 						</Button>
 					</div>
@@ -65,7 +65,12 @@ const ProjectsPage = () => {
 						No projects yet. Create one to get started.
 					</div>
 				) : (
-					<ProjectsTable data={projects} />
+					<div className="grid grid-cols-1 lg:grid-cols-3">
+						<div className="col-span-1"></div>
+						<div className="col-span-2">
+							<ProjectsTable data={projects} />
+						</div>
+					</div>
 				)}
 			</div>
 			<CreateProjectModal

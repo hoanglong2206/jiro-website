@@ -258,7 +258,7 @@ type PeopleTableProps = {
 export function PeopleTable({ data, type }: PeopleTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
-		{}
+		{},
 	);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [sorting, setSorting] = useState<SortingState>([]);
@@ -323,8 +323,8 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 												: flexRender(
 														header.column.columnDef
 															.header,
-														header.getContext()
-												  )}
+														header.getContext(),
+													)}
 										</TableHead>
 									);
 								})}
@@ -349,7 +349,7 @@ export function PeopleTable({ data, type }: PeopleTableProps) {
 										>
 											{flexRender(
 												cell.column.columnDef.cell,
-												cell.getContext()
+												cell.getContext(),
 											)}
 										</TableCell>
 									))}

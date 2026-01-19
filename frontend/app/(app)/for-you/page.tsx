@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown } from "lucide-react";
+import { Check, Edit, X } from "lucide-react";
 import { useGetProjectsQuery } from "@/services/project.service";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import {
@@ -11,10 +11,13 @@ import {
 	setCurrentProject,
 } from "@/store/reducers/project.reducer";
 import { CreateProjectModal } from "@/components/app/CreateProjectModal";
-import { Badge } from "@/components/ui/badge";
 import { IProjectResponse } from "@/types/project.interface";
 import { saveToLocalStorage } from "@/services/utils.service";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 export default function ForYouPage() {
 	const dispatch = useAppDispatch();
@@ -25,7 +28,16 @@ export default function ForYouPage() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const notifications: unknown[] = [];
 
-	const projectList = data?.projects ?? projects;
+	console.log(data?.projects);
+	const projectList = data?.projects
+		? [...data.projects]
+				.sort(
+					(a, b) =>
+						new Date(b.updatedAt).getTime() -
+						new Date(a.updatedAt).getTime(),
+				)
+				.slice(0, 4)
+		: projects;
 
 	useEffect(() => {
 		if (data?.projects) {
@@ -37,12 +49,16 @@ export default function ForYouPage() {
 		<>
 			<div className="overflow-auto bg-background">
 				<div className="mx-auto p-4 md:px-16">
-					<h1 className="text-2xl font-semibold text-foreground">For you</h1>
+					<h1 className="text-2xl font-semibold text-foreground">
+						For you
+					</h1>
 					<hr className="my-4" />
 
 					<div className="flex flex-col gap-2">
 						<div className="mb-4 flex items-center justify-between">
-							<h2 className="text-lg font-medium text-foreground">Projects</h2>
+							<h2 className="text-lg font-medium text-foreground">
+								Projects
+							</h2>
 							<div className="flex items-center gap-2">
 								<Link
 									href="/projects"
@@ -72,7 +88,10 @@ export default function ForYouPage() {
 						) : (
 							<div className="flex gap-4 overflow-auto py-1">
 								{projectList.map((project) => (
-									<ProjectCard key={project.id} project={project} />
+									<ProjectCard
+										key={project.id}
+										project={project}
+									/>
 								))}
 							</div>
 						)}
@@ -112,18 +131,23 @@ export default function ForYouPage() {
 
 function ProjectCard({ project }: { project: IProjectResponse }) {
 	const dispatch = useAppDispatch();
+	const [isEditName, setIsEditName] = useState<boolean>(false);
+	const [isEditDescription, setIsEditDescription] = useState<boolean>(false);
+	const [description, setDescription] = useState<string | undefined>(
+		project.description,
+	);
+	const [name, setName] = useState<string>(project.name);
 
-	return (
-		<Link
-			onClick={() => {
-				dispatch(setCurrentProject(project));
-				saveToLocalStorage("currentProject", JSON.stringify(project));
-			}}
-			href={`/projects/${project.id}/home`}
-			className="flex w-64 shrink-0 flex-col justify-between rounded-sm space-y-1 border-l-24 border-l-primary py-1 transition-shadow hover:shadow-md"
+	const isEditing = isEditName || isEditDescription;
+	const cardContent = (
+		<div
+			className={cn(
+				"flex justify-between shrink-0 flex-col px-4 py-3 transition-shadow  w-[384px] no-scrollbar",
+				isEditDescription ? "h-48" : "h-40",
+			)}
 		>
-			<div className="flex items-start gap-2 px-2.5">
-				<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-blue-400">
+			<div className="flex flex-col items-start gap-2">
+				<div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-blue-400">
 					{project.icon ? (
 						<Image
 							src={project.icon}
@@ -134,69 +158,185 @@ function ProjectCard({ project }: { project: IProjectResponse }) {
 					) : (
 						<span className="text-xs font-semibold text-white">
 							{project.name
-								?.split(" ")
+								.split(" ")
 								.map((x) => x[0])
 								.join("")}
 						</span>
 					)}
 				</div>
-				<div className="min-w-0">
-					<h3 className="truncate font-medium">{project.name}</h3>
-					<p className="text-xs italic capitalize text-muted-foreground">
-						{project.type}
-					</p>
+				<div className="flex-col flex gap-1 w-full">
+					<div className="flex items-center gap-1">
+						{isEditName ? (
+							<div
+								className="relative w-full"
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation;
+								}}
+							>
+								<Input
+									value={name}
+									onChange={(e) => {
+										setName(e.target.value);
+									}}
+									placeholder={name}
+								/>
+								<div className="flex items-center gap-2 absolute -bottom-7.5 right-0">
+									<Button
+										onClick={() => {
+											setIsEditName(false);
+										}}
+										size="icon"
+										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
+									>
+										<X className="h-3 w-3" />
+									</Button>
+									<Button
+										onClick={() => {
+											setIsEditName(false);
+											setDescription(description);
+										}}
+										size="icon"
+										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
+									>
+										<Check className="h-3 w-3" />
+									</Button>
+								</div>
+							</div>
+						) : (
+							<h3 className="truncate font-medium text-lg">
+								{name}
+							</h3>
+						)}
+						<Button
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								setIsEditName(true);
+							}}
+							variant="ghost"
+							size="icon"
+							disabled={isEditing}
+							className={cn(
+								"h-6 w-6 hover:bg-sidebar-accent text-muted-foreground cursor-pointer",
+								isEditName && "hidden",
+							)}
+						>
+							<Edit className="h-3 w-3" />
+						</Button>
+					</div>
+					<div className="flex items-center gap-1">
+						{isEditDescription ? (
+							<div
+								className="relative w-full"
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation;
+								}}
+							>
+								<Textarea
+									value={description ?? ""}
+									onChange={(e) => {
+										setDescription(e.target.value);
+									}}
+									placeholder={
+										description ?? "Add a description"
+									}
+								/>
+								<div className="flex items-center gap-2 absolute -bottom-7.5 left-0">
+									<Button
+										onClick={() => {
+											setIsEditDescription(false);
+										}}
+										size="icon"
+										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
+									>
+										<X className="h-3 w-3" />
+									</Button>
+									<Button
+										onClick={() => {
+											setIsEditDescription(false);
+											setDescription(description);
+										}}
+										size="icon"
+										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
+									>
+										<Check className="h-3 w-3" />
+									</Button>
+								</div>
+							</div>
+						) : (
+							<p className="text-sm italic capitalize text-muted-foreground">
+								{description || "No description"}
+							</p>
+						)}
+						<Button
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								setIsEditDescription(true);
+							}}
+							variant="ghost"
+							size="icon"
+							disabled={isEditing}
+							className={cn(
+								"h-6 w-6 hover:bg-sidebar-accent text-muted-foreground cursor-pointer",
+								isEditDescription && "hidden",
+							)}
+						>
+							<Edit className="h-3 w-3" />
+						</Button>
+					</div>
 				</div>
 			</div>
+			<div className="flex items-center justify-end">
+				<p className="text-sm italic capitalize text-muted-foreground">
+					{project.type}
+				</p>
+			</div>
+		</div>
+	);
 
-			<div className="px-2.5">
-				<p className="text-xs font-medium text-muted-foreground">Quick links</p>
-				<div className="flex items-center justify-between text-xs transition-colors">
-					<span>My open work items</span>
-					<Badge
-						variant="secondary"
-						className="size-5 rounded-full bg-primary/20"
-					>
-						8
-					</Badge>
-				</div>
-				<div className="flex items-center text-xs transition-colors">
-					<span>Done work items</span>
-				</div>
-			</div>
-
-			<div className="flex items-center justify-between border-t border-border px-2.5 pt-0.5">
-				<button className="flex cursor-pointer items-center gap-1 rounded-md px-1.5 py-0.5 text-xs transition-colors hover:bg-muted/90">
-					<span>1 workspace</span>
-					<ChevronDown className="h-3 w-3" />
-				</button>
-			</div>
-		</Link>
+	return (
+		<>
+			{isEditing ? (
+				<div className="border rounded-md">{cardContent}</div>
+			) : (
+				<Link
+					onClick={() => {
+						dispatch(setCurrentProject(project));
+						saveToLocalStorage(
+							"currentProject",
+							JSON.stringify(project),
+						);
+					}}
+					href={`/projects/${project.id}/home`}
+					className="hover:shadow-md rounded-md border"
+				>
+					{cardContent}
+				</Link>
+			)}
+		</>
 	);
 }
 
 function ProjectsSkeleton() {
 	return (
-		<div className="flex gap-4 overflow-auto py-1">
+		<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 overflow-auto py-1">
 			{Array.from({ length: 3 }).map((_, index) => (
 				<div
 					key={index}
-					className="flex w-64 shrink-0 flex-col justify-between space-y-1 rounded-sm border-l-24 border-l-muted bg-muted/20 py-1"
+					className="flex justify-between shrink-0 h-40 border flex-col rounded-lg px-4 py-3 border-muted bg-muted/20 "
 				>
-					<div className="flex items-start gap-2 px-2.5">
-						<Skeleton className="size-8 rounded-lg" />
-						<div className="flex-1 space-y-2">
+					<div className="flex flex-col items-start gap-2 px-2.5">
+						<Skeleton className="size-10 rounded-lg" />
+						<div className="flex-1 space-y-2 w-full">
 							<Skeleton className="h-4 w-32" />
-							<Skeleton className="h-3 w-20" />
+							<Skeleton className="h-8 w-full" />
 						</div>
 					</div>
-					<div className="space-y-2 px-2.5">
-						<Skeleton className="h-3 w-24" />
-						<Skeleton className="h-3 w-28" />
-						<Skeleton className="h-3 w-20" />
-					</div>
-					<div className="flex items-center justify-between border-t border-border px-2.5 pt-0.5">
-						<Skeleton className="h-5 w-24" />
-						<Skeleton className="h-4 w-4 rounded-full" />
+					<div className="flex items-center justify-end">
+						<Skeleton className="h-4 w-32" />
 					</div>
 				</div>
 			))}

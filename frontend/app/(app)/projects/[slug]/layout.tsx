@@ -16,13 +16,7 @@ import {
 	Component,
 	Radio,
 } from "lucide-react";
-import { ElementType, useEffect } from "react";
-import { useGetProjectByIdQuery } from "@/services/project.service";
-import { useAppDispatch } from "@/store/store";
-import {
-	clearCurrentProject,
-	setCurrentProject,
-} from "@/store/reducers/project.reducer";
+import { ElementType } from "react";
 
 interface AppLayoutProps {
 	children: React.ReactNode;
@@ -31,37 +25,6 @@ interface AppLayoutProps {
 export default function AppLayout({ children }: AppLayoutProps) {
 	const pathname = usePathname();
 	const params = useParams<{ slug: string }>();
-	const dispatch = useAppDispatch();
-	const projectId = Array.isArray(params?.slug)
-		? params?.slug[0]
-		: params?.slug;
-	const {
-		data: projectData,
-		isFetching,
-		isError,
-	} = useGetProjectByIdQuery(projectId ?? "", {
-		skip: !projectId,
-	});
-
-	useEffect(() => {
-		if (projectData?.project) {
-			dispatch(setCurrentProject(projectData.project));
-		}
-	}, [dispatch, projectData]);
-
-	useEffect(() => {
-		if (isError) {
-			dispatch(clearCurrentProject());
-		}
-	}, [dispatch, isError]);
-
-	if (!projectId) {
-		return (
-			<div className="flex h-screen items-center justify-center text-sm text-muted-foreground">
-				Invalid project reference.
-			</div>
-		);
-	}
 
 	const lastSegment = pathname.split("/").filter(Boolean).pop() || "home";
 
@@ -106,13 +69,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 					</div>
 				</header>
 				<div className="flex flex-1 flex-col overflow-auto">
-					{isFetching && !projectData?.project ? (
-						<div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-							Loading project...
-						</div>
-					) : (
-						children
-					)}
+					{children}
 				</div>
 			</SidebarInset>
 		</SidebarProvider>

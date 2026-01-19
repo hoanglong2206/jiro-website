@@ -13,6 +13,8 @@ export interface IProjectResponse {
 	ownerId: string;
 	color?: string | null;
 	icon?: string | null;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export interface ICreateProjectPayload {

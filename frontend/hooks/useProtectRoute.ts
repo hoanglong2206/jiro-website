@@ -43,6 +43,7 @@ export const useProtectRoute = (): void => {
 			dispatch(updateLogout(true));
 			deleteFromSessionStorage();
 			deleteFromLocalStorage("user");
+			deleteFromLocalStorage("currentProject");
 			router.replace("/login");
 		}
 	}, [isError, dispatch, router]);

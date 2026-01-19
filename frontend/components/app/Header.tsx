@@ -56,6 +56,7 @@ export function Header() {
 			dispatch(updateLogout(true));
 			deleteFromSessionStorage();
 			deleteFromLocalStorage("user");
+			deleteFromLocalStorage("currentProject");
 
 			await persister.purge();
 
@@ -64,7 +65,10 @@ export function Header() {
 		} catch (error: unknown) {
 			console.error("Logout failed:", error);
 			toast.error(
-				extractErrorMessage(error, "Đăng xuất thất bại. Vui lòng thử lại."),
+				extractErrorMessage(
+					error,
+					"Đăng xuất thất bại. Vui lòng thử lại.",
+				),
 			);
 		}
 	};
@@ -141,7 +145,7 @@ export function Header() {
 					<DropdownMenuTrigger asChild>
 						<Avatar className="h-8 w-8 cursor-pointer hidden md:flex">
 							<AvatarImage
-								src={userInfo.profilePicture || ""}
+								src={userInfo.profilePicture}
 								alt={userInfo.fullname}
 							/>
 							<AvatarFallback
@@ -167,7 +171,8 @@ export function Header() {
 								<AvatarFallback
 									className="text-white text-lg tracking-wider"
 									style={{
-										backgroundColor: userInfo.colorAvatar || "",
+										backgroundColor:
+											userInfo.colorAvatar || "",
 									}}
 								>
 									{userInfo.fullname
@@ -177,7 +182,9 @@ export function Header() {
 								</AvatarFallback>
 							</Avatar>
 							<div className="space-y-0.5">
-								<p className="text-lg font-bold">{userInfo.fullname}</p>
+								<p className="text-lg font-bold">
+									{userInfo.fullname}
+								</p>
 								<p className="text-sm text-muted-foreground">
 									{userInfo.email}
 								</p>
@@ -185,7 +192,10 @@ export function Header() {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem asChild>
-							<Link href="/settings/profile" className="cursor-pointer">
+							<Link
+								href="/settings/profile"
+								className="cursor-pointer"
+							>
 								<Settings className="mr-2 h-4 w-4" />
 								Settings
 							</Link>

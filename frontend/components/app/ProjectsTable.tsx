@@ -24,8 +24,17 @@ import {
 	ChevronsRight,
 	ChevronLeft,
 	ChevronRight,
+	MoreVertical,
 } from "lucide-react";
 import { IProjectResponse } from "@/types/project.interface";
+import { cn } from "@/lib/utils";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface ProjectsTableProps {
 	data: IProjectResponse[];
@@ -44,7 +53,8 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 						<Checkbox
 							checked={
 								table.getIsAllPageRowsSelected() ||
-								(table.getIsSomePageRowsSelected() && "indeterminate")
+								(table.getIsSomePageRowsSelected() &&
+									"indeterminate")
 							}
 							onCheckedChange={(value) =>
 								table.toggleAllPageRowsSelected(!!value)
@@ -57,7 +67,9 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 					<div className="flex items-center justify-center">
 						<Checkbox
 							checked={row.getIsSelected()}
-							onCheckedChange={(value) => row.toggleSelected(!!value)}
+							onCheckedChange={(value) =>
+								row.toggleSelected(!!value)
+							}
 							aria-label="Select row"
 						/>
 					</div>
@@ -72,20 +84,18 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 				size: 240,
 				cell: ({ row }) => {
 					const project = row.original;
-					const initial = project.name?.charAt(0).toUpperCase() || "?";
+					const initial = project.name
+						.split(" ")
+						.map((x) => x[0])
+						.join("");
 					return (
 						<div className="flex items-center gap-3">
 							<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
 								{initial}
 							</div>
-							<div className="space-y-0.5">
-								<p className="text-sm font-medium text-foreground">
-									{project.name}
-								</p>
-								<p className="text-xs text-muted-foreground line-clamp-1">
-									{project.description || "No description provided."}
-								</p>
-							</div>
+							<p className="font-medium text-foreground">
+								{project.name}
+							</p>
 						</div>
 					);
 				},
@@ -95,7 +105,13 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 				header: "Type",
 				size: 120,
 				cell: ({ row }) => (
-					<Badge variant="outline" className="capitalize">
+					<Badge
+						className={cn(
+							"capitalize",
+							row.original.type === "personal" && "bg-indigo-500",
+							row.original.type === "work" && "bg-cyan-500",
+						)}
+					>
 						{row.original.type}
 					</Badge>
 				),
@@ -105,9 +121,42 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 				header: "Access",
 				size: 120,
 				cell: ({ row }) => (
-					<Badge variant="secondary" className="capitalize">
+					<Badge
+						className={cn(
+							"capitalize",
+							row.original.accessLevel === "private" &&
+								"bg-emerald-500",
+							row.original.accessLevel === "public" &&
+								"bg-pink-500",
+						)}
+					>
 						{row.original.accessLevel}
 					</Badge>
+				),
+			},
+			{
+				id: "actions",
+				size: 50,
+				cell: () => (
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="ghost"
+								className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+								size="icon"
+							>
+								<MoreVertical />
+								<span className="sr-only">Open menu</span>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-32">
+							<DropdownMenuItem></DropdownMenuItem>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem className="text-destructive cursor-pointer">
+								Delete
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				),
 			},
 		],
@@ -144,7 +193,8 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef.header,
+													header.column.columnDef
+														.header,
 													header.getContext(),
 												)}
 									</TableHead>
@@ -157,7 +207,9 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 							table.getRowModel().rows.map((row) => (
 								<TableRow
 									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
+									data-state={
+										row.getIsSelected() && "selected"
+									}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
@@ -189,8 +241,8 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 			</div>
 			<div className="flex items-center justify-between gap-4">
 				<div className="text-sm text-muted-foreground">
-					{table.getState().pagination.pageIndex + 1} of {table.getPageCount()}{" "}
-					pages
+					{table.getState().pagination.pageIndex + 1} of{" "}
+					{table.getPageCount()} pages
 				</div>
 				<div className="flex items-center gap-2">
 					<Button
@@ -225,7 +277,9 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 						variant="outline"
 						size="icon"
 						className="hidden h-8 w-8 p-0 lg:flex"
-						onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+						onClick={() =>
+							table.setPageIndex(table.getPageCount() - 1)
+						}
 						disabled={!table.getCanNextPage()}
 					>
 						<span className="sr-only">Go to last page</span>
