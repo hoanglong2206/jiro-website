@@ -27,6 +27,10 @@ export const projectTable = pgTable("project", {
 	type: projectTypeEnum("type").notNull(),
 	accessLevel: projectAccessLevelEnum("access_level").notNull(),
 	ownerId: uuid("owner_id").notNull(),
+	ownerEmail: varchar("owner_email", { length: 255 }).notNull(),
+	ownerFullname: varchar("owner_fullname", { length: 255 }).notNull(),
+	ownerProfilePicture: text("owner_profile_picture"),
+	ownerColorAvatar: varchar("owner_color_avatar"),
 	icon: varchar("icon"),
 	color: varchar("color"),
 	createdAt: timestamp("created_at", { withTimezone: true })

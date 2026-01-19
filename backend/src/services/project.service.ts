@@ -25,6 +25,13 @@ class ProjectService {
 		user: IUser,
 	): Promise<ProjectRecord> {
 		return db.transaction(async (trx) => {
+			const ownerEmail = user.email?.trim();
+			const ownerFullname = user.fullname?.trim();
+
+			if (!ownerEmail || !ownerFullname) {
+				throw new Error("Owner information is incomplete");
+			}
+
 			const normalizedDescription =
 				payload.description !== undefined && payload.description !== null
 					? payload.description.trim() || null
@@ -39,12 +46,25 @@ class ProjectService {
 					? payload.color.trim() || null
 					: null;
 
+			const ownerProfilePicture =
+				typeof user.profilePicture === "string"
+					? user.profilePicture.trim() || null
+					: null;
+			const ownerColorAvatar =
+				typeof user.colorAvatar === "string"
+					? user.colorAvatar.trim() || null
+					: null;
+
 			const projectToInsert: NewProjectRecord = {
 				name: payload.name.trim(),
 				description: normalizedDescription,
 				type: payload.type,
 				accessLevel: payload.accessLevel,
 				ownerId: user.id,
+				ownerEmail,
+				ownerFullname,
+				ownerProfilePicture,
+				ownerColorAvatar,
 				color: normalizedColor,
 				icon: normalizedIcon,
 			};
@@ -66,7 +86,7 @@ class ProjectService {
 				userFullname: user.fullname,
 				userProfilePicture: user.profilePicture ?? null,
 				userColorAvatar: user.colorAvatar ?? null,
-				role: "admin",
+				role: "owner",
 				invitedBy: user.id,
 			};
 

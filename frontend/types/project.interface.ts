@@ -11,6 +11,10 @@ export interface IProjectResponse {
 	type: ProjectType;
 	accessLevel: ProjectAccessLevel;
 	ownerId: string;
+	ownerEmail: string;
+	ownerFullname: string;
+	ownerProfilePicture?: string | null;
+	ownerColorAvatar?: string | null;
 	color?: string | null;
 	icon?: string | null;
 	createdAt: string;

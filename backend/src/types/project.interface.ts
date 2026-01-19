@@ -9,7 +9,12 @@ export interface IProject {
 	type: ProjectType;
 	accessLevel: ProjectAccessLevel;
 	ownerId: string;
-	icon?: string;
+	ownerEmail: string;
+	ownerFullname: string;
+	ownerProfilePicture?: string | null;
+	ownerColorAvatar?: string | null;
+	color?: string | null;
+	icon?: string | null;
 	createdAt: Date;
 	updatedAt: Date;
 }
