@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Check, Edit, X } from "lucide-react";
+import { Lock, LockOpen } from "lucide-react";
 import { useGetProjectsQuery } from "@/services/project.service";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import {
@@ -14,10 +14,7 @@ import { CreateProjectModal } from "@/components/app/CreateProjectModal";
 import { IProjectResponse } from "@/types/project.interface";
 import { saveToLocalStorage } from "@/services/utils.service";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+import { motion } from "framer-motion";
 
 export default function ForYouPage() {
 	const dispatch = useAppDispatch();
@@ -29,15 +26,7 @@ export default function ForYouPage() {
 	const notifications: unknown[] = [];
 
 	console.log(data?.projects);
-	const projectList = data?.projects
-		? [...data.projects]
-				.sort(
-					(a, b) =>
-						new Date(b.updatedAt).getTime() -
-						new Date(a.updatedAt).getTime(),
-				)
-				.slice(0, 4)
-		: projects;
+	const projectList = data?.projects ? [...data.projects] : projects;
 
 	useEffect(() => {
 		if (data?.projects) {
@@ -47,12 +36,21 @@ export default function ForYouPage() {
 
 	return (
 		<>
-			<div className="overflow-auto bg-background">
+			<div className="bg-background">
 				<div className="mx-auto p-4 md:px-16">
-					<h1 className="text-2xl font-semibold text-foreground">
+					<motion.h1
+						initial={{ opacity: 0, x: -20 }}
+						animate={{ opacity: 1, x: 0 }}
+						transition={{ duration: 0.3 }}
+						className="text-2xl font-semibold text-foreground"
+					>
 						For you
-					</h1>
-					<hr className="my-4" />
+					</motion.h1>
+					<motion.hr
+						initial={{ opacity: 0, x: -20 }}
+						animate={{ opacity: 1, x: 0 }}
+						className="my-4"
+					/>
 
 					<div className="flex flex-col gap-2">
 						<div className="mb-4 flex items-center justify-between">
@@ -71,7 +69,18 @@ export default function ForYouPage() {
 						{isFetching && projectList.length === 0 ? (
 							<ProjectsSkeleton />
 						) : projectList.length === 0 ? (
-							<div className="flex flex-col items-center justify-center gap-3">
+							<motion.div
+								initial="hidden"
+								animate="visible"
+								variants={{
+									hidden: { opacity: 0 },
+									visible: {
+										opacity: 1,
+									},
+								}}
+								transition={{ duration: 0.1 }}
+								className="flex flex-col items-center justify-center gap-3"
+							>
 								<h2 className="text-lg font-medium text-foreground">
 									No projects found
 								</h2>
@@ -84,16 +93,27 @@ export default function ForYouPage() {
 								>
 									Create new project
 								</button>
-							</div>
+							</motion.div>
 						) : (
-							<div className="flex gap-4 overflow-auto py-1">
+							<motion.div
+								initial="hidden"
+								animate="visible"
+								variants={{
+									hidden: { opacity: 0 },
+									visible: {
+										opacity: 1,
+									},
+								}}
+								transition={{ duration: 0.3 }}
+								className="flex gap-4 overflow-auto py-1 no-scrollbar"
+							>
 								{projectList.map((project) => (
 									<ProjectCard
 										key={project.id}
 										project={project}
 									/>
 								))}
-							</div>
+							</motion.div>
 						)}
 					</div>
 
@@ -131,178 +151,59 @@ export default function ForYouPage() {
 
 function ProjectCard({ project }: { project: IProjectResponse }) {
 	const dispatch = useAppDispatch();
-	const [isEditName, setIsEditName] = useState<boolean>(false);
-	const [isEditDescription, setIsEditDescription] = useState<boolean>(false);
-	const [description, setDescription] = useState<string | undefined>(
-		project.description,
-	);
-	const [name, setName] = useState<string>(project.name);
-
-	const isEditing = isEditName || isEditDescription;
-	const cardContent = (
-		<div
-			className={cn(
-				"flex justify-between shrink-0 flex-col px-4 py-3 transition-shadow  w-[384px] no-scrollbar",
-				isEditDescription ? "h-48" : "h-40",
-			)}
-		>
-			<div className="flex flex-col items-start gap-2">
-				<div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-blue-400">
-					{project.icon ? (
-						<Image
-							src={project.icon}
-							alt={project.name}
-							width={15}
-							height={15}
-						/>
-					) : (
-						<span className="text-xs font-semibold text-white">
-							{project.name
-								.split(" ")
-								.map((x) => x[0])
-								.join("")}
-						</span>
-					)}
-				</div>
-				<div className="flex-col flex gap-1 w-full">
-					<div className="flex items-center gap-1">
-						{isEditName ? (
-							<div
-								className="relative w-full"
-								onClick={(e) => {
-									e.preventDefault();
-									e.stopPropagation;
-								}}
-							>
-								<Input
-									value={name}
-									onChange={(e) => {
-										setName(e.target.value);
-									}}
-									placeholder={name}
-								/>
-								<div className="flex items-center gap-2 absolute -bottom-7.5 right-0">
-									<Button
-										onClick={() => {
-											setIsEditName(false);
-										}}
-										size="icon"
-										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
-									>
-										<X className="h-3 w-3" />
-									</Button>
-									<Button
-										onClick={() => {
-											setIsEditName(false);
-											setDescription(description);
-										}}
-										size="icon"
-										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
-									>
-										<Check className="h-3 w-3" />
-									</Button>
-								</div>
-							</div>
-						) : (
-							<h3 className="truncate font-medium text-lg">
-								{name}
-							</h3>
-						)}
-						<Button
-							onClick={(e) => {
-								e.stopPropagation();
-								e.preventDefault();
-								setIsEditName(true);
-							}}
-							variant="ghost"
-							size="icon"
-							disabled={isEditing}
-							className={cn(
-								"h-6 w-6 hover:bg-sidebar-accent text-muted-foreground cursor-pointer",
-								isEditName && "hidden",
-							)}
-						>
-							<Edit className="h-3 w-3" />
-						</Button>
-					</div>
-					<div className="flex items-center gap-1">
-						{isEditDescription ? (
-							<div
-								className="relative w-full"
-								onClick={(e) => {
-									e.preventDefault();
-									e.stopPropagation;
-								}}
-							>
-								<Textarea
-									value={description ?? ""}
-									onChange={(e) => {
-										setDescription(e.target.value);
-									}}
-									placeholder={
-										description ?? "Add a description"
-									}
-								/>
-								<div className="flex items-center gap-2 absolute -bottom-7.5 left-0">
-									<Button
-										onClick={() => {
-											setIsEditDescription(false);
-										}}
-										size="icon"
-										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
-									>
-										<X className="h-3 w-3" />
-									</Button>
-									<Button
-										onClick={() => {
-											setIsEditDescription(false);
-											setDescription(description);
-										}}
-										size="icon"
-										className="h-7 w-7 shadow-md bg-background text-foreground hover:bg-muted cursor-pointer"
-									>
-										<Check className="h-3 w-3" />
-									</Button>
-								</div>
-							</div>
-						) : (
-							<p className="text-sm italic capitalize text-muted-foreground">
-								{description || "No description"}
-							</p>
-						)}
-						<Button
-							onClick={(e) => {
-								e.stopPropagation();
-								e.preventDefault();
-								setIsEditDescription(true);
-							}}
-							variant="ghost"
-							size="icon"
-							disabled={isEditing}
-							className={cn(
-								"h-6 w-6 hover:bg-sidebar-accent text-muted-foreground cursor-pointer",
-								isEditDescription && "hidden",
-							)}
-						>
-							<Edit className="h-3 w-3" />
-						</Button>
-					</div>
-				</div>
-			</div>
-			<div className="flex items-center justify-end">
-				<p className="text-sm italic capitalize text-muted-foreground">
-					{project.type}
-				</p>
-			</div>
-		</div>
-	);
 
 	return (
-		<>
-			{isEditing ? (
-				<div className="border rounded-md">{cardContent}</div>
-			) : (
+		<div className="flex justify-between shrink-0 flex-col px-4 py-3 w-[384px] border border-muted rounded-md min-h-40">
+			<div className="flex flex-col items-start gap-2">
+				<div className="flex items-center w-full gap-2.5">
+					<div
+						style={{ backgroundColor: project.color || "" }}
+						className="flex aspect-square size-12 items-center justify-center rounded-lg"
+					>
+						{project.icon ? (
+							<Image
+								src={project.icon}
+								alt={project.name}
+								width={15}
+								height={15}
+							/>
+						) : (
+							<span className="font-medium text-lg text-background">
+								{project.name
+									.split(" ")
+									.map((x) => x[0])
+									.join("")}
+							</span>
+						)}
+					</div>
+
+					<div>
+						<p className="truncate font-medium text-lg">
+							{project.name}
+						</p>
+						<span className="text-xs text-muted-foreground italic capitalize">
+							{project.type}
+						</span>
+					</div>
+				</div>
+				<p className="text-sm italic capitalize text-muted-foreground py-1">
+					{project.description || "No description"}
+				</p>
+			</div>
+			<div className="flex items-center justify-between">
+				<div className="flex items-center gap-1 text-muted-foreground">
+					{project.accessLevel === "private" ? (
+						<Lock className="size-4" />
+					) : (
+						<LockOpen className="size-4" />
+					)}
+					<p className="text-sm font-medium italic capitalize">
+						{project.accessLevel}
+					</p>
+				</div>
 				<Link
+					href={`/projects/${project.id}/home`}
+					className="text-sm text-primary font-medium hover:text-primary/90 transition-colors"
 					onClick={() => {
 						dispatch(setCurrentProject(project));
 						saveToLocalStorage(
@@ -310,13 +211,11 @@ function ProjectCard({ project }: { project: IProjectResponse }) {
 							JSON.stringify(project),
 						);
 					}}
-					href={`/projects/${project.id}/home`}
-					className="hover:shadow-md rounded-md border"
 				>
-					{cardContent}
+					Open Project →
 				</Link>
-			)}
-		</>
+			</div>
+		</div>
 	);
 }
 
