@@ -1,8 +1,10 @@
 "use client";
 
 import {
+	ColumnFiltersState,
 	flexRender,
 	getCoreRowModel,
+	getFilteredRowModel,
 	getPaginationRowModel,
 	useReactTable,
 	type ColumnDef,
@@ -25,24 +27,28 @@ import {
 	ChevronLeft,
 	ChevronRight,
 	MoreVertical,
+	Trash,
 } from "lucide-react";
 import { IProjectResponse } from "@/types/project.interface";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "../ui/input";
 
 interface ProjectsTableProps {
 	data: IProjectResponse[];
+	onSelectProject: (project: IProjectResponse) => void;
 }
 
-export function ProjectsTable({ data }: ProjectsTableProps) {
+export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
 	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 8 });
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
 	const columns = useMemo<ColumnDef<IProjectResponse>[]>(
 		() => [
@@ -81,7 +87,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 			{
 				accessorKey: "name",
 				header: "Project",
-				size: 240,
+				size: 200,
 				cell: ({ row }) => {
 					const project = row.original;
 					const initial = project.name
@@ -90,7 +96,10 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 						.join("");
 					return (
 						<div className="flex items-center gap-3">
-							<div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-sm font-semibold text-primary">
+							<div
+								className="flex size-8 items-center justify-center rounded-lg text-sm font-semibold text-background"
+								style={{ backgroundColor: project.color || "" }}
+							>
 								{initial}
 							</div>
 							<p className="font-medium text-foreground">
@@ -135,6 +144,35 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 				),
 			},
 			{
+				accessorKey: "owner",
+				header: "Owner",
+				size: 180,
+				cell: ({ row }) => (
+					<div className="flex items-center gap-2">
+						<Avatar className="h-8 w-8 cursor-pointer">
+							<AvatarImage src={""} alt={"example"} />
+							<AvatarFallback
+								className="text-white text-lg tracking-wider"
+								style={{
+									backgroundColor: "",
+								}}
+							>
+								{"example"
+									.split(" ")
+									.map((x) => x[0])
+									.join("")}
+							</AvatarFallback>
+						</Avatar>
+						<div className="">
+							<p className="font-semibold">example</p>
+							<p className="text-xs text-muted-foreground">
+								example@example.com
+							</p>
+						</div>
+					</div>
+				),
+			},
+			{
 				id: "actions",
 				size: 50,
 				cell: () => (
@@ -142,7 +180,7 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 						<DropdownMenuTrigger asChild>
 							<Button
 								variant="ghost"
-								className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+								className="data-[state=open]:bg-muted text-muted-foreground flex size-8 focus-visible:ring-0 cursor-pointer"
 								size="icon"
 							>
 								<MoreVertical />
@@ -150,10 +188,9 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-32">
-							<DropdownMenuItem></DropdownMenuItem>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem className="text-destructive cursor-pointer">
-								Delete
+							<DropdownMenuItem className="cursor-pointer">
+								<Trash className="w-3 h-3 text-destructive" />
+								<span className="text-destructive">Delete</span>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -169,16 +206,34 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 		state: {
 			rowSelection,
 			pagination,
+			columnFilters,
 		},
 		onRowSelectionChange: setRowSelection,
 		onPaginationChange: setPagination,
+		onColumnFiltersChange: setColumnFilters,
 		getRowId: (row) => row.id,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
 	});
 
 	return (
 		<div className="space-y-4">
+			<div className="flex items-center justify-start">
+				<Input
+					placeholder="Filter name..."
+					value={
+						(table.getColumn("name")?.getFilterValue() as string) ??
+						""
+					}
+					onChange={(event) =>
+						table
+							.getColumn("name")
+							?.setFilterValue(event.target.value)
+					}
+					className="max-w-sm"
+				/>
+			</div>
 			<div className="overflow-hidden rounded-lg border">
 				<Table>
 					<TableHeader className="bg-muted/40">
@@ -206,6 +261,9 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 						{table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
+									onClick={() =>
+										onSelectProject(row.original)
+									}
 									key={row.id}
 									data-state={
 										row.getIsSelected() && "selected"

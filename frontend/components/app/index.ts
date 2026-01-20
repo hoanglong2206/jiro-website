@@ -15,3 +15,8 @@ export { SearchSelect } from "./SearchSelect";
 export { TeamHeader } from "./TeamHeader";
 
 export { PeopleTable } from "./PeopleTable";
+export { ProjectsTable } from "./ProjectsTable";
+
+export { CreateProjectModal } from "./CreateProjectModal";
+
+export { SpaceNavCard } from "./SpaceNavCard";
