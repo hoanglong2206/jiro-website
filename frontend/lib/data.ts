@@ -1,5 +1,3 @@
-import { IProjectResponse } from "@/types/project.interface";
-
 export interface User {
 	id: string;
 	name: string;
@@ -250,57 +248,5 @@ export const tasks: Task[] = [
 		createdAt: "2025-12-10",
 		updatedAt: "2025-12-15",
 		projectId: "2",
-	},
-];
-
-export const mockProjects: IProjectResponse[] = [
-	{
-		id: "proj-001",
-		name: "Fintech Dashboard",
-		description:
-			"Enterprise-level dashboard for tracking real-time financial transactions.",
-		type: "work",
-		accessLevel: "private",
-		ownerId: "user-001", // Alex Johnson
-		icon: "https://cdn-icons-png.flaticon.com/512/2942/2942789.png",
-	},
-	{
-		id: "proj-002",
-		name: "Personal Portfolio",
-		description: "My personal website built with Next.js and Tailwind CSS.",
-		type: "personal",
-		accessLevel: "public",
-		ownerId: "user-123", // Current User (John Doe)
-		icon: "https://cdn-icons-png.flaticon.com/512/1055/1055666.png",
-	},
-	{
-		id: "proj-003",
-		name: "Smart Home IoT",
-		description:
-			"Internal R&D project for controlling smart devices via mobile.",
-		type: "work",
-		accessLevel: "private",
-		ownerId: "user-003", // Michael Brown
-		icon: "https://cdn-icons-png.flaticon.com/512/3081/3081559.png",
-	},
-	{
-		id: "proj-004",
-		name: "Meal Planner App",
-		description:
-			"A side project for organizing weekly recipes and shopping lists.",
-		type: "personal",
-		accessLevel: "private",
-		ownerId: "user-123", // Current User (John Doe)
-		icon: "https://cdn-icons-png.flaticon.com/512/1997/1997412.png",
-	},
-	{
-		id: "proj-005",
-		name: "Customer Support Portal",
-		description:
-			"Public-facing portal for clients to submit and track tickets.",
-		type: "work",
-		accessLevel: "public",
-		ownerId: "user-002", // Sarah Smith
-		icon: "https://cdn-icons-png.flaticon.com/512/1157/1157044.png",
 	},
 ];
