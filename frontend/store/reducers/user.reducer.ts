@@ -6,9 +6,9 @@ const initialValue: IUser = {
 	fullname: "",
 	username: "",
 	email: "",
-	profilePicture: null,
+	profilePicture: "",
 	colorAvatar: "",
-	jobTitle: null,
+	jobTitle: "",
 };
 
 const userSlice: Slice = createSlice({
@@ -33,7 +33,10 @@ const userSlice: Slice = createSlice({
 				Partial<
 					Pick<
 						IUser,
-						"fullname" | "profilePicture" | "colorAvatar" | "jobTitle"
+						| "fullname"
+						| "profilePicture"
+						| "colorAvatar"
+						| "jobTitle"
 					>
 				>
 			>,
