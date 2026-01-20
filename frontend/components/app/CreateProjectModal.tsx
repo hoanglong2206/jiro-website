@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { addProject } from "@/store/reducers/project.reducer";
 import { IUser } from "@/types/user.interface";
+import { getDataFromLocalStorage } from "@/services/utils.service";
 
 interface CreateProjectModalProps {
 	isOpen: boolean;
@@ -40,6 +41,23 @@ export function CreateProjectModal({
 		useState<ProjectAccessLevel>(DEFAULT_ACCESS);
 	const [createProject, { isLoading }] = useCreateProjectMutation();
 	const userInfo: IUser = useAppSelector((state) => state.user);
+	const [resolvedUser, setResolvedUser] = useState<IUser | null>(null);
+
+	useEffect(() => {
+		if (userInfo?.id) {
+			setResolvedUser(userInfo);
+			return;
+		}
+
+		try {
+			const stored = getDataFromLocalStorage("user") as { user?: IUser } | null;
+			if (stored?.user?.id) {
+				setResolvedUser(stored.user);
+			}
+		} catch (error) {
+			console.warn("Unable to read cached user", error);
+		}
+	}, [userInfo]);
 
 	useEffect(() => {
 		if (!isOpen) {
@@ -53,8 +71,14 @@ export function CreateProjectModal({
 	}, [isOpen]);
 
 	const isSubmitDisabled = useMemo(() => {
-		return !name.trim() || isLoading;
-	}, [name, isLoading]);
+		return (
+			!name.trim() ||
+			isLoading ||
+			!resolvedUser?.id ||
+			!resolvedUser.email ||
+			!resolvedUser.fullname
+		);
+	}, [name, isLoading, resolvedUser]);
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -63,13 +87,28 @@ export function CreateProjectModal({
 		}
 
 		try {
+			if (!resolvedUser?.id || !resolvedUser.email || !resolvedUser.fullname) {
+				toast.error("Missing owner information. Please refresh and try again.");
+				return;
+			}
+
+			const ownerPayload: IUser = {
+				id: resolvedUser.id,
+				fullname: resolvedUser.fullname,
+				username: resolvedUser.username,
+				email: resolvedUser.email,
+				profilePicture: resolvedUser.profilePicture,
+				colorAvatar: resolvedUser.colorAvatar,
+				jobTitle: resolvedUser.jobTitle,
+			};
+
 			const result = await createProject({
 				name: name.trim(),
 				description: description.trim() || undefined,
 				type,
 				accessLevel,
 				color: "#60a5fa",
-				user: userInfo,
+				user: ownerPayload,
 			}).unwrap();
 
 			dispatch(addProject(result.project));

@@ -1,13 +1,24 @@
 "use client";
 
-import { CSSProperties, ElementType, useEffect, useState } from "react";
+import { CSSProperties, FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ProjectsTable } from "@/components/app/ProjectsTable";
 import { CreateProjectModal } from "@/components/app/CreateProjectModal";
-import { useGetProjectsQuery } from "@/services/project.service";
-import { setProjects } from "@/store/reducers/project.reducer";
+import {
+	useGetProjectsQuery,
+	useUpdateProjectMutation,
+} from "@/services/project.service";
+import {
+	setProjects,
+	updateProject as updateProjectInStore,
+} from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
-import { IProjectResponse } from "@/types/project.interface";
+import {
+	IProjectResponse,
+	IUpdateProjectPayload,
+	ProjectAccessLevel,
+	ProjectType,
+} from "@/types/project.interface";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -21,7 +32,14 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Lock, LockOpen, Upload, UsersRound, Warehouse } from "lucide-react";
+import {
+	Loader2,
+	Lock,
+	LockOpen,
+	Upload,
+	UsersRound,
+	Warehouse,
+} from "lucide-react";
 import { CustomModal } from "@/components/ui/modal";
 import {
 	Tooltip,
@@ -30,6 +48,11 @@ import {
 } from "@/components/ui/tooltip";
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+import {
+	saveToLocalStorage,
+	extractErrorMessage,
+} from "@/services/utils.service";
 
 const colorList: { label: string; value: string }[] = [
 	{ label: "Red", value: "#f87171" },
@@ -44,12 +67,32 @@ const colorList: { label: string; value: string }[] = [
 	{ label: "Teal", value: "#2dd4bf" },
 ];
 
+type EditableProjectFields = {
+	name: string;
+	description: string;
+	type: ProjectType;
+	accessLevel: ProjectAccessLevel;
+	color: string;
+	icon: string;
+};
+
 const ProjectsPage = () => {
 	const dispatch = useAppDispatch();
 	const { projects } = useAppSelector((state) => state.project);
 	const { data, isFetching, isError, refetch } = useGetProjectsQuery();
+	const [updateProjectMutation, { isLoading: isUpdating }] =
+		useUpdateProjectMutation();
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const [currentProject, setCurrentProject] = useState<IProjectResponse>();
+	const [formValues, setFormValues] = useState<EditableProjectFields>({
+		name: "",
+		description: "",
+		type: "personal",
+		accessLevel: "private",
+		color: "",
+		icon: "",
+	});
 
 	useEffect(() => {
 		if (data?.projects) {
@@ -57,13 +100,119 @@ const ProjectsPage = () => {
 		}
 	}, [data, dispatch]);
 
-	const [currentProject, setCurrentProject] = useState<IProjectResponse>();
-
 	useEffect(() => {
-		if (projects.length) {
-			setCurrentProject(projects[0]);
+		if (!projects.length) {
+			setCurrentProject(undefined);
+			return;
 		}
-	}, [projects]);
+
+		const syncTarget = currentProject
+			? projects.find((project) => project.id === currentProject.id)
+			: projects[0];
+
+		if (!syncTarget) {
+			return;
+		}
+
+		if (syncTarget !== currentProject) {
+			setCurrentProject(syncTarget);
+		}
+
+		setFormValues({
+			name: syncTarget.name,
+			description: syncTarget.description ?? "",
+			type: syncTarget.type,
+			accessLevel: syncTarget.accessLevel,
+			color: syncTarget.color ?? "",
+			icon: syncTarget.icon ?? "",
+		});
+	}, [projects, currentProject]);
+
+	const handleSelectProject = (project: IProjectResponse) => {
+		setCurrentProject(project);
+		saveToLocalStorage("currentProject", JSON.stringify(project));
+		setFormValues({
+			name: project.name,
+			description: project.description ?? "",
+			type: project.type,
+			accessLevel: project.accessLevel,
+			color: project.color ?? "",
+			icon: project.icon ?? "",
+		});
+	};
+
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+
+		if (!currentProject) {
+			return;
+		}
+
+		const trimmedName = formValues.name.trim();
+		if (!trimmedName) {
+			toast.error("Project name is required.");
+			return;
+		}
+
+		const trimmedDescription = formValues.description.trim();
+		const normalizedDescription = trimmedDescription || "";
+		const payload: IUpdateProjectPayload = {
+			id: currentProject.id,
+		};
+
+		if (trimmedName !== currentProject.name) {
+			payload.name = trimmedName;
+		}
+
+		const currentDescription = currentProject.description ?? "";
+		if (normalizedDescription !== currentDescription) {
+			payload.description = normalizedDescription;
+		}
+
+		if (formValues.type !== currentProject.type) {
+			payload.type = formValues.type;
+		}
+
+		if (formValues.accessLevel !== currentProject.accessLevel) {
+			payload.accessLevel = formValues.accessLevel;
+		}
+
+		const normalizedColor = formValues.color || "";
+		const currentColor = currentProject.color ?? "";
+		if (normalizedColor !== currentColor) {
+			payload.color = normalizedColor;
+		}
+
+		const normalizedIcon = formValues.icon || "";
+		const currentIcon = currentProject.icon ?? "";
+		if (normalizedIcon !== currentIcon) {
+			payload.icon = normalizedIcon;
+		}
+
+		if (Object.keys(payload).length === 1) {
+			toast.info("No changes detected.");
+			return;
+		}
+
+		try {
+			const response = await updateProjectMutation(payload).unwrap();
+			dispatch(updateProjectInStore(response.project));
+			setCurrentProject(response.project);
+			setFormValues({
+				name: response.project.name,
+				description: response.project.description ?? "",
+				type: response.project.type,
+				accessLevel: response.project.accessLevel,
+				color: response.project.color ?? "",
+				icon: response.project.icon ?? "",
+			});
+			saveToLocalStorage("currentProject", JSON.stringify(response.project));
+			toast.success(response.message || "Project updated successfully");
+		} catch (error) {
+			const message = extractErrorMessage(error, "Failed to update project");
+			toast.error(message);
+		}
+	};
 
 	if (isFetching && !projects.length) {
 		return (
@@ -76,9 +225,7 @@ const ProjectsPage = () => {
 	if (isError) {
 		return (
 			<div className="p-6 space-y-3 flex flex-col items-center justify-center">
-				<div className="text-sm text-red-500">
-					Unable to load projects.
-				</div>
+				<div className="text-sm text-red-500">Unable to load projects.</div>
 				<Button size="sm" variant="outline" onClick={() => refetch()}>
 					Retry
 				</Button>
@@ -114,51 +261,38 @@ const ProjectsPage = () => {
 						<div className="col-span-2">
 							<ProjectsTable
 								data={projects}
-								onSelectProject={setCurrentProject}
+								onSelectProject={handleSelectProject}
 							/>
 						</div>
 						<div className="col-span-1 mt-2">
 							<Card>
 								<CardHeader>
-									<h1 className="text-xl font-semibold">
-										My Settings
-									</h1>
+									<h1 className="text-xl font-semibold">My Settings</h1>
 								</CardHeader>
 								<CardContent>
-									<form>
+									<form onSubmit={handleSubmit}>
 										<div className="flex border rounded-t-md py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Avatar
-											</Label>
+											<Label className="font-medium">Avatar</Label>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<div
 														style={{
-															backgroundColor:
-																currentProject?.color ||
-																"",
+															backgroundColor: formValues.color || "",
 														}}
 														className="flex aspect-square size-10 items-center justify-center rounded-lg"
 													>
-														{currentProject?.icon ? (
+														{formValues.icon ? (
 															<Image
-																src={
-																	currentProject?.icon
-																}
-																alt={
-																	currentProject?.name
-																}
+																src={formValues.icon}
+																alt={formValues.name}
 																width={15}
 																height={15}
 															/>
 														) : (
 															<span className="font-medium text-background">
-																{currentProject?.name
+																{formValues.name
 																	.split(" ")
-																	.map(
-																		(x) =>
-																			x[0],
-																	)
+																	.map((x) => x[0])
 																	.join("")}
 															</span>
 														)}
@@ -173,59 +307,46 @@ const ProjectsPage = () => {
 													<DropdownMenuLabel className="text-muted-foreground text-xs">
 														Color
 													</DropdownMenuLabel>
-													<RadioGroup className="grid grid-cols-5 gap-1.5">
-														{colorList.map(
-															(swatch) => (
-																<Tooltip
-																	key={
-																		swatch.label
-																	}
-																>
-																	<TooltipTrigger
-																		asChild
-																	>
-																		<div>
-																			<RadioGroupItem
-																				value={
-																					swatch.value
-																				}
-																				id={
-																					swatch.label
-																				}
-																				className="peer sr-only "
-																			/>
-																			<Label
-																				htmlFor={
-																					swatch.label
-																				}
-																				className=" flex w-6 h-6 items-center justify-center rounded-full border-2 border-muted bg-popover p-2 cursor-pointer  hover:ring-2 hover:ring-sidebar-ring peer-data-[state=checked]:ring-2 peer-data-[state=checked]:ring-(--checked-color) peer-data-[state=checked]:hover:ring-(--checked-color)"
-																				style={
-																					{
-																						backgroundColor:
-																							swatch.value,
-																						"--checked-color":
-																							swatch.value,
-																					} as CSSProperties
-																				}
-																			></Label>
-																		</div>
-																	</TooltipTrigger>
-																	<TooltipContent side="bottom">
-																		<p>
-																			{
-																				swatch.label
+													<RadioGroup
+														className="grid grid-cols-5 gap-1.5"
+														value={formValues.color}
+														onValueChange={(value) =>
+															setFormValues((prev) => ({
+																...prev,
+																color: value,
+															}))
+														}
+													>
+														{colorList.map((swatch) => (
+															<Tooltip key={swatch.label}>
+																<TooltipTrigger asChild>
+																	<div>
+																		<RadioGroupItem
+																			value={swatch.value}
+																			id={swatch.label}
+																			className="peer sr-only "
+																		/>
+																		<Label
+																			htmlFor={swatch.label}
+																			className=" flex w-6 h-6 items-center justify-center rounded-full border-2 border-muted bg-popover p-2 cursor-pointer  hover:ring-2 hover:ring-sidebar-ring peer-data-[state=checked]:ring-2 peer-data-[state=checked]:ring-(--checked-color) peer-data-[state=checked]:hover:ring-(--checked-color)"
+																			style={
+																				{
+																					backgroundColor: swatch.value,
+																					"--checked-color": swatch.value,
+																				} as CSSProperties
 																			}
-																		</p>
-																	</TooltipContent>
-																</Tooltip>
-															),
-														)}
+																		></Label>
+																	</div>
+																</TooltipTrigger>
+																<TooltipContent side="bottom">
+																	<p>{swatch.label}</p>
+																</TooltipContent>
+															</Tooltip>
+														))}
 													</RadioGroup>
 													<DropdownMenuSeparator />
 													<DropdownMenuItem
-														onClick={() =>
-															setIsModalOpen(true)
-														}
+														onClick={() => setIsModalOpen(true)}
 														className="gap-2 p-2 cursor-pointer"
 													>
 														<Upload className="size-4" />
@@ -237,42 +358,45 @@ const ProjectsPage = () => {
 											</DropdownMenu>
 										</div>
 										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Name
-											</Label>
+											<Label className="font-medium">Name</Label>
 											<Input
-												value={currentProject?.name}
-												className="max-w-80"
-											/>
-										</div>
-										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Description
-											</Label>
-											<Textarea
-												value={
-													currentProject?.description
+												value={formValues.name}
+												onChange={(event) =>
+													setFormValues((prev) => ({
+														...prev,
+														name: event.target.value,
+													}))
 												}
 												className="max-w-80"
 											/>
 										</div>
 										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Type
-											</Label>
+											<Label className="font-medium">Description</Label>
+											<Textarea
+												value={formValues.description}
+												onChange={(event) =>
+													setFormValues((prev) => ({
+														...prev,
+														description: event.target.value,
+													}))
+												}
+												className="max-w-80"
+											/>
+										</div>
+										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
+											<Label className="font-medium">Type</Label>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<Button
 														className="px-4 py-1.5 cursor-pointer min-w-48 capitalize flex items-center justify-start gap-2 focus-visible:ring-0"
 														variant="secondary"
 													>
-														{currentProject?.type ===
-														"personal" ? (
+														{formValues.type === "personal" ? (
 															<UsersRound className="h-4 w-4" />
 														) : (
 															<Warehouse className="h-4 w-4" />
 														)}
-														{currentProject?.type}
+														{formValues.type}
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent
@@ -291,14 +415,17 @@ const ProjectsPage = () => {
 															icon: Warehouse,
 														},
 													].map((option) => {
-														const OptionIcon =
-															option.icon;
+														const OptionIcon = option.icon;
 														return (
 															<DropdownMenuItem
-																key={
-																	option.value
-																}
+																key={option.value}
 																className="cursor-pointer flex items-center gap-2 hover:bg-muted/90 transition-colors"
+																onClick={() =>
+																	setFormValues((prev) => ({
+																		...prev,
+																		type: option.value as ProjectType,
+																	}))
+																}
 															>
 																<OptionIcon className="h-4 w-4" />
 																{option.label}
@@ -309,24 +436,19 @@ const ProjectsPage = () => {
 											</DropdownMenu>
 										</div>
 										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Access Level
-											</Label>
+											<Label className="font-medium">Access Level</Label>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<Button
 														className="px-4 py-1.5 cursor-pointer min-w-48 capitalize flex items-center justify-start gap-2 focus-visible:ring-0"
 														variant="secondary"
 													>
-														{currentProject?.accessLevel ===
-														"private" ? (
+														{formValues.accessLevel === "private" ? (
 															<Lock className="h-4 w-4" />
 														) : (
 															<LockOpen className="h-4 w-4" />
 														)}
-														{
-															currentProject?.accessLevel
-														}
+														{formValues.accessLevel}
 													</Button>
 												</DropdownMenuTrigger>
 												<DropdownMenuContent
@@ -345,14 +467,18 @@ const ProjectsPage = () => {
 															icon: LockOpen,
 														},
 													].map((option) => {
-														const OptionIcon =
-															option.icon;
+														const OptionIcon = option.icon;
 														return (
 															<DropdownMenuItem
-																key={
-																	option.value
-																}
+																key={option.value}
 																className="cursor-pointer flex items-center gap-2 hover:bg-muted/90 transition-colors"
+																onClick={() =>
+																	setFormValues((prev) => ({
+																		...prev,
+																		accessLevel:
+																			option.value as ProjectAccessLevel,
+																	}))
+																}
 															>
 																<OptionIcon className="h-4 w-4" />
 																{option.label}
@@ -363,15 +489,10 @@ const ProjectsPage = () => {
 											</DropdownMenu>
 										</div>
 										<div className="flex border rounded-b-md border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Owner
-											</Label>
+											<Label className="font-medium">Owner</Label>
 											<div className="flex items-center gap-2">
 												<Avatar className="h-8 w-8 cursor-pointer">
-													<AvatarImage
-														src={""}
-														alt={"example"}
-													/>
+													<AvatarImage src={""} alt={"example"} />
 													<AvatarFallback
 														className="text-white text-lg tracking-wider"
 														style={{
@@ -385,9 +506,7 @@ const ProjectsPage = () => {
 													</AvatarFallback>
 												</Avatar>
 												<div className="">
-													<p className="font-semibold">
-														example
-													</p>
+													<p className="font-semibold">example</p>
 													<p className="text-xs text-muted-foreground">
 														example@example.com
 													</p>
@@ -396,9 +515,13 @@ const ProjectsPage = () => {
 										</div>
 										<div className="flex items-center justify-end mt-4">
 											<Button
+												className="gap-2 cursor-pointer"
+												disabled={isUpdating || !currentProject}
 												type="submit"
-												className="cursor-pointer"
 											>
+												{isUpdating && (
+													<Loader2 className="size-4 animate-spin" />
+												)}
 												Save Changes
 											</Button>
 										</div>

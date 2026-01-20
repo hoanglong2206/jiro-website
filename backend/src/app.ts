@@ -12,6 +12,7 @@ import { authConnection } from "./queues/auth/connection";
 import { userConnection } from "./queues/user/connection";
 import { projectConnection } from "./queues/project/connection";
 import { consumeUserMessage } from "./queues/user/user.consumer";
+import { consumeProjectMessages } from "./queues/project/project.consumer";
 import {
 	setAuthChannel,
 	setProjectChannel,
@@ -46,7 +47,7 @@ export class App {
 					maxAge: 1000 * 60 * 60 * 24, // 1 day
 					secure: config.NODE_ENV === "production",
 				},
-			})
+			}),
 		);
 		app.use(helmet());
 		app.use(
@@ -54,7 +55,7 @@ export class App {
 				origin: config.CORS_ORIGIN || "*",
 				credentials: true,
 				methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-			})
+			}),
 		);
 		if (config.NODE_ENV === "development") {
 			app.use(morgan("dev"));
@@ -83,20 +84,19 @@ export class App {
 			setProjectChannel(projectChannel);
 
 			await consumeUserMessage(userChannel);
+			await consumeProjectMessages(projectChannel);
 		} catch (error) {
 			console.error("Failed to initialize queues:", error);
 		}
 	}
 
 	private errorHandler(app: Application): void {
-		app.use(
-			(err: Error, _req: Request, res: Response, next: NextFunction) => {
-				console.error(err.stack);
-				res.status(500).send("Something went wrong!");
+		app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
+			console.error(err.stack);
+			res.status(500).send("Something went wrong!");
 
-				next();
-			}
-		);
+			next();
+		});
 	}
 
 	private startServer(app: Application): void {
@@ -105,7 +105,7 @@ export class App {
 
 			httpServer.listen(config.PORT, () => {
 				console.log(
-					`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`
+					`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`,
 				);
 			});
 		} catch (error) {

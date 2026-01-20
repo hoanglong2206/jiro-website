@@ -4,6 +4,9 @@ import { eq } from "drizzle-orm";
 import { IUser } from "../types/user.interface";
 import { uploads } from "../helpers/cloudinaryUpload";
 import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
+import { publishDirectMessage } from "../queues/publisher";
+import { getProjectChannel } from "../queues/channelStore";
+import { projectConnection } from "../queues/project/connection";
 
 class UserService {
 	constructor() {}
@@ -128,6 +131,28 @@ class UserService {
 		const updatedUser = rows[0];
 		if (!updatedUser) {
 			throw new Error("User not found");
+		}
+
+		// Broadcast owner updates for projects via RabbitMQ; do not block profile update on queue failures.
+		try {
+			const channel = getProjectChannel();
+			await publishDirectMessage({
+				channel,
+				channelFactory: projectConnection,
+				exchangeName: "project.owner",
+				routingKey: "owner.updated",
+				message: JSON.stringify({
+					type: "project.owner.update",
+					userId,
+					fullname: updatedUser.fullname ?? null,
+					email: updatedUser.email ?? null,
+					profilePicture: updatedUser.profilePicture ?? null,
+					colorAvatar: updatedUser.colorAvatar ?? null,
+				}),
+				logMessage: `Queued project owner sync for user ${updatedUser.email}`,
+			});
+		} catch (queueError) {
+			console.error("Failed to queue project owner update:", queueError);
 		}
 
 		return updatedUser;

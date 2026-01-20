@@ -138,6 +138,78 @@ class ProjectService {
 
 		return rows[0]?.project ?? null;
 	}
+
+	async updateOwnerDetailsForUser(payload: {
+		userId: string;
+		fullname?: string;
+		email?: string | null;
+		profilePicture?: string | null;
+		colorAvatar?: string | null;
+	}): Promise<void> {
+		const { userId } = payload;
+		if (!userId) {
+			return;
+		}
+
+		const normalizedFullname =
+			payload.fullname !== undefined && payload.fullname !== null
+				? payload.fullname.trim()
+				: undefined;
+		const normalizedEmail =
+			payload.email !== undefined && payload.email !== null
+				? payload.email.trim()
+				: undefined;
+		const ownerUpdates: Partial<NewProjectRecord> = {};
+		if (normalizedFullname !== undefined && normalizedFullname.length) {
+			ownerUpdates.ownerFullname = normalizedFullname;
+		}
+		if (normalizedEmail !== undefined && normalizedEmail.length) {
+			ownerUpdates.ownerEmail = normalizedEmail;
+		}
+		if (payload.profilePicture !== undefined) {
+			ownerUpdates.ownerProfilePicture = payload.profilePicture ?? null;
+		}
+		if (payload.colorAvatar !== undefined) {
+			ownerUpdates.ownerColorAvatar = payload.colorAvatar ?? null;
+		}
+
+		const memberUpdates: Partial<NewProjectMemberRecord> = {};
+		if (normalizedFullname !== undefined && normalizedFullname.length) {
+			memberUpdates.userFullname = normalizedFullname;
+		}
+		if (normalizedEmail !== undefined && normalizedEmail.length) {
+			memberUpdates.userEmail = normalizedEmail;
+		}
+		if (payload.profilePicture !== undefined) {
+			memberUpdates.userProfilePicture = payload.profilePicture ?? null;
+		}
+		if (payload.colorAvatar !== undefined) {
+			memberUpdates.userColorAvatar = payload.colorAvatar ?? null;
+		}
+
+		if (
+			!Object.keys(ownerUpdates).length &&
+			!Object.keys(memberUpdates).length
+		) {
+			return;
+		}
+
+		await db.transaction(async (trx) => {
+			if (Object.keys(ownerUpdates).length) {
+				await trx
+					.update(projectTable)
+					.set(ownerUpdates)
+					.where(eq(projectTable.ownerId, userId));
+			}
+
+			if (Object.keys(memberUpdates).length) {
+				await trx
+					.update(projectMembersTable)
+					.set(memberUpdates)
+					.where(eq(projectMembersTable.userId, userId));
+			}
+		});
+	}
 }
 
 export const projectService: ProjectService = new ProjectService();
