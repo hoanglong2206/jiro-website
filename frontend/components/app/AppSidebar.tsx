@@ -1,6 +1,6 @@
 "use client";
 
-import { ElementType, useEffect, useMemo } from "react";
+import { ElementType, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -50,6 +50,7 @@ import {
 	saveToLocalStorage,
 	getDataFromLocalStorage,
 } from "@/services/utils.service";
+import { SpaceNavCard } from "./SpaceNavCard";
 
 const navigationItems: { label: string; icon: ElementType; href: string }[] = [
 	{
@@ -106,7 +107,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						)}
 						asChild
 					>
-						<Link href={`${item.href}`} className="flex items-center gap-2">
+						<Link
+							href={`${item.href}`}
+							className="flex items-center gap-2"
+						>
 							<item.icon className="h-4 w-4" />
 							{item.label}
 						</Link>
@@ -116,57 +120,181 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		[pathname],
 	);
 
+	const [isSpacesSheetOpen, setIsSpacesSheetOpen] = useState<boolean>(false);
+	const [isDropdownSheetOpen, setIsDropdownSheetOpen] =
+		useState<boolean>(false);
+	const asideRef = useRef<HTMLDivElement>(null);
+	const triggerRef = useRef<HTMLButtonElement>(null);
+	const dropdownRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!isSpacesSheetOpen) return;
+
+		const handleClickOutside = (event: MouseEvent) => {
+			const target = event.target as Node;
+
+			if (isDropdownSheetOpen) return;
+
+			if (dropdownRef.current && !dropdownRef.current.contains(target))
+				return;
+
+			if (
+				asideRef.current &&
+				!asideRef.current.contains(target) &&
+				triggerRef.current &&
+				!triggerRef.current.contains(target)
+			) {
+				setIsSpacesSheetOpen(false);
+			}
+		};
+
+		document.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [isSpacesSheetOpen, isDropdownSheetOpen]);
+
 	return (
-		<Sidebar collapsible="icon" {...props}>
-			<SidebarHeader>
-				<ProjectSwitcher projects={projectItems} isLoading={isFetching} />
-			</SidebarHeader>
-			<SidebarContent>
-				<SidebarGroup>
-					<SidebarMenu>{memoizedMenuItems}</SidebarMenu>
-				</SidebarGroup>
-				<SidebarGroup>
-					<SidebarGroupLabel className="flex items-center justify-between">
-						Spaces
-						<div className="flex items-center gap-1">
-							<Button
-								variant="ghost"
-								size="icon"
-								className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+		<>
+			<Sidebar collapsible="icon" {...props}>
+				<SidebarHeader>
+					<ProjectSwitcher
+						projects={projectItems}
+						isLoading={isFetching}
+					/>
+				</SidebarHeader>
+				<SidebarContent>
+					<SidebarGroup>
+						<SidebarMenu>{memoizedMenuItems}</SidebarMenu>
+					</SidebarGroup>
+					<SidebarGroup>
+						<SidebarGroupLabel className="flex items-center justify-between">
+							Spaces
+							<div className="flex items-center gap-1">
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+										>
+											<MoreHorizontal className="h-3 w-3" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent
+										align="start"
+										className="w-48"
+									>
+										<DropdownMenuItem className="cursor-pointer">
+											<Plus className="h-4 w-4" />
+											Create Space
+										</DropdownMenuItem>
+										<DropdownMenuItem className="cursor-pointer">
+											<LayoutGrid className="h-4 w-4" />
+											Manage Spaces
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+								>
+									<Search className="h-3 w-3" />
+								</Button>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+								>
+									<Plus className="h-3 w-3" />
+								</Button>
+							</div>
+						</SidebarGroupLabel>
+						<SidebarMenu>
+							<SidebarMenuItem>
+								<SidebarMenuButton
+									tooltip="Spaces"
+									ref={triggerRef}
+									onClick={() =>
+										setIsSpacesSheetOpen(!isSpacesSheetOpen)
+									}
+									className={cn(
+										"text-sm cursor-pointer transition-colors hidden group-has-data-[collapsible=icon]/sidebar-wrapper:flex",
+										isSpacesSheetOpen &&
+											"bg-muted-foreground/10",
+									)}
+								>
+									<LayoutGrid className="h-4 w-4" />
+								</SidebarMenuButton>
+							</SidebarMenuItem>
+							{Array.from({ length: 3 }).map((_, index) => (
+								<SpaceNavCard key={index} typeNav />
+							))}
+						</SidebarMenu>
+					</SidebarGroup>
+				</SidebarContent>
+				<SidebarFooter></SidebarFooter>
+				<SidebarRail />
+			</Sidebar>
+			<aside
+				ref={asideRef}
+				className={cn(
+					"fixed hidden left-11.75 top-13.75 border z-1 bg-sidebar md:flex h-full w-64 p-2 flex-col overflow-y-hidden duration-300 ease-in-out gap-2",
+					isSpacesSheetOpen ? "translate-x-0" : "-translate-x-full",
+				)}
+			>
+				<SidebarGroupLabel className="flex items-center justify-between">
+					Spaces
+					<div className="flex items-center gap-1">
+						<DropdownMenu onOpenChange={setIsDropdownSheetOpen}>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+								>
+									<MoreHorizontal className="h-3 w-3" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								ref={dropdownRef}
+								align="start"
+								className="w-48"
 							>
-								<MoreHorizontal className="h-3 w-3" />
-							</Button>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
-							>
-								<Search className="h-3 w-3" />
-							</Button>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
-							>
-								<Plus className="h-3 w-3" />
-							</Button>
-						</div>
-					</SidebarGroupLabel>
-					<SidebarMenu>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								tooltip="Spaces"
-								className="text-sm cursor-pointer transition-colors hidden group-has-data-[collapsible=icon]/sidebar-wrapper:flex"
-							>
-								<LayoutGrid className="h-4 w-4" />
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-					</SidebarMenu>
-				</SidebarGroup>
-			</SidebarContent>
-			<SidebarFooter></SidebarFooter>
-			<SidebarRail />
-		</Sidebar>
+								<DropdownMenuItem className="cursor-pointer">
+									<Plus className="h-4 w-4" />
+									Create Space
+								</DropdownMenuItem>
+								<DropdownMenuItem className="cursor-pointer">
+									<LayoutGrid className="h-4 w-4" />
+									Manage Spaces
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+						>
+							<Search className="h-3 w-3" />
+						</Button>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
+						>
+							<Plus className="h-3 w-3" />
+						</Button>
+					</div>
+				</SidebarGroupLabel>
+				<div className="flex flex-col gap-1">
+					{Array.from({ length: 3 }).map((_, index) => (
+						<SpaceNavCard key={index} />
+					))}
+				</div>
+			</aside>
+		</>
 	);
 }
 
@@ -205,13 +333,17 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 		})();
 
 		const fallbackProject =
-			storedProject && projects.some((item) => item.id === storedProject.id)
+			storedProject &&
+			projects.some((item) => item.id === storedProject.id)
 				? storedProject
 				: projects[0];
 
 		if (fallbackProject) {
 			dispatch(setCurrentProject(fallbackProject));
-			saveToLocalStorage("currentProject", JSON.stringify(fallbackProject));
+			saveToLocalStorage(
+				"currentProject",
+				JSON.stringify(fallbackProject),
+			);
 		}
 	}, [projects, currentProject, dispatch]);
 
@@ -239,13 +371,16 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 					<DropdownMenuTrigger asChild>
 						<SidebarMenuButton
 							size="lg"
-							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
 						>
 							{currentProject?.icon ? (
 								<div className="bg-muted-foreground/40  flex aspect-square size-8 items-center justify-center rounded-lg">
 									<Image
 										src={currentProject.icon}
-										alt={currentProject.name ?? "Project icon"}
+										alt={
+											currentProject.name ??
+											"Project icon"
+										}
 										width={15}
 										height={15}
 									/>
@@ -293,13 +428,18 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 											"currentProject",
 											JSON.stringify(project),
 										);
-										router.push(`/projects/${project.id}/home`);
+										router.push(
+											`/projects/${project.id}/home`,
+										);
 									}}
 									className="gap-2 p-2 cursor-pointer transition-colors"
 								>
 									<div
 										className="flex size-7 items-center justify-center rounded-md border text-xs font-medium text-background"
-										style={{ backgroundColor: project.color || "" }}
+										style={{
+											backgroundColor:
+												project.color || "",
+										}}
 									>
 										{projectName
 											.split(" ")
