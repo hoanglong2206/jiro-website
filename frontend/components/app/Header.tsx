@@ -73,9 +73,9 @@ export function Header() {
 		}
 	};
 	return (
-		<header className="flex h-14 items-center justify-between border-b border-border bg-card px-2 lg:px-8">
+		<header className="flex h-14 items-center justify-between border-b border-border bg-card gap-8 px-2 lg:px-8">
 			<div className="flex items-center gap-x-2">
-				<Link href="/for-you" className="items-center hidden md:flex">
+				<Link href="/for-you" className="items-center flex">
 					<Image
 						src="/logo_l.svg"
 						alt="Logo"
@@ -92,7 +92,7 @@ export function Header() {
 					<Search className="h-5 w-5" />
 				</Button>
 			</div>
-			<div className="hidden md:flex flex-1 items-center justify-center gap-2 max-w-3xl">
+			<div className="hidden md:flex flex-1 items-center justify-center gap-2 max-w-2xl">
 				<div className="relative w-full">
 					<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
