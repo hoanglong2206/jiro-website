@@ -149,24 +149,30 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 				size: 180,
 				cell: ({ row }) => (
 					<div className="flex items-center gap-2">
-						<Avatar className="h-8 w-8 cursor-pointer">
-							<AvatarImage src={""} alt={"example"} />
+						<Avatar className="h-8 w-8">
+							<AvatarImage
+								src={row.original.ownerProfilePicture || ""}
+								alt={row.original.ownerFullname}
+							/>
 							<AvatarFallback
-								className="text-white text-lg tracking-wider"
+								className="text-white tracking-wider"
 								style={{
-									backgroundColor: "",
+									backgroundColor:
+										row.original.ownerColorAvatar || "",
 								}}
 							>
-								{"example"
+								{row.original.ownerFullname
 									.split(" ")
 									.map((x) => x[0])
 									.join("")}
 							</AvatarFallback>
 						</Avatar>
 						<div className="">
-							<p className="font-semibold">example</p>
+							<p className="font-semibold">
+								{row.original.ownerFullname}
+							</p>
 							<p className="text-xs text-muted-foreground">
-								example@example.com
+								{row.original.ownerEmail}
 							</p>
 						</div>
 					</div>

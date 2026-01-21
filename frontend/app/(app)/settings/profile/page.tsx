@@ -35,6 +35,7 @@ import { useAppDispatch, useAppSelector } from "@/store/store";
 import { updateUser as updateUserAction } from "@/store/reducers/user.reducer";
 import { extractErrorMessage } from "@/services/utils.service";
 import { toast } from "sonner";
+import { IUpdatedUserPayload } from "@/types/user.interface";
 
 const colorList: { label: string; value: string }[] = [
 	{ label: "Red", value: "#f87171" },
@@ -114,19 +115,18 @@ const Profile = () => {
 		}
 
 		const trimmedFullname = fullname.trim();
+		if (!trimmedFullname) {
+			toast.error("Vui lòng nhập tên đầy đủ.");
+			return;
+		}
+
 		const trimmedJobTitle = jobTitle.trim();
-		const payload: {
-			userId: string;
-			fullname?: string;
-			jobTitle?: string;
-			colorAvatar?: string;
-			profilePicture?: string;
-		} = {
+		const payload: IUpdatedUserPayload = {
 			userId: user.id,
 		};
 		let hasChanges = false;
 
-		if (trimmedFullname && trimmedFullname !== user.fullname) {
+		if (trimmedFullname !== user.fullname) {
 			payload.fullname = trimmedFullname;
 			hasChanges = true;
 		}

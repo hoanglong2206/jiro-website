@@ -13,8 +13,8 @@ export interface IProjectResponse {
 	ownerId: string;
 	ownerEmail: string;
 	ownerFullname: string;
-	ownerProfilePicture?: string | null;
-	ownerColorAvatar?: string | null;
+	ownerProfilePicture?: string;
+	ownerColorAvatar?: string;
 	color?: string | null;
 	icon?: string | null;
 	createdAt: string;
@@ -32,7 +32,6 @@ export interface ICreateProjectPayload {
 }
 
 export interface IUpdateProjectPayload {
-	id: string;
 	name?: string;
 	description?: string;
 	type?: ProjectType;
@@ -45,12 +44,12 @@ export interface IProjectMemberResponse {
 	id: string;
 	projectId: string;
 	userId: string;
-	userEmail?: string | null;
-	userFullname?: string | null;
-	userColorAvatar?: string | null;
-	userProfilePicture?: string | null;
+	userEmail: string;
+	userFullname: string;
+	userColorAvatar?: string;
+	userProfilePicture?: string;
 	role: ProjectMemberRole;
-	invitedBy?: string | null;
+	invitedBy: string;
 	joinedAt: string;
 	createdAt: string;
 	updatedAt: string;
@@ -61,10 +60,5 @@ export interface IProjectsResponse {
 }
 
 export interface IProjectDetailResponse {
-	project: IProjectResponse;
-}
-
-export interface ICreateProjectResponse {
-	message: string;
 	project: IProjectResponse;
 }

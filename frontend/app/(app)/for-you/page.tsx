@@ -25,7 +25,6 @@ export default function ForYouPage() {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const notifications: unknown[] = [];
 
-	console.log(data?.projects);
 	const projectList = data?.projects ? [...data.projects] : projects;
 
 	useEffect(() => {
