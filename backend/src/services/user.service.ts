@@ -132,26 +132,34 @@ class UserService {
 			throw new Error("User not found");
 		}
 
-		// Broadcast owner updates for projects via RabbitMQ; do not block profile update on queue failures.
-		try {
-			const userChannel = getUserChannel();
-			await publishDirectMessage({
-				channel: userChannel,
-				channelFactory: userConnection,
-				exchangeName: "project.owner",
-				routingKey: "project.update-owner",
-				message: JSON.stringify({
-					type: "update-owner",
-					userId,
-					fullname: updatedUser.fullname ?? null,
-					email: updatedUser.email ?? null,
-					profilePicture: updatedUser.profilePicture ?? null,
-					colorAvatar: updatedUser.colorAvatar ?? null,
-				}),
-				logMessage: `Queued project owner sync for user ${updatedUser.email}`,
-			});
-		} catch (queueError) {
-			console.error("Failed to queue project owner update:", queueError);
+		const ownerFieldsChanged =
+			(updateData.fullname !== undefined &&
+				updatedUser.fullname !== existingUser.fullname) ||
+			(updateData.profilePicture !== undefined &&
+				updatedUser.profilePicture !== existingUser.profilePicture) ||
+			(updateData.colorAvatar !== undefined &&
+				updatedUser.colorAvatar !== existingUser.colorAvatar);
+
+		if (ownerFieldsChanged) {
+			try {
+				const userChannel = getUserChannel();
+				await publishDirectMessage({
+					channel: userChannel,
+					channelFactory: userConnection,
+					exchangeName: "project.owner",
+					routingKey: "project.update-owner",
+					message: JSON.stringify({
+						type: "update-owner",
+						userId,
+						fullname: updatedUser.fullname ?? null,
+						profilePicture: updatedUser.profilePicture ?? null,
+						colorAvatar: updatedUser.colorAvatar ?? null,
+					}),
+					logMessage: `Queued project owner sync for user ${updatedUser.email}`,
+				});
+			} catch (queueError) {
+				console.error("Failed to queue project owner update:", queueError);
+			}
 		}
 
 		return updatedUser;
