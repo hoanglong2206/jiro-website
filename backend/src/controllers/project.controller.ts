@@ -26,9 +26,7 @@ class ProjectController {
 			});
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: "Unable to create project";
+				error instanceof Error ? error.message : "Unable to create project";
 			const status = message.startsWith("Failed to")
 				? StatusCodes.INTERNAL_SERVER_ERROR
 				: StatusCodes.BAD_REQUEST;
@@ -53,9 +51,7 @@ class ProjectController {
 			});
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: "Unable to update project";
+				error instanceof Error ? error.message : "Unable to update project";
 			const status = message.startsWith("Failed to")
 				? StatusCodes.INTERNAL_SERVER_ERROR
 				: StatusCodes.BAD_REQUEST;
@@ -77,12 +73,8 @@ class ProjectController {
 			return res.status(StatusCodes.OK).json({ projects });
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: "Unable to fetch projects";
-			return res
-				.status(StatusCodes.INTERNAL_SERVER_ERROR)
-				.json({ message });
+				error instanceof Error ? error.message : "Unable to fetch projects";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
 		}
 	}
 
@@ -115,12 +107,285 @@ class ProjectController {
 			return res.status(StatusCodes.OK).json({ project });
 		} catch (error) {
 			const message =
-				error instanceof Error
-					? error.message
-					: "Unable to fetch project";
+				error instanceof Error ? error.message : "Unable to fetch project";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
+		}
+	}
+
+	async createWorkspace(req: Request, res: Response) {
+		if (!req.currentUser) {
 			return res
-				.status(StatusCodes.INTERNAL_SERVER_ERROR)
-				.json({ message });
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId } = req.params;
+			if (!projectId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project id is required" });
+			}
+
+			const { workspace } = req.body;
+			if (!workspace) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Workspace payload is required" });
+			}
+
+			const createdWorkspace = await projectService.createWorkspace(
+				projectId,
+				req.currentUser.id,
+				workspace,
+			);
+
+			return res.status(StatusCodes.CREATED).json({
+				message: "Workspace created successfully",
+				workspace: createdWorkspace,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to create workspace";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
+
+	async updateWorkspace(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId } = req.params;
+			if (!projectId || !workspaceId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project id and workspace id are required" });
+			}
+
+			const { workspace } = req.body;
+			if (!workspace) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Workspace payload is required" });
+			}
+
+			const updatedWorkspace = await projectService.updateWorkspace(
+				projectId,
+				workspaceId,
+				req.currentUser.id,
+				workspace,
+			);
+
+			return res.status(StatusCodes.OK).json({
+				message: "Workspace updated successfully",
+				workspace: updatedWorkspace,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to update workspace";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
+
+	async createBoard(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId } = req.params;
+			if (!projectId || !workspaceId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project id and workspace id are required" });
+			}
+
+			const { board } = req.body;
+			if (!board) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Board payload is required" });
+			}
+
+			const createdBoard = await projectService.createBoard(
+				projectId,
+				workspaceId,
+				req.currentUser.id,
+				board,
+			);
+
+			return res.status(StatusCodes.CREATED).json({
+				message: "Board created successfully",
+				board: createdBoard,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to create board";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
+
+	async updateBoard(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId, boardId } = req.params;
+			if (!projectId || !workspaceId || !boardId) {
+				return res.status(StatusCodes.BAD_REQUEST).json({
+					message: "Project id, workspace id, and board id are required",
+				});
+			}
+
+			const { board } = req.body;
+			if (!board) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Board payload is required" });
+			}
+
+			const updatedBoard = await projectService.updateBoard(
+				projectId,
+				workspaceId,
+				boardId,
+				req.currentUser.id,
+				board,
+			);
+
+			return res.status(StatusCodes.OK).json({
+				message: "Board updated successfully",
+				board: updatedBoard,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to update board";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
+
+	async deleteProject(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId } = req.params;
+			if (!projectId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project id is required" });
+			}
+
+			const deletedProject = await projectService.deleteProject(
+				projectId,
+				req.currentUser.id,
+			);
+
+			return res.status(StatusCodes.OK).json({
+				message: "Project deleted successfully",
+				project: deletedProject,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to delete project";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
+
+	async deleteWorkspace(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId } = req.params;
+			if (!projectId || !workspaceId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project id and workspace id are required" });
+			}
+
+			const deletedWorkspace = await projectService.deleteWorkspace(
+				projectId,
+				workspaceId,
+				req.currentUser.id,
+			);
+
+			return res.status(StatusCodes.OK).json({
+				message: "Workspace deleted successfully",
+				workspace: deletedWorkspace,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to delete workspace";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
+
+	async deleteBoard(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId, boardId } = req.params;
+			if (!projectId || !workspaceId || !boardId) {
+				return res.status(StatusCodes.BAD_REQUEST).json({
+					message: "Project id, workspace id, and board id are required",
+				});
+			}
+
+			const deletedBoard = await projectService.deleteBoard(
+				projectId,
+				workspaceId,
+				boardId,
+				req.currentUser.id,
+			);
+
+			return res.status(StatusCodes.OK).json({
+				message: "Board deleted successfully",
+				board: deletedBoard,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to delete board";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
 		}
 	}
 }

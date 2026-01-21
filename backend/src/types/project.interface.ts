@@ -36,3 +36,50 @@ export interface IUpdateProjectPayload {
 	color?: string | null;
 	icon?: string | null;
 }
+
+export interface IWorkspace {
+	projectId: string;
+	name: string;
+	key: string;
+	color?: string | null;
+	createdBy: string;
+	createdAt: Date;
+	updatedAt: Date;
+	id: string;
+}
+
+export interface ICreateWorkspacePayload {
+	name: string;
+	key: string;
+	color?: string | null;
+}
+
+export interface IUpdateWorkspacePayload {
+	name?: string;
+	key?: string;
+	color?: string | null;
+}
+
+export interface IBoard {
+	id: string;
+	projectId: string;
+	workspaceId: string;
+	name: string;
+	color?: string | null;
+	position: number;
+	createdBy: string;
+	createdAt: Date;
+	updatedAt: Date;
+}
+
+export interface ICreateBoardPayload {
+	name: string;
+	color?: string | null;
+	position?: number;
+}
+
+export interface IUpdateBoardPayload {
+	name?: string;
+	color?: string | null;
+	position?: number;
+}

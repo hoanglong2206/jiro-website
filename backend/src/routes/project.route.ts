@@ -13,22 +13,57 @@ class ProjectRoutes {
 
 	routes(): Router {
 		this.router.get("/getAll", verifyJWT, projectController.getProjects);
-		this.router.get(
-			"/:projectId",
-			verifyJWT,
-			projectController.getProjectById,
-		);
+		this.router.get("/:projectId", verifyJWT, projectController.getProjectById);
 		this.router.post(
 			"/create",
 			verifyJWT,
-			validate(schema.create()),
+			validate(schema.createProject()),
 			projectController.createProject,
 		);
 		this.router.patch(
 			"/:projectId",
 			verifyJWT,
-			validate(schema.update()),
+			validate(schema.updateProject()),
 			projectController.updateProject,
+		);
+		this.router.delete(
+			"/:projectId",
+			verifyJWT,
+			projectController.deleteProject,
+		);
+		this.router.post(
+			"/:projectId/workspaces",
+			verifyJWT,
+			validate(schema.createWorkspace()),
+			projectController.createWorkspace,
+		);
+		this.router.patch(
+			"/:projectId/workspaces/:workspaceId",
+			verifyJWT,
+			validate(schema.updateWorkspace()),
+			projectController.updateWorkspace,
+		);
+		this.router.delete(
+			"/:projectId/workspaces/:workspaceId",
+			verifyJWT,
+			projectController.deleteWorkspace,
+		);
+		this.router.post(
+			"/:projectId/workspaces/:workspaceId/boards",
+			verifyJWT,
+			validate(schema.createBoard()),
+			projectController.createBoard,
+		);
+		this.router.patch(
+			"/:projectId/workspaces/:workspaceId/boards/:boardId",
+			verifyJWT,
+			validate(schema.updateBoard()),
+			projectController.updateBoard,
+		);
+		this.router.delete(
+			"/:projectId/workspaces/:workspaceId/boards/:boardId",
+			verifyJWT,
+			projectController.deleteBoard,
 		);
 		return this.router;
 	}
