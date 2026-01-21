@@ -21,11 +21,6 @@ const projectSlice = createSlice({
 		addProject: (state, action: PayloadAction<IProjectResponse>) => {
 			state.projects = [...state.projects, action.payload];
 		},
-		updateProject: (state, action: PayloadAction<IProjectResponse>) => {
-			state.projects = state.projects.map((project) =>
-				project.id === action.payload.id ? action.payload : project,
-			);
-		},
 		setCurrentProject: (state, action: PayloadAction<IProjectResponse>) => {
 			state.currentProject = action.payload;
 		},
@@ -39,7 +34,6 @@ const projectSlice = createSlice({
 export const {
 	setProjects,
 	addProject,
-	updateProject,
 	setCurrentProject,
 	clearCurrentProject,
 	clearProjects,

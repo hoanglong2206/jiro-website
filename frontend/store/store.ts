@@ -23,7 +23,7 @@ import projectReducer from "./reducers/project.reducer";
 const persistConfig = {
 	key: "root",
 	storage,
-	blacklist: ["clientApi", "_persist"],
+	blacklist: ["clientApi", "_persist", "project", "auth", "user"],
 };
 
 const rootReducer = combineReducers({
@@ -57,7 +57,14 @@ export const store = configureStore({
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			serializableCheck: {
-				ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+				ignoredActions: [
+					FLUSH,
+					REHYDRATE,
+					PAUSE,
+					PERSIST,
+					PURGE,
+					REGISTER,
+				],
 			},
 		}).concat(api.middleware),
 });

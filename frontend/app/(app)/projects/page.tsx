@@ -14,10 +14,7 @@ import {
 	useGetProjectsQuery,
 	useUpdateProjectMutation,
 } from "@/services/project.service";
-import {
-	setProjects,
-	updateProject as updateProjectInStore,
-} from "@/store/reducers/project.reducer";
+import { setProjects } from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import {
 	IProjectResponse,
@@ -259,16 +256,6 @@ const ProjectsPage = () => {
 				projectId: currentProject.id,
 				userId: userInfo.id,
 			}).unwrap();
-			dispatch(updateProjectInStore(response.project));
-			setCurrentProject(response.project);
-			setFormValues({
-				name: response.project.name,
-				description: response.project.description ?? "",
-				type: response.project.type,
-				accessLevel: response.project.accessLevel,
-				color: response.project.color ?? "",
-				icon: response.project.icon ?? "",
-			});
 			toast.success(response.message || "Project updated successfully");
 		} catch (error) {
 			const message = extractErrorMessage(
