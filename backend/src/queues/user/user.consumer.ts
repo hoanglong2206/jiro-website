@@ -16,29 +16,36 @@ const consumeUserMessage = async (channel: Channel): Promise<void> => {
 		await channel.assertExchange(exchangeName, "direct", {
 			durable: true,
 		});
-		const q: Replies.AssertQueue = await channel.assertQueue(queueName, {
-			durable: true,
-			autoDelete: false,
-		});
-		await channel.bindQueue(q.queue, exchangeName, routingKey);
-		channel.consume(q.queue, async (msg: ConsumeMessage | null) => {
-			const { type, ...data } = msg ? JSON.parse(msg.content.toString()) : {};
-			if (type === "auth") {
-				console.log(data);
-				const userPayload: IUser = {
-					id: data.id,
-					fullname: data.fullname,
-					username: data.username,
-					email: data.email,
-					profilePicture: data.profilePicture,
-					colorAvatar: data.colorAvatar,
-					jobTitle: data.jobTitle,
-				};
+		const assertedQueue: Replies.AssertQueue = await channel.assertQueue(
+			queueName,
+			{
+				durable: true,
+				autoDelete: false,
+			},
+		);
+		await channel.bindQueue(assertedQueue.queue, exchangeName, routingKey);
+		channel.consume(
+			assertedQueue.queue,
+			async (msg: ConsumeMessage | null) => {
+				const { type, ...data } = msg
+					? JSON.parse(msg.content.toString())
+					: {};
+				if (type === "auth") {
+					const userPayload: IUser = {
+						id: data.id,
+						fullname: data.fullname,
+						username: data.username,
+						email: data.email,
+						profilePicture: data.profilePicture,
+						colorAvatar: data.colorAvatar,
+						jobTitle: data.jobTitle,
+					};
 
-				await userService.createUser(userPayload);
-			}
-			channel.ack(msg!);
-		});
+					await userService.createUser(userPayload);
+				}
+				channel.ack(msg!);
+			},
+		);
 	} catch (error) {
 		console.error("Error in user consumer:", error);
 	}

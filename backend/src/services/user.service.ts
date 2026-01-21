@@ -2,11 +2,8 @@ import { db } from "../database";
 import { userTable, UserRecord, NewUserRecord } from "../models/user.model";
 import { eq } from "drizzle-orm";
 import { IUser } from "../types/user.interface";
-import { uploads } from "../helpers/cloudinaryUpload";
-import { UploadApiErrorResponse, UploadApiResponse } from "cloudinary";
+import { isUploadSuccess, uploads } from "../helpers/cloudinaryUpload";
 import { publishDirectMessage } from "../queues/publisher";
-import { getProjectChannel } from "../queues/channelStore";
-import { projectConnection } from "../queues/project/connection";
 
 class UserService {
 	constructor() {}
@@ -45,7 +42,9 @@ class UserService {
 
 	async createUser(payload: IUser): Promise<void> {
 		const existingEmail = await this.getUserByEmail(payload.email!);
-		const existingUsername = await this.getUserByUsername(payload.username!);
+		const existingUsername = await this.getUserByUsername(
+			payload.username!,
+		);
 		if (existingUsername) {
 			throw new Error("Username already in use");
 		}
@@ -67,7 +66,10 @@ class UserService {
 	async updateUser(
 		userId: string,
 		payload: Partial<
-			Pick<IUser, "fullname" | "profilePicture" | "colorAvatar" | "jobTitle">
+			Pick<
+				IUser,
+				"fullname" | "profilePicture" | "colorAvatar" | "jobTitle"
+			>
 		> & { profilePicture?: string | null },
 	): Promise<UserRecord> {
 		const existingUser = await this.getUserById(userId);
@@ -108,11 +110,12 @@ class UserService {
 					throw new Error("Failed to upload profile picture");
 				}
 
-				if (this.isUploadSuccess(uploadResult)) {
+				if (isUploadSuccess(uploadResult)) {
 					updateData.profilePicture = uploadResult.secure_url;
 				} else {
 					throw new Error(
-						uploadResult.message || "Failed to upload profile picture",
+						uploadResult.message ||
+							"Failed to upload profile picture",
 					);
 				}
 			}
@@ -134,34 +137,28 @@ class UserService {
 		}
 
 		// Broadcast owner updates for projects via RabbitMQ; do not block profile update on queue failures.
-		try {
-			const channel = getProjectChannel();
-			await publishDirectMessage({
-				channel,
-				channelFactory: projectConnection,
-				exchangeName: "project.owner",
-				routingKey: "owner.updated",
-				message: JSON.stringify({
-					type: "project.owner.update",
-					userId,
-					fullname: updatedUser.fullname ?? null,
-					email: updatedUser.email ?? null,
-					profilePicture: updatedUser.profilePicture ?? null,
-					colorAvatar: updatedUser.colorAvatar ?? null,
-				}),
-				logMessage: `Queued project owner sync for user ${updatedUser.email}`,
-			});
-		} catch (queueError) {
-			console.error("Failed to queue project owner update:", queueError);
-		}
+		// try {
+		// 	const channel = getProjectChannel();
+		// 	await publishDirectMessage({
+		// 		channel,
+		// 		channelFactory: projectConnection,
+		// 		exchangeName: "project.owner",
+		// 		routingKey: "owner.updated",
+		// 		message: JSON.stringify({
+		// 			type: "project.owner.update",
+		// 			userId,
+		// 			fullname: updatedUser.fullname ?? null,
+		// 			email: updatedUser.email ?? null,
+		// 			profilePicture: updatedUser.profilePicture ?? null,
+		// 			colorAvatar: updatedUser.colorAvatar ?? null,
+		// 		}),
+		// 		logMessage: `Queued project owner sync for user ${updatedUser.email}`,
+		// 	});
+		// } catch (queueError) {
+		// 	console.error("Failed to queue project owner update:", queueError);
+		// }
 
 		return updatedUser;
-	}
-
-	private isUploadSuccess(
-		result: UploadApiResponse | UploadApiErrorResponse | undefined,
-	): result is UploadApiResponse {
-		return Boolean(result && "secure_url" in result);
 	}
 }
 

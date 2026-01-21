@@ -1,30 +1,29 @@
 import { Channel, ConsumeMessage, Replies } from "amqplib";
 import { projectConnection } from "./connection";
 import { projectService } from "../../services/project.service";
+import { IUpdateProjectPayload } from "@/src/types/project.interface";
 
 interface OwnerUpdateMessage {
 	type?: string;
 	userId?: string;
 	fullname?: string | null;
-	email?: string | null;
 	profilePicture?: string | null;
 	colorAvatar?: string | null;
 }
 
-const exchangeName = "project.owner";
-const queueName = "project.owner.update.queue";
-const routingKey = "owner.updated";
-
-export async function consumeProjectMessages(channel?: Channel): Promise<void> {
+export async function consumeProjectMessages(channel: Channel): Promise<void> {
 	try {
 		if (!channel) {
 			channel = await projectConnection();
 		}
 
+		const exchangeName = "project.owner";
+		const queueName = "project.user-update.queue";
+		const routingKey = "project.update-owner";
+
 		await channel.assertExchange(exchangeName, "direct", {
 			durable: true,
 		});
-
 		const assertedQueue: Replies.AssertQueue = await channel.assertQueue(
 			queueName,
 			{
@@ -32,36 +31,25 @@ export async function consumeProjectMessages(channel?: Channel): Promise<void> {
 				autoDelete: false,
 			},
 		);
-
 		await channel.bindQueue(assertedQueue.queue, exchangeName, routingKey);
+		channel.consume(
+			assertedQueue.queue,
+			async (msg: ConsumeMessage | null) => {
+				const { type, ...data } = msg
+					? JSON.parse(msg.content.toString())
+					: {};
 
-		channel.consume(assertedQueue.queue, async (msg: ConsumeMessage | null) => {
-			if (!msg) {
-				return;
-			}
-
-			try {
-				const payload = JSON.parse(
-					msg.content.toString(),
-				) as OwnerUpdateMessage;
-
-				if (payload.type !== "project.owner.update" || !payload.userId) {
-					return;
+				if (type == "update-owner") {
+					await projectService.updateOwnerDetailsForUser(
+						data.userId,
+						data.fullname,
+						data.profilePicture,
+						data.colorAvatar,
+					);
 				}
-
-				await projectService.updateOwnerDetailsForUser({
-					userId: payload.userId,
-					fullname: payload.fullname ?? undefined,
-					email: payload.email ?? undefined,
-					profilePicture: payload.profilePicture ?? undefined,
-					colorAvatar: payload.colorAvatar ?? undefined,
-				});
-			} catch (error) {
-				console.error("Failed to process project owner update message:", error);
-			} finally {
-				channel!.ack(msg);
-			}
-		});
+				channel.ack(msg!);
+			},
+		);
 	} catch (error) {
 		console.error("Error initializing project owner consumer:", error);
 	}
