@@ -53,10 +53,7 @@ import {
 import Image from "next/image";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import {
-	extractErrorMessage,
-	getDataFromLocalStorage,
-} from "@/services/utils.service";
+import { extractErrorMessage } from "@/services/utils.service";
 import { IUser } from "@/types/user.interface";
 
 const colorList: { label: string; value: string }[] = [
@@ -93,25 +90,6 @@ const ProjectsPage = () => {
 		icon: "",
 	});
 	const userInfo: IUser = useAppSelector((state) => state.user);
-	const [resolvedUser, setResolvedUser] = useState<IUser | null>(null);
-
-	useEffect(() => {
-		if (userInfo?.id) {
-			setResolvedUser(userInfo);
-			return;
-		}
-
-		try {
-			const stored = getDataFromLocalStorage("user") as {
-				user?: IUser;
-			} | null;
-			if (stored?.user?.id) {
-				setResolvedUser(stored.user);
-			}
-		} catch (error) {
-			console.warn("Unable to read cached user", error);
-		}
-	}, [userInfo]);
 
 	const { data, isFetching, isError, refetch } = useGetProjectsQuery();
 	const [updateProjectMutation, { isLoading: isUpdating }] =

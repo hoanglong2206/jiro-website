@@ -12,6 +12,7 @@ import {
 	IUpdateProjectPayload,
 } from "../types/project.interface";
 import { IUser } from "../types/user.interface";
+import { uploads, isUploadSuccess } from "../helpers/cloudinaryUpload";
 
 class ProjectService {
 	async createProject(
@@ -175,8 +176,29 @@ class ProjectService {
 			}
 
 			if (payload.icon !== undefined) {
-				updates.icon =
-					payload.icon !== null ? payload.icon.trim() || null : null;
+				if (!payload.icon) {
+					updates.icon = null;
+				} else if (payload.icon.startsWith("http")) {
+					updates.icon = payload.icon;
+				} else {
+					const uploadResult = await uploads(
+						payload.icon,
+						`projects/${projectId}`,
+						true,
+						true,
+					);
+
+					if (!uploadResult) {
+						throw new Error("Failed to upload icon");
+					}
+					if (isUploadSuccess(uploadResult)) {
+						updates.icon = uploadResult.secure_url;
+					} else {
+						throw new Error(
+							uploadResult.message || "Failed to upload icon",
+						);
+					}
+				}
 			}
 
 			if (!Object.keys(updates).length) {

@@ -28,3 +28,9 @@ export function uploads(
 		);
 	});
 }
+
+export function isUploadSuccess(
+	result: UploadApiResponse | UploadApiErrorResponse | undefined,
+): result is UploadApiResponse {
+	return Boolean(result && "secure_url" in result);
+}

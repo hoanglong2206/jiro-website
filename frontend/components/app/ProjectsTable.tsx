@@ -39,6 +39,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "../ui/input";
+import Image from "next/image";
 
 interface ProjectsTableProps {
 	data: IProjectResponse[];
@@ -96,12 +97,24 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 						.join("");
 					return (
 						<div className="flex items-center gap-3">
-							<div
-								className="flex size-8 items-center justify-center rounded-lg text-sm font-semibold text-background"
-								style={{ backgroundColor: project.color || "" }}
-							>
-								{initial}
-							</div>
+							{project.icon ? (
+								<Image
+									src={project.icon}
+									alt={project.name || ""}
+									width={32}
+									height={32}
+									className="rounded-md"
+								/>
+							) : (
+								<div
+									className="flex size-8 items-center justify-center rounded-lg text-sm font-semibold text-background"
+									style={{
+										backgroundColor: project.color || "",
+									}}
+								>
+									{initial}
+								</div>
+							)}
 							<p className="font-medium text-foreground">
 								{project.name}
 							</p>
