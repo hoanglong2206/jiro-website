@@ -1,10 +1,10 @@
 import { api } from "@/store/api";
 import {
 	ICreateProjectPayload,
-	ICreateProjectResponse,
 	IUpdateProjectPayload,
 	IProjectDetailResponse,
 	IProjectsResponse,
+	IProjectResponse,
 } from "@/types/project.interface";
 
 export const projectApi = api.injectEndpoints({
@@ -14,7 +14,7 @@ export const projectApi = api.injectEndpoints({
 			providesTags: ["Project"],
 		}),
 		createProject: build.mutation<
-			ICreateProjectResponse,
+			{ message: string; project: IProjectResponse },
 			ICreateProjectPayload
 		>({
 			query: (body) => ({
@@ -29,11 +29,15 @@ export const projectApi = api.injectEndpoints({
 			providesTags: ["Project"],
 		}),
 		updateProject: build.mutation<
-			ICreateProjectResponse,
-			IUpdateProjectPayload
+			{ message: string; project: IProjectResponse },
+			{
+				project: IUpdateProjectPayload;
+				userId: string;
+				projectId: string;
+			}
 		>({
-			query: ({ id, ...body }) => ({
-				url: `project/${id}`,
+			query: ({ projectId, ...body }) => ({
+				url: `project/${projectId}`,
 				method: "PATCH",
 				body,
 			}),

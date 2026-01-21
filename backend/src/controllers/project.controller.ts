@@ -26,7 +26,36 @@ class ProjectController {
 			});
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Unable to create project";
+				error instanceof Error
+					? error.message
+					: "Unable to create project";
+			const status = message.startsWith("Failed to")
+				? StatusCodes.INTERNAL_SERVER_ERROR
+				: StatusCodes.BAD_REQUEST;
+			return res.status(status).json({ message });
+		}
+	}
+
+	async updateProject(req: Request, res: Response) {
+		try {
+			const { projectId } = req.params;
+			const { userId, project } = req.body;
+
+			const projectUpdate = await projectService.updateProject(
+				projectId,
+				userId,
+				project,
+			);
+
+			return res.status(StatusCodes.OK).json({
+				message: "Project updated successfully",
+				project: projectUpdate,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: "Unable to update project";
 			const status = message.startsWith("Failed to")
 				? StatusCodes.INTERNAL_SERVER_ERROR
 				: StatusCodes.BAD_REQUEST;
@@ -48,8 +77,12 @@ class ProjectController {
 			return res.status(StatusCodes.OK).json({ projects });
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Unable to fetch projects";
-			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
+				error instanceof Error
+					? error.message
+					: "Unable to fetch projects";
+			return res
+				.status(StatusCodes.INTERNAL_SERVER_ERROR)
+				.json({ message });
 		}
 	}
 
@@ -82,8 +115,12 @@ class ProjectController {
 			return res.status(StatusCodes.OK).json({ project });
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Unable to fetch project";
-			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
+				error instanceof Error
+					? error.message
+					: "Unable to fetch project";
+			return res
+				.status(StatusCodes.INTERNAL_SERVER_ERROR)
+				.json({ message });
 		}
 	}
 }

@@ -7,33 +7,21 @@ import {
 	projectMembersTable,
 	projectTable,
 } from "../models/project.model";
-import { ProjectAccessLevel, ProjectType } from "../types/project.interface";
+import {
+	ICreateProjectPayload,
+	IUpdateProjectPayload,
+} from "../types/project.interface";
 import { IUser } from "../types/user.interface";
-
-type CreateProjectPayload = {
-	name: string;
-	description?: string | null;
-	type: ProjectType;
-	accessLevel: ProjectAccessLevel;
-	color?: string | null;
-	icon?: string | null;
-};
 
 class ProjectService {
 	async createProject(
-		payload: CreateProjectPayload,
+		payload: ICreateProjectPayload,
 		user: IUser,
 	): Promise<ProjectRecord> {
 		return db.transaction(async (trx) => {
-			const ownerEmail = user.email?.trim();
-			const ownerFullname = user.fullname?.trim();
-
-			if (!ownerEmail || !ownerFullname) {
-				throw new Error("Owner information is incomplete");
-			}
-
 			const normalizedDescription =
-				payload.description !== undefined && payload.description !== null
+				payload.description !== undefined &&
+				payload.description !== null
 					? payload.description.trim() || null
 					: null;
 			const normalizedIcon =
@@ -46,25 +34,16 @@ class ProjectService {
 					? payload.color.trim() || null
 					: null;
 
-			const ownerProfilePicture =
-				typeof user.profilePicture === "string"
-					? user.profilePicture.trim() || null
-					: null;
-			const ownerColorAvatar =
-				typeof user.colorAvatar === "string"
-					? user.colorAvatar.trim() || null
-					: null;
-
 			const projectToInsert: NewProjectRecord = {
 				name: payload.name.trim(),
 				description: normalizedDescription,
 				type: payload.type,
 				accessLevel: payload.accessLevel,
 				ownerId: user.id,
-				ownerEmail,
-				ownerFullname,
-				ownerProfilePicture,
-				ownerColorAvatar,
+				ownerEmail: user.email,
+				ownerFullname: user.fullname,
+				ownerProfilePicture: user.profilePicture,
+				ownerColorAvatar: user.colorAvatar,
 				color: normalizedColor,
 				icon: normalizedIcon,
 			};
@@ -84,8 +63,8 @@ class ProjectService {
 				userId: user.id,
 				userEmail: user.email,
 				userFullname: user.fullname,
-				userProfilePicture: user.profilePicture ?? null,
-				userColorAvatar: user.colorAvatar ?? null,
+				userProfilePicture: user.profilePicture,
+				userColorAvatar: user.colorAvatar,
 				role: "owner",
 				invitedBy: user.id,
 			};
@@ -139,12 +118,94 @@ class ProjectService {
 		return rows[0]?.project ?? null;
 	}
 
+	async updateProject(
+		projectId: string,
+		userId: string,
+		payload: IUpdateProjectPayload,
+	): Promise<ProjectRecord> {
+		if (!projectId) {
+			throw new Error("Project ID is required");
+		}
+
+		return db.transaction(async (trx) => {
+			const membership = await trx
+				.select()
+				.from(projectMembersTable)
+				.where(
+					and(
+						eq(projectMembersTable.projectId, projectId),
+						eq(projectMembersTable.userId, userId),
+					),
+				)
+				.limit(1);
+
+			const member = membership[0];
+			if (!member) {
+				throw new Error("You are not a member of this project");
+			}
+
+			if (member.role !== "owner" && member.role !== "admin") {
+				throw new Error(
+					"You do not have permission to update this project",
+				);
+			}
+
+			const updates: Partial<NewProjectRecord> = {};
+
+			if (payload.name !== undefined) {
+				const name = payload.name.trim();
+				updates.name = name;
+			}
+
+			if (payload.description !== undefined) {
+				const description = payload.description?.trim();
+				updates.description = description ? description : null;
+			}
+
+			if (payload.type !== undefined) {
+				updates.type = payload.type;
+			}
+
+			if (payload.accessLevel !== undefined) {
+				updates.accessLevel = payload.accessLevel;
+			}
+
+			if (payload.color !== undefined) {
+				updates.color = payload.color || null;
+			}
+
+			if (payload.icon !== undefined) {
+				updates.icon =
+					payload.icon !== null ? payload.icon.trim() || null : null;
+			}
+
+			if (!Object.keys(updates).length) {
+				throw new Error("No fields to update");
+			}
+
+			const updatedProjects = await trx
+				.update(projectTable)
+				.set({
+					...updates,
+					updatedAt: new Date(),
+				})
+				.where(eq(projectTable.id, projectId))
+				.returning();
+
+			const updatedProject = updatedProjects[0];
+			if (!updatedProject) {
+				throw new Error("Failed to update project");
+			}
+
+			return updatedProject;
+		});
+	}
+
 	async updateOwnerDetailsForUser(payload: {
 		userId: string;
 		fullname?: string;
-		email?: string | null;
-		profilePicture?: string | null;
-		colorAvatar?: string | null;
+		profilePicture?: string;
+		colorAvatar?: string;
 	}): Promise<void> {
 		const { userId } = payload;
 		if (!userId) {
@@ -155,16 +216,9 @@ class ProjectService {
 			payload.fullname !== undefined && payload.fullname !== null
 				? payload.fullname.trim()
 				: undefined;
-		const normalizedEmail =
-			payload.email !== undefined && payload.email !== null
-				? payload.email.trim()
-				: undefined;
 		const ownerUpdates: Partial<NewProjectRecord> = {};
 		if (normalizedFullname !== undefined && normalizedFullname.length) {
 			ownerUpdates.ownerFullname = normalizedFullname;
-		}
-		if (normalizedEmail !== undefined && normalizedEmail.length) {
-			ownerUpdates.ownerEmail = normalizedEmail;
 		}
 		if (payload.profilePicture !== undefined) {
 			ownerUpdates.ownerProfilePicture = payload.profilePicture ?? null;
@@ -177,9 +231,6 @@ class ProjectService {
 		if (normalizedFullname !== undefined && normalizedFullname.length) {
 			memberUpdates.userFullname = normalizedFullname;
 		}
-		if (normalizedEmail !== undefined && normalizedEmail.length) {
-			memberUpdates.userEmail = normalizedEmail;
-		}
 		if (payload.profilePicture !== undefined) {
 			memberUpdates.userProfilePicture = payload.profilePicture ?? null;
 		}
@@ -191,7 +242,7 @@ class ProjectService {
 			!Object.keys(ownerUpdates).length &&
 			!Object.keys(memberUpdates).length
 		) {
-			return;
+			throw new Error("No fields to update");
 		}
 
 		await db.transaction(async (trx) => {

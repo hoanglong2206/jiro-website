@@ -1,24 +1,16 @@
 import Joi, { ObjectSchema } from "joi";
 
-const projectType = Joi.string().valid("work", "personal").required().messages({
-	"any.only": "Project type must be either 'work' or 'personal'",
-	"string.empty": "Project type is required",
-});
-
-const projectAccessLevel = Joi.string()
-	.valid("private", "public")
-	.required()
-	.messages({
-		"any.only": "Project access level must be either 'private' or 'public'",
-		"string.empty": "Project access level is required",
-	});
+const projectType = Joi.string().valid("work", "personal");
+const projectAccessLevel = Joi.string().valid("private", "public");
 
 class ProjectSchema {
 	create(): ObjectSchema {
 		return Joi.object({
 			name: Joi.string().min(2).max(120).required().messages({
-				"string.min": "Project name must be at least {#limit} characters long",
-				"string.max": "Project name must be at most {#limit} characters long",
+				"string.min":
+					"Project name must be at least {#limit} characters long",
+				"string.max":
+					"Project name must be at most {#limit} characters long",
 				"string.empty": "Project name is required",
 			}),
 			type: projectType,
@@ -34,17 +26,15 @@ class ProjectSchema {
 
 	update(): ObjectSchema {
 		return Joi.object({
-			name: Joi.string().min(2).max(120).messages({
-				"string.min": "Project name must be at least {#limit} characters long",
-				"string.max": "Project name must be at most {#limit} characters long",
-			}),
-			description: Joi.string().allow(null, "").max(1000),
-			type: projectType,
-			accessLevel: projectAccessLevel,
-			color: Joi.string().allow(null, ""),
-			icon: Joi.string().uri().allow(null, "").messages({
-				"string.uri": "Icon must be a valid URL",
-			}),
+			project: Joi.object({
+				name: Joi.string().min(2).max(120),
+				description: Joi.string().allow(null, "").max(1000),
+				type: projectType,
+				accessLevel: projectAccessLevel,
+				color: Joi.string().allow(null, ""),
+				icon: Joi.string().uri().allow(null, ""),
+			}).required(),
+			userId: Joi.string().required(),
 		}).min(1);
 	}
 }

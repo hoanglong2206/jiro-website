@@ -16,13 +16,19 @@ class ProjectRoutes {
 		this.router.get(
 			"/:projectId",
 			verifyJWT,
-			projectController.getProjectById
+			projectController.getProjectById,
 		);
 		this.router.post(
 			"/create",
 			verifyJWT,
 			validate(schema.create()),
-			projectController.createProject
+			projectController.createProject,
+		);
+		this.router.patch(
+			"/:projectId",
+			verifyJWT,
+			validate(schema.update()),
+			projectController.updateProject,
 		);
 		return this.router;
 	}

@@ -25,9 +25,6 @@ const projectSlice = createSlice({
 			state.projects = state.projects.map((project) =>
 				project.id === action.payload.id ? action.payload : project,
 			);
-			if (state.currentProject?.id === action.payload.id) {
-				state.currentProject = action.payload;
-			}
 		},
 		setCurrentProject: (state, action: PayloadAction<IProjectResponse>) => {
 			state.currentProject = action.payload;
