@@ -3,21 +3,14 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
 	startTransition,
 	useEffect,
 	useState,
 	type ChangeEvent,
-	type CSSProperties,
 	type FormEvent,
 } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -36,19 +29,7 @@ import { updateUser as updateUserAction } from "@/store/reducers/user.reducer";
 import { extractErrorMessage } from "@/services/utils.service";
 import { toast } from "sonner";
 import { IUpdatedUserPayload } from "@/types/user.interface";
-
-const colorList: { label: string; value: string }[] = [
-	{ label: "Red", value: "#f87171" },
-	{ label: "Orange", value: "#fdba74" },
-	{ label: "Yellow", value: "#fce94f" },
-	{ label: "Blue", value: "#7dd3fc" },
-	{ label: "Gray", value: "#9ca3af" },
-	{ label: "Purple", value: "#c084fc" },
-	{ label: "Fuchsia", value: "#e879f9" },
-	{ label: "Pink", value: "#fca5a5" },
-	{ label: "Green", value: "#94e2cd" },
-	{ label: "Teal", value: "#2dd4bf" },
-];
+import { ColorPicker } from "@/components/app";
 
 const Profile = () => {
 	const dispatch = useAppDispatch();
@@ -234,56 +215,10 @@ const Profile = () => {
 												<DropdownMenuLabel className="text-muted-foreground text-xs">
 													Color
 												</DropdownMenuLabel>
-												<RadioGroup
-													className="grid grid-cols-5 gap-1.5"
+												<ColorPicker
 													value={color}
-													onValueChange={(e) =>
-														setColor(e)
-													}
-												>
-													{colorList.map((swatch) => (
-														<Tooltip
-															key={swatch.label}
-														>
-															<TooltipTrigger
-																asChild
-															>
-																<div>
-																	<RadioGroupItem
-																		value={
-																			swatch.value
-																		}
-																		id={
-																			swatch.label
-																		}
-																		className="peer sr-only "
-																	/>
-																	<Label
-																		htmlFor={
-																			swatch.label
-																		}
-																		className=" flex w-6 h-6 items-center justify-center rounded-full border-2 border-muted bg-popover p-2 cursor-pointer  hover:ring-2 hover:ring-sidebar-ring peer-data-[state=checked]:ring-2 peer-data-[state=checked]:ring-(--checked-color) peer-data-[state=checked]:hover:ring-(--checked-color)"
-																		style={
-																			{
-																				backgroundColor:
-																					swatch.value,
-																				"--checked-color":
-																					swatch.value,
-																			} as CSSProperties
-																		}
-																	></Label>
-																</div>
-															</TooltipTrigger>
-															<TooltipContent side="bottom">
-																<p>
-																	{
-																		swatch.label
-																	}
-																</p>
-															</TooltipContent>
-														</Tooltip>
-													))}
-												</RadioGroup>
+													onChange={setColor}
+												/>
 												<DropdownMenuSeparator />
 												<DropdownMenuItem
 													onClick={() =>

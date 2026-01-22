@@ -20,3 +20,5 @@ export { ProjectsTable } from "./ProjectsTable";
 export { CreateProjectModal } from "./CreateProjectModal";
 
 export { SpaceNavCard } from "./SpaceNavCard";
+
+export { ColorPicker } from "./ColorPicker";
