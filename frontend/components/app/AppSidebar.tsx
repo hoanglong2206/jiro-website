@@ -356,10 +356,10 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 			.join("");
 		return (
 			<div
-				className="flex aspect-square size-8 items-center justify-center rounded-lg text-background"
+				className="flex size-8 items-center justify-center rounded-md text-background"
 				style={{ backgroundColor: color || "#1f2937" }}
 			>
-				{initials || "?"}
+				{initials}
 			</div>
 		);
 	};
@@ -374,17 +374,13 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground cursor-pointer"
 						>
 							{currentProject?.icon ? (
-								<div className="bg-muted-foreground/40  flex aspect-square size-8 items-center justify-center rounded-lg">
-									<Image
-										src={currentProject.icon}
-										alt={
-											currentProject.name ??
-											"Project icon"
-										}
-										width={15}
-										height={15}
-									/>
-								</div>
+								<Image
+									src={currentProject.icon}
+									alt={currentProject.name ?? "Project icon"}
+									width={32}
+									height={32}
+									className="rounded-md"
+								/>
 							) : (
 								renderProjectIcon(
 									currentProject?.name ?? "",
@@ -432,20 +428,23 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 											`/projects/${project.id}/home`,
 										);
 									}}
-									className="gap-2 p-2 cursor-pointer transition-colors"
+									className="gap-2 cursor-pointer transition-colors"
 								>
-									<div
-										className="flex size-7 items-center justify-center rounded-md border text-xs font-medium text-background"
-										style={{
-											backgroundColor:
-												project.color || "",
-										}}
-									>
-										{projectName
-											.split(" ")
-											.map((x) => x[0])
-											.join("")}
-									</div>
+									{project.icon ? (
+										<Image
+											src={project.icon}
+											alt={projectName}
+											width={32}
+											height={32}
+											className="rounded-md"
+										/>
+									) : (
+										renderProjectIcon(
+											projectName,
+											project.color,
+										)
+									)}
+
 									{projectName}
 								</DropdownMenuItem>
 							);

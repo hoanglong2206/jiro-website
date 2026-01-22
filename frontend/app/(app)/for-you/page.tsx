@@ -155,26 +155,25 @@ function ProjectCard({ project }: { project: IProjectResponse }) {
 		<div className="flex justify-between shrink-0 flex-col px-4 py-3 w-[384px] border border-muted rounded-md min-h-40">
 			<div className="flex flex-col items-start gap-2">
 				<div className="flex items-center w-full gap-2.5">
-					<div
-						style={{ backgroundColor: project.color || "" }}
-						className="flex aspect-square size-12 items-center justify-center rounded-lg"
-					>
-						{project.icon ? (
-							<Image
-								src={project.icon}
-								alt={project.name}
-								width={15}
-								height={15}
-							/>
-						) : (
-							<span className="font-medium text-lg text-background">
-								{project.name
-									.split(" ")
-									.map((x) => x[0])
-									.join("")}
-							</span>
-						)}
-					</div>
+					{project.icon ? (
+						<Image
+							src={project.icon}
+							alt={project.name}
+							width={48}
+							height={48}
+							className="rounded-md"
+						/>
+					) : (
+						<span
+							style={{ backgroundColor: project.color || "" }}
+							className="font-medium text-lg text-background size-12 rounded-md flex items-center justify-center"
+						>
+							{project.name
+								.split(" ")
+								.map((x) => x[0])
+								.join("")}
+						</span>
+					)}
 
 					<div>
 						<p className="truncate font-medium text-lg">
