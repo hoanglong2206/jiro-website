@@ -18,6 +18,7 @@ export { PeopleTable } from "./PeopleTable";
 export { ProjectsTable } from "./ProjectsTable";
 
 export { CreateProjectModal } from "./CreateProjectModal";
+export { CreateSpaceModal } from "./CreateSpaceModal";
 
 export { SpaceNavCard } from "./SpaceNavCard";
 

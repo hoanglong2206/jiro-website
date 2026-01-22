@@ -50,7 +50,7 @@ import {
 	saveToLocalStorage,
 	getDataFromLocalStorage,
 } from "@/services/utils.service";
-import { SpaceNavCard } from "./SpaceNavCard";
+import { SpaceNavCard, CreateSpaceModal } from "@/components/app";
 
 const navigationItems: { label: string; icon: ElementType; href: string }[] = [
 	{
@@ -120,9 +120,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		[pathname],
 	);
 
+	const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] =
+		useState<boolean>(false);
 	const [isSpacesSheetOpen, setIsSpacesSheetOpen] = useState<boolean>(false);
 	const [isDropdownSheetOpen, setIsDropdownSheetOpen] =
 		useState<boolean>(false);
+
 	const asideRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<HTMLButtonElement>(null);
 	const dropdownRef = useRef<HTMLDivElement>(null);
@@ -133,7 +136,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		const handleClickOutside = (event: MouseEvent) => {
 			const target = event.target as Node;
 
-			if (isDropdownSheetOpen) return;
+			if (isDropdownSheetOpen || isCreateSpaceModalOpen) return;
 
 			if (dropdownRef.current && !dropdownRef.current.contains(target))
 				return;
@@ -152,7 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		return () => {
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [isSpacesSheetOpen, isDropdownSheetOpen]);
+	}, [isSpacesSheetOpen, isDropdownSheetOpen, isCreateSpaceModalOpen]);
 
 	return (
 		<>
@@ -185,7 +188,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 										align="start"
 										className="w-48"
 									>
-										<DropdownMenuItem className="cursor-pointer">
+										<DropdownMenuItem
+											onClick={() =>
+												setIsCreateSpaceModalOpen(true)
+											}
+											className="cursor-pointer"
+										>
 											<Plus className="h-4 w-4" />
 											Create Space
 										</DropdownMenuItem>
@@ -203,6 +211,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									<Search className="h-3 w-3" />
 								</Button>
 								<Button
+									onClick={() =>
+										setIsCreateSpaceModalOpen(true)
+									}
 									variant="ghost"
 									size="icon"
 									className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
@@ -262,7 +273,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								align="start"
 								className="w-48"
 							>
-								<DropdownMenuItem className="cursor-pointer">
+								<DropdownMenuItem
+									onClick={() =>
+										setIsCreateSpaceModalOpen(true)
+									}
+									className="cursor-pointer"
+								>
 									<Plus className="h-4 w-4" />
 									Create Space
 								</DropdownMenuItem>
@@ -280,6 +296,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							<Search className="h-3 w-3" />
 						</Button>
 						<Button
+							onClick={() => setIsCreateSpaceModalOpen(true)}
 							variant="ghost"
 							size="icon"
 							className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
@@ -294,6 +311,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					))}
 				</div>
 			</aside>
+			<CreateSpaceModal
+				isOpen={isCreateSpaceModalOpen}
+				onClose={() => setIsCreateSpaceModalOpen(false)}
+			/>
 		</>
 	);
 }
@@ -356,7 +377,7 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 			.join("");
 		return (
 			<div
-				className="flex size-8 items-center justify-center rounded-md text-background"
+				className="flex aspect-square size-8 items-center justify-center rounded-md text-background"
 				style={{ backgroundColor: color || "#1f2937" }}
 			>
 				{initials}
