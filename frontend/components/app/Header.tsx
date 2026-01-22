@@ -145,7 +145,7 @@ export function Header() {
 					<DropdownMenuTrigger asChild>
 						<Avatar className="h-8 w-8 cursor-pointer hidden md:flex">
 							<AvatarImage
-								src={userInfo.profilePicture}
+								src={userInfo.profilePicture || undefined}
 								alt={userInfo.fullname}
 							/>
 							<AvatarFallback
@@ -165,7 +165,7 @@ export function Header() {
 						<DropdownMenuLabel className="flex items-center bg-sidebar gap-x-2">
 							<Avatar className="h-15 w-15 cursor-pointer hidden md:flex">
 								<AvatarImage
-									src={userInfo.profilePicture}
+									src={userInfo.profilePicture || undefined}
 									alt={userInfo.fullname || "r"}
 								/>
 								<AvatarFallback

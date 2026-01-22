@@ -599,7 +599,7 @@ const ProjectsPage = () => {
 													<AvatarImage
 														src={
 															currentProject?.ownerProfilePicture ||
-															""
+															undefined
 														}
 														alt={
 															currentProject?.ownerFullname

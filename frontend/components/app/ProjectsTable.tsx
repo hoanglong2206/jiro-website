@@ -164,7 +164,10 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 					<div className="flex items-center gap-2">
 						<Avatar className="h-8 w-8">
 							<AvatarImage
-								src={row.original.ownerProfilePicture || ""}
+								src={
+									row.original.ownerProfilePicture ||
+									undefined
+								}
 								alt={row.original.ownerFullname}
 							/>
 							<AvatarFallback
