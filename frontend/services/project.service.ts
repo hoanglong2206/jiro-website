@@ -1,10 +1,16 @@
 import { api } from "@/store/api";
 import {
+	IBoardResponse,
+	ICreateBoardPayload,
 	ICreateProjectPayload,
-	IUpdateProjectPayload,
+	ICreateWorkspacePayload,
 	IProjectDetailResponse,
-	IProjectsResponse,
 	IProjectResponse,
+	IProjectsResponse,
+	IUpdateBoardPayload,
+	IUpdateProjectPayload,
+	IUpdateWorkspacePayload,
+	IWorkspaceResponse,
 } from "@/types/project.interface";
 
 export const projectApi = api.injectEndpoints({
@@ -43,6 +49,93 @@ export const projectApi = api.injectEndpoints({
 			}),
 			invalidatesTags: ["Project"],
 		}),
+		deleteProject: build.mutation<
+			{ message: string; project: IProjectResponse },
+			string
+		>({
+			query: (projectId) => ({
+				url: `project/${projectId}`,
+				method: "DELETE",
+			}),
+			invalidatesTags: ["Project"],
+		}),
+		createWorkspace: build.mutation<
+			{ message: string; workspace: IWorkspaceResponse },
+			{ projectId: string; workspace: ICreateWorkspacePayload }
+		>({
+			query: ({ projectId, workspace }) => ({
+				url: `project/${projectId}/workspaces`,
+				method: "POST",
+				body: { workspace },
+			}),
+			invalidatesTags: ["Project"],
+		}),
+		updateWorkspace: build.mutation<
+			{ message: string; workspace: IWorkspaceResponse },
+			{
+				projectId: string;
+				workspaceId: string;
+				workspace: IUpdateWorkspacePayload;
+			}
+		>({
+			query: ({ projectId, workspaceId, workspace }) => ({
+				url: `project/${projectId}/workspaces/${workspaceId}`,
+				method: "PATCH",
+				body: { workspace },
+			}),
+			invalidatesTags: ["Project"],
+		}),
+		deleteWorkspace: build.mutation<
+			{ message: string; workspace: IWorkspaceResponse },
+			{ projectId: string; workspaceId: string }
+		>({
+			query: ({ projectId, workspaceId }) => ({
+				url: `project/${projectId}/workspaces/${workspaceId}`,
+				method: "DELETE",
+			}),
+			invalidatesTags: ["Project"],
+		}),
+		createBoard: build.mutation<
+			{ message: string; board: IBoardResponse },
+			{
+				projectId: string;
+				workspaceId: string;
+				board: ICreateBoardPayload;
+			}
+		>({
+			query: ({ projectId, workspaceId, board }) => ({
+				url: `project/${projectId}/workspaces/${workspaceId}/boards`,
+				method: "POST",
+				body: { board },
+			}),
+			invalidatesTags: ["Project"],
+		}),
+		updateBoard: build.mutation<
+			{ message: string; board: IBoardResponse },
+			{
+				projectId: string;
+				workspaceId: string;
+				boardId: string;
+				board: IUpdateBoardPayload;
+			}
+		>({
+			query: ({ projectId, workspaceId, boardId, board }) => ({
+				url: `project/${projectId}/workspaces/${workspaceId}/boards/${boardId}`,
+				method: "PATCH",
+				body: { board },
+			}),
+			invalidatesTags: ["Project"],
+		}),
+		deleteBoard: build.mutation<
+			{ message: string; board: IBoardResponse },
+			{ projectId: string; workspaceId: string; boardId: string }
+		>({
+			query: ({ projectId, workspaceId, boardId }) => ({
+				url: `project/${projectId}/workspaces/${workspaceId}/boards/${boardId}`,
+				method: "DELETE",
+			}),
+			invalidatesTags: ["Project"],
+		}),
 	}),
 });
 
@@ -51,4 +144,11 @@ export const {
 	useCreateProjectMutation,
 	useGetProjectByIdQuery,
 	useUpdateProjectMutation,
+	useDeleteProjectMutation,
+	useCreateWorkspaceMutation,
+	useUpdateWorkspaceMutation,
+	useDeleteWorkspaceMutation,
+	useCreateBoardMutation,
+	useUpdateBoardMutation,
+	useDeleteBoardMutation,
 } = projectApi;

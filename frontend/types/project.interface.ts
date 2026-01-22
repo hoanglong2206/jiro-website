@@ -90,3 +90,50 @@ export interface IProjectsResponse {
 export interface IProjectDetailResponse {
 	project: IProjectResponse;
 }
+
+export interface IWorkspaceResponse {
+	id: string;
+	projectId: string;
+	name: string;
+	key: string;
+	color?: string | null;
+	createdBy: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface ICreateWorkspacePayload {
+	name: string;
+	key: string;
+	color?: string | null;
+}
+
+export interface IUpdateWorkspacePayload {
+	name?: string;
+	key?: string;
+	color?: string | null;
+}
+
+export interface IBoardResponse {
+	id: string;
+	projectId: string;
+	workspaceId: string;
+	name: string;
+	color?: string | null;
+	position: number;
+	createdBy: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface ICreateBoardPayload {
+	name: string;
+	color?: string | null;
+	position?: number;
+}
+
+export interface IUpdateBoardPayload {
+	name?: string;
+	color?: string | null;
+	position?: number;
+}

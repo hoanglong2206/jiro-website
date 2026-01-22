@@ -1,10 +1,13 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ExtractTablesWithRelations } from "drizzle-orm";
 import { db } from "../database";
+import { PgTransaction } from "drizzle-orm/pg-core";
+import { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
 import {
 	NewProjectMemberRecord,
 	NewProjectRecord,
 	NewWorkspaceRecord,
 	NewBoardRecord,
+	ProjectMemberRecord,
 	ProjectRecord,
 	WorkspaceRecord,
 	BoardRecord,
@@ -20,11 +23,61 @@ import {
 	IUpdateWorkspacePayload,
 	ICreateBoardPayload,
 	IUpdateBoardPayload,
+	ProjectMemberRole,
 } from "../types/project.interface";
 import { IUser } from "../types/user.interface";
 import { uploads, isUploadSuccess } from "../helpers/cloudinaryUpload";
 
+type TransactionClient = PgTransaction<
+	PostgresJsQueryResultHKT,
+	Record<string, never>,
+	ExtractTablesWithRelations<Record<string, never>>
+>;
+
+type QueryClient = typeof db | TransactionClient;
+
 class ProjectService {
+	private async ensureProjectAccess(
+		queryClient: QueryClient,
+		projectId: string,
+		userId: string,
+		options?: {
+			allowedRoles?: ProjectMemberRole[];
+			action?: string;
+			deniedMessage?: string;
+		},
+	): Promise<ProjectMemberRecord> {
+		const membershipRows = await queryClient
+			.select()
+			.from(projectMembersTable)
+			.where(
+				and(
+					eq(projectMembersTable.projectId, projectId),
+					eq(projectMembersTable.userId, userId),
+				),
+			)
+			.limit(1);
+
+		const membership = membershipRows[0];
+		if (!membership) {
+			throw new Error("You are not a member of this project");
+		}
+
+		if (
+			options?.allowedRoles &&
+			!options.allowedRoles.includes(membership.role as ProjectMemberRole)
+		) {
+			const deniedMessage =
+				options.deniedMessage ??
+				(options.action
+					? `You do not have permission to ${options.action}`
+					: "You do not have permission to perform this action");
+			throw new Error(deniedMessage);
+		}
+
+		return membership;
+	}
+
 	async createProject(
 		payload: ICreateProjectPayload,
 		user: IUser,
@@ -138,25 +191,10 @@ class ProjectService {
 		}
 
 		return db.transaction(async (trx) => {
-			const membership = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const member = membership[0];
-			if (!member) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (member.role !== "owner" && member.role !== "admin") {
-				throw new Error("You do not have permission to update this project");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner", "admin"],
+				action: "update this project",
+			});
 
 			const updates: Partial<NewProjectRecord> = {};
 
@@ -332,25 +370,10 @@ class ProjectService {
 				: null;
 
 		return db.transaction(async (trx) => {
-			const membershipRows = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const membership = membershipRows[0];
-			if (!membership) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (membership.role !== "owner" && membership.role !== "admin") {
-				throw new Error("You do not have permission to create workspaces");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner", "admin"],
+				action: "create workspaces",
+			});
 
 			const existingKey = await trx
 				.select({ id: workspaces.id })
@@ -407,25 +430,10 @@ class ProjectService {
 		}
 
 		return db.transaction(async (trx) => {
-			const membershipRows = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const membership = membershipRows[0];
-			if (!membership) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (membership.role !== "owner" && membership.role !== "admin") {
-				throw new Error("You do not have permission to update workspaces");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner", "admin"],
+				action: "update workspaces",
+			});
 
 			const existingWorkspaceRows = await trx
 				.select()
@@ -564,25 +572,10 @@ class ProjectService {
 				: null;
 
 		return db.transaction(async (trx) => {
-			const membershipRows = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const membership = membershipRows[0];
-			if (!membership) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (membership.role !== "owner" && membership.role !== "admin") {
-				throw new Error("You do not have permission to create boards");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner", "admin"],
+				action: "create boards",
+			});
 
 			const workspaceRows = await trx
 				.select()
@@ -650,25 +643,10 @@ class ProjectService {
 		}
 
 		return db.transaction(async (trx) => {
-			const membershipRows = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const membership = membershipRows[0];
-			if (!membership) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (membership.role !== "owner" && membership.role !== "admin") {
-				throw new Error("You do not have permission to update boards");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner", "admin"],
+				action: "update boards",
+			});
 
 			const existingBoardRows = await trx
 				.select()
@@ -752,25 +730,10 @@ class ProjectService {
 		}
 
 		return db.transaction(async (trx) => {
-			const membershipRows = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const membership = membershipRows[0];
-			if (!membership) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (membership.role !== "owner") {
-				throw new Error("Only the project owner can delete the project");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner"],
+				deniedMessage: "Only the project owner can delete the project",
+			});
 
 			const deletedRows = await trx
 				.delete(projectTable)
@@ -804,25 +767,10 @@ class ProjectService {
 		}
 
 		return db.transaction(async (trx) => {
-			const membershipRows = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const membership = membershipRows[0];
-			if (!membership) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (membership.role !== "owner" && membership.role !== "admin") {
-				throw new Error("You do not have permission to delete workspaces");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner", "admin"],
+				action: "delete workspaces",
+			});
 
 			const deletedRows = await trx
 				.delete(workspaces)
@@ -866,25 +814,10 @@ class ProjectService {
 		}
 
 		return db.transaction(async (trx) => {
-			const membershipRows = await trx
-				.select()
-				.from(projectMembersTable)
-				.where(
-					and(
-						eq(projectMembersTable.projectId, projectId),
-						eq(projectMembersTable.userId, userId),
-					),
-				)
-				.limit(1);
-
-			const membership = membershipRows[0];
-			if (!membership) {
-				throw new Error("You are not a member of this project");
-			}
-
-			if (membership.role !== "owner" && membership.role !== "admin") {
-				throw new Error("You do not have permission to delete boards");
-			}
+			await this.ensureProjectAccess(trx, projectId, userId, {
+				allowedRoles: ["owner", "admin"],
+				action: "delete boards",
+			});
 
 			const deletedRows = await trx
 				.delete(boards)
