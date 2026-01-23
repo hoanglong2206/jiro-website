@@ -83,3 +83,19 @@ export interface IUpdateBoardPayload {
 	color?: string | null;
 	position?: number;
 }
+
+export interface IWorkspacesResponse {
+	workspaces: IWorkspace[];
+}
+
+export interface IWorkspaceDetailResponse {
+	workspace: IWorkspace;
+}
+
+export interface IBoardsResponse {
+	boards: IBoard[];
+}
+
+export interface IBoardDetailResponse {
+	board: IBoard;
+}

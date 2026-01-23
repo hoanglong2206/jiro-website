@@ -112,6 +112,69 @@ class ProjectController {
 		}
 	}
 
+	async getWorkspaces(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId } = req.params;
+			if (!projectId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project ID is required" });
+			}
+
+			const workspaces = await projectService.getWorkspacesForProject(
+				projectId,
+				req.currentUser.id,
+			);
+
+			return res.status(StatusCodes.OK).json({ workspaces });
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to fetch workspaces";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
+		}
+	}
+
+	async getWorkspaceById(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId } = req.params;
+			if (!projectId || !workspaceId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project ID and Workspace ID are required" });
+			}
+
+			const workspace = await projectService.getWorkspaceById(
+				projectId,
+				workspaceId,
+				req.currentUser.id,
+			);
+
+			if (!workspace) {
+				return res
+					.status(StatusCodes.NOT_FOUND)
+					.json({ message: "Workspace not found" });
+			}
+
+			return res.status(StatusCodes.OK).json({ workspace });
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to fetch workspace";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
+		}
+	}
+
 	async createWorkspace(req: Request, res: Response) {
 		if (!req.currentUser) {
 			return res
@@ -194,6 +257,71 @@ class ProjectController {
 				? StatusCodes.INTERNAL_SERVER_ERROR
 				: StatusCodes.BAD_REQUEST;
 			return res.status(status).json({ message });
+		}
+	}
+
+	async getBoards(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId } = req.params;
+			if (!projectId || !workspaceId) {
+				return res
+					.status(StatusCodes.BAD_REQUEST)
+					.json({ message: "Project ID and Workspace ID are required" });
+			}
+
+			const boards = await projectService.getBoardsForWorkspace(
+				projectId,
+				workspaceId,
+				req.currentUser.id,
+			);
+
+			return res.status(StatusCodes.OK).json({ boards });
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to fetch boards";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
+		}
+	}
+
+	async getBoardById(req: Request, res: Response) {
+		if (!req.currentUser) {
+			return res
+				.status(StatusCodes.UNAUTHORIZED)
+				.json({ message: "Unauthorized" });
+		}
+
+		try {
+			const { projectId, workspaceId, boardId } = req.params;
+			if (!projectId || !workspaceId || !boardId) {
+				return res.status(StatusCodes.BAD_REQUEST).json({
+					message: "Project ID, Workspace ID and Board ID are required",
+				});
+			}
+
+			const board = await projectService.getBoardById(
+				projectId,
+				workspaceId,
+				boardId,
+				req.currentUser.id,
+			);
+
+			if (!board) {
+				return res
+					.status(StatusCodes.NOT_FOUND)
+					.json({ message: "Board not found" });
+			}
+
+			return res.status(StatusCodes.OK).json({ board });
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to fetch board";
+			return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message });
 		}
 	}
 

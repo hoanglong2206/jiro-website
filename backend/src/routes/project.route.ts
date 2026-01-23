@@ -31,6 +31,16 @@ class ProjectRoutes {
 			verifyJWT,
 			projectController.deleteProject,
 		);
+		this.router.get(
+			"/:projectId/workspaces",
+			verifyJWT,
+			projectController.getWorkspaces,
+		);
+		this.router.get(
+			"/:projectId/workspaces/:workspaceId",
+			verifyJWT,
+			projectController.getWorkspaceById,
+		);
 		this.router.post(
 			"/:projectId/workspaces",
 			verifyJWT,
@@ -47,6 +57,16 @@ class ProjectRoutes {
 			"/:projectId/workspaces/:workspaceId",
 			verifyJWT,
 			projectController.deleteWorkspace,
+		);
+		this.router.get(
+			"/:projectId/workspaces/:workspaceId/boards",
+			verifyJWT,
+			projectController.getBoards,
+		);
+		this.router.get(
+			"/:projectId/workspaces/:workspaceId/boards/:boardId",
+			verifyJWT,
+			projectController.getBoardById,
 		);
 		this.router.post(
 			"/:projectId/workspaces/:workspaceId/boards",

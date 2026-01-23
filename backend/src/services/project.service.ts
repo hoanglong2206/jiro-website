@@ -84,8 +84,7 @@ class ProjectService {
 	): Promise<ProjectRecord> {
 		return db.transaction(async (trx) => {
 			const normalizedDescription =
-				payload.description !== undefined &&
-				payload.description !== null
+				payload.description !== undefined && payload.description !== null
 					? payload.description.trim() || null
 					: null;
 			const normalizedIcon =
@@ -236,9 +235,7 @@ class ProjectService {
 					if (isUploadSuccess(uploadResult)) {
 						updates.icon = uploadResult.secure_url;
 					} else {
-						throw new Error(
-							uploadResult.message || "Failed to upload icon",
-						);
+						throw new Error(uploadResult.message || "Failed to upload icon");
 					}
 				}
 			}
@@ -332,9 +329,7 @@ class ProjectService {
 		payload: ICreateWorkspacePayload,
 	): Promise<WorkspaceRecord> {
 		const normalizedName = payload.name?.trim() ?? "";
-		const normalizedKey = (payload.key ?? "")
-			.replace(/\s+/g, "")
-			.toUpperCase();
+		const normalizedKey = (payload.key ?? "").replace(/\s+/g, "").toUpperCase();
 
 		const normalizedColor =
 			payload.color !== undefined && payload.color !== null
@@ -358,9 +353,7 @@ class ProjectService {
 				)
 				.limit(1);
 			if (existingKey[0]) {
-				throw new Error(
-					"Workspace key already exists for this project",
-				);
+				throw new Error("Workspace key already exists for this project");
 			}
 
 			const workspaceToInsert: NewWorkspaceRecord = {
@@ -382,6 +375,45 @@ class ProjectService {
 			}
 
 			return workspace;
+		});
+	}
+
+	async getWorkspacesForProject(
+		projectId: string,
+		userId: string,
+	): Promise<WorkspaceRecord[]> {
+		return db.transaction(async (trx) => {
+			await this.ensureProjectAccess(trx, projectId, userId);
+
+			const workspacesList = await trx
+				.select()
+				.from(workspaces)
+				.where(eq(workspaces.projectId, projectId));
+
+			return workspacesList;
+		});
+	}
+
+	async getWorkspaceById(
+		projectId: string,
+		workspaceId: string,
+		userId: string,
+	): Promise<WorkspaceRecord | null> {
+		return db.transaction(async (trx) => {
+			await this.ensureProjectAccess(trx, projectId, userId);
+
+			const workspacesList = await trx
+				.select()
+				.from(workspaces)
+				.where(
+					and(
+						eq(workspaces.projectId, projectId),
+						eq(workspaces.id, workspaceId),
+					),
+				)
+				.limit(1);
+
+			return workspacesList[0] ?? null;
 		});
 	}
 
@@ -421,9 +453,7 @@ class ProjectService {
 			}
 
 			if (payload.key !== undefined) {
-				const normalizedKey = payload.key
-					.replace(/\s+/g, "")
-					.toUpperCase();
+				const normalizedKey = payload.key.replace(/\s+/g, "").toUpperCase();
 
 				const keyConflict = await trx
 					.select({ id: workspaces.id })
@@ -436,9 +466,7 @@ class ProjectService {
 					)
 					.limit(1);
 				if (keyConflict[0] && keyConflict[0].id !== workspaceId) {
-					throw new Error(
-						"Workspace key already exists for this project",
-					);
+					throw new Error("Workspace key already exists for this project");
 				}
 
 				updates.key = normalizedKey;
@@ -533,6 +561,69 @@ class ProjectService {
 			}
 
 			return board;
+		});
+	}
+
+	async getBoardsForWorkspace(
+		projectId: string,
+		workspaceId: string,
+		userId: string,
+	): Promise<BoardRecord[]> {
+		return db.transaction(async (trx) => {
+			await this.ensureProjectAccess(trx, projectId, userId);
+
+			const workspaceRows = await trx
+				.select()
+				.from(workspaces)
+				.where(
+					and(
+						eq(workspaces.id, workspaceId),
+						eq(workspaces.projectId, projectId),
+					),
+				)
+				.limit(1);
+
+			if (!workspaceRows[0]) {
+				throw new Error("Workspace not found");
+			}
+
+			const boardsList = await trx
+				.select()
+				.from(boards)
+				.where(
+					and(
+						eq(boards.projectId, projectId),
+						eq(boards.workspaceId, workspaceId),
+					),
+				)
+				.orderBy(boards.position);
+
+			return boardsList;
+		});
+	}
+
+	async getBoardById(
+		projectId: string,
+		workspaceId: string,
+		boardId: string,
+		userId: string,
+	): Promise<BoardRecord | null> {
+		return db.transaction(async (trx) => {
+			await this.ensureProjectAccess(trx, projectId, userId);
+
+			const boardRows = await trx
+				.select()
+				.from(boards)
+				.where(
+					and(
+						eq(boards.id, boardId),
+						eq(boards.projectId, projectId),
+						eq(boards.workspaceId, workspaceId),
+					),
+				)
+				.limit(1);
+
+			return boardRows[0] ?? null;
 		});
 	}
 
