@@ -1,7 +1,14 @@
 'use client";';
 
 import { TaskStatus } from "@/lib/data";
-import { CircleDashedIcon, MoreHorizontal } from "lucide-react";
+import {
+	CheckCheck,
+	CircleDashedIcon,
+	MoreHorizontal,
+	Pen,
+	Target,
+	Trash2,
+} from "lucide-react";
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +16,13 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface KanbanHeaderProps {
 	board: TaskStatus;
@@ -28,7 +42,7 @@ const statusLabels: Record<TaskStatus, ReactNode> = {
 export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {
 	const icon = statusLabels[board];
 	return (
-		<div className="px-2 py-1 flex items-center justify-between">
+		<div className="px-3 py-2 flex items-center justify-between bg-sidebar rounded-md">
 			<div className="flex items-center gap-x-2">
 				{icon}
 				<h2 className="text-sm font-medium capitalize">
@@ -38,20 +52,42 @@ export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {
 					{taskCount}
 				</div>
 			</div>
-			<Tooltip>
-				<TooltipTrigger asChild>
-					<Button
-						variant="ghost"
-						size="icon"
-						className="hover:bg-neutral-200/40 size-7 cursor-pointer"
-					>
-						<MoreHorizontal className="size-4" />
-					</Button>
-				</TooltipTrigger>
-				<TooltipContent side="bottom">
-					<p>More actions</p>
-				</TooltipContent>
-			</Tooltip>
+			<DropdownMenu>
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="ghost"
+								className="cursor-pointer size-7"
+							>
+								<MoreHorizontal className="h-4 w-4" />
+							</Button>
+						</DropdownMenuTrigger>
+					</TooltipTrigger>
+					<TooltipContent side="bottom">
+						<p>More actions</p>
+					</TooltipContent>
+				</Tooltip>
+				<DropdownMenuContent align="start" className="w-40">
+					<DropdownMenuItem>
+						<Pen className="h-4 w-4" />
+						Rename
+					</DropdownMenuItem>
+					<DropdownMenuItem>
+						<CheckCheck className="h-4 w-4" />
+						Select all
+					</DropdownMenuItem>
+					<DropdownMenuItem disabled>
+						<Target className="h-4 w-4" />
+						Edit status
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem className="text-destructive focus:text-destructive">
+						<Trash2 className="h-4 w-4" />
+						Delete
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
 		</div>
 	);
 };
