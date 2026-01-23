@@ -134,9 +134,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		}
 	}, [projects, currentProject, dispatch]);
 
-	const memoizedMenuItems = useMemo(
-		() =>
-			navigationItems.map((item) => (
+	const memoizedMenuItems = useMemo(() => {
+		const baseProjectPath = currentProject?.id
+			? `/projects/${currentProject.id}`
+			: "";
+
+		return navigationItems.map((item) => {
+			const linkHref = `${baseProjectPath}/${item.href}`;
+			return (
 				<SidebarMenuItem key={item.label}>
 					<SidebarMenuButton
 						tooltip={item.label}
@@ -151,15 +156,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						)}
 						asChild
 					>
-						<Link href={`${item.href}`} className="flex items-center gap-2">
+						<Link href={linkHref} className="flex items-center gap-2">
 							<item.icon className="h-4 w-4" />
 							{item.label}
 						</Link>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
-			)),
-		[pathname],
-	);
+			);
+		});
+	}, [pathname, currentProject?.id]);
 
 	const [isCreateSpaceModalOpen, setIsCreateSpaceModalOpen] =
 		useState<boolean>(false);
