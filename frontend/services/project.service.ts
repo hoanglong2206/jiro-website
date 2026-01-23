@@ -10,7 +10,11 @@ import {
 	IUpdateBoardPayload,
 	IUpdateProjectPayload,
 	IUpdateWorkspacePayload,
+	IWorkspacesResponse,
 	IWorkspaceResponse,
+	IWorkspaceDetailResponse,
+	IBoardsResponse,
+	IBoardDetailResponse,
 } from "@/types/project.interface";
 
 export const projectApi = api.injectEndpoints({
@@ -59,6 +63,18 @@ export const projectApi = api.injectEndpoints({
 			}),
 			invalidatesTags: ["Project"],
 		}),
+		getWorkspacesByProjectId: build.query<IWorkspacesResponse, string>({
+			query: (projectId) => `project/${projectId}/workspaces`,
+			providesTags: ["Project"],
+		}),
+		getWorkspaceById: build.query<
+			IWorkspaceDetailResponse,
+			{ projectId: string; workspaceId: string }
+		>({
+			query: ({ projectId, workspaceId }) =>
+				`project/${projectId}/workspaces/${workspaceId}`,
+			providesTags: ["Project"],
+		}),
 		createWorkspace: build.mutation<
 			{ message: string; workspace: IWorkspaceResponse },
 			{ projectId: string; workspace: ICreateWorkspacePayload }
@@ -94,6 +110,22 @@ export const projectApi = api.injectEndpoints({
 				method: "DELETE",
 			}),
 			invalidatesTags: ["Project"],
+		}),
+		getBoardsByWorkspaceId: build.query<
+			IBoardsResponse,
+			{ projectId: string; workspaceId: string }
+		>({
+			query: ({ projectId, workspaceId }) =>
+				`project/${projectId}/workspaces/${workspaceId}/boards`,
+			providesTags: ["Project"],
+		}),
+		getBoardById: build.query<
+			IBoardDetailResponse,
+			{ projectId: string; workspaceId: string; boardId: string }
+		>({
+			query: ({ projectId, workspaceId, boardId }) =>
+				`project/${projectId}/workspaces/${workspaceId}/boards/${boardId}`,
+			providesTags: ["Project"],
 		}),
 		createBoard: build.mutation<
 			{ message: string; board: IBoardResponse },
@@ -145,9 +177,13 @@ export const {
 	useCreateProjectMutation,
 	useUpdateProjectMutation,
 	useDeleteProjectMutation,
+	useGetWorkspacesByProjectIdQuery,
+	useGetWorkspaceByIdQuery,
 	useCreateWorkspaceMutation,
 	useUpdateWorkspaceMutation,
 	useDeleteWorkspaceMutation,
+	useGetBoardsByWorkspaceIdQuery,
+	useGetBoardByIdQuery,
 	useCreateBoardMutation,
 	useUpdateBoardMutation,
 	useDeleteBoardMutation,

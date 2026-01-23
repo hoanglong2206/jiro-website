@@ -137,3 +137,19 @@ export interface IUpdateBoardPayload {
 	color?: string | null;
 	position?: number;
 }
+
+export interface IWorkspacesResponse {
+	workspaces: IWorkspaceResponse[];
+}
+
+export interface IWorkspaceDetailResponse {
+	workspace: IWorkspaceResponse;
+}
+
+export interface IBoardsResponse {
+	boards: IBoardResponse[];
+}
+
+export interface IBoardDetailResponse {
+	board: IBoardResponse;
+}

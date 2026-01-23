@@ -40,6 +40,8 @@ import {
 import {
 	setCurrentProject,
 	clearCurrentProject,
+	setWorkspaces,
+	clearCurrentWorkspace,
 } from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { IProjectResponse } from "@/types/project.interface";
@@ -49,6 +51,7 @@ import {
 	getDataFromLocalStorage,
 } from "@/services/utils.service";
 import { SpaceNavCard, CreateSpaceModal } from "@/components/app";
+import { useGetWorkspacesByProjectIdQuery } from "@/services/project.service";
 
 const navigationItems: { label: string; icon: ElementType; href: string }[] = [
 	{
@@ -78,6 +81,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const dispatch = useAppDispatch();
 	const { projects } = useAppSelector((state) => state.project);
 	const { currentProject } = useAppSelector((state) => state.project);
+	const { workspaces = [] } = useAppSelector((state) => state.project);
+
+	// Fetch workspaces when currentProject changes
+	const { data: workspacesData } = useGetWorkspacesByProjectIdQuery(
+		currentProject?.id || "",
+		{
+			skip: !currentProject?.id,
+		},
+	);
+
+	// Update workspaces in Redux when data changes
+	useEffect(() => {
+		if (workspacesData?.workspaces) {
+			dispatch(setWorkspaces(workspacesData.workspaces));
+		} else {
+			dispatch(setWorkspaces([]));
+		}
+	}, [workspacesData, dispatch]);
 
 	useEffect(() => {
 		if (!projects.length) {
@@ -103,17 +124,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		})();
 
 		const fallbackProject =
-			storedProject &&
-			projects.some((item) => item.id === storedProject.id)
+			storedProject && projects.some((item) => item.id === storedProject.id)
 				? storedProject
 				: projects[0];
 
 		if (fallbackProject) {
 			dispatch(setCurrentProject(fallbackProject));
-			saveToLocalStorage(
-				"currentProject",
-				JSON.stringify(fallbackProject),
-			);
+			saveToLocalStorage("currentProject", JSON.stringify(fallbackProject));
 		}
 	}, [projects, currentProject, dispatch]);
 
@@ -134,10 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						)}
 						asChild
 					>
-						<Link
-							href={`${item.href}`}
-							className="flex items-center gap-2"
-						>
+						<Link href={`${item.href}`} className="flex items-center gap-2">
 							<item.icon className="h-4 w-4" />
 							{item.label}
 						</Link>
@@ -165,8 +179,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 			if (isDropdownSheetOpen || isCreateSpaceModalOpen) return;
 
-			if (dropdownRef.current && !dropdownRef.current.contains(target))
-				return;
+			if (dropdownRef.current && !dropdownRef.current.contains(target)) return;
 
 			if (
 				asideRef.current &&
@@ -211,14 +224,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 											<MoreHorizontal className="h-3 w-3" />
 										</Button>
 									</DropdownMenuTrigger>
-									<DropdownMenuContent
-										align="start"
-										className="w-48"
-									>
+									<DropdownMenuContent align="start" className="w-48">
 										<DropdownMenuItem
-											onClick={() =>
-												setIsCreateSpaceModalOpen(true)
-											}
+											onClick={() => setIsCreateSpaceModalOpen(true)}
 											className="cursor-pointer"
 										>
 											<Plus className="h-4 w-4" />
@@ -238,9 +246,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									<Search className="h-3 w-3" />
 								</Button>
 								<Button
-									onClick={() =>
-										setIsCreateSpaceModalOpen(true)
-									}
+									onClick={() => setIsCreateSpaceModalOpen(true)}
 									variant="ghost"
 									size="icon"
 									className="h-6 w-6 hover:bg-sidebar-accent cursor-pointer"
@@ -254,21 +260,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								<SidebarMenuButton
 									tooltip="Spaces"
 									ref={triggerRef}
-									onClick={() =>
-										setIsSpacesSheetOpen(!isSpacesSheetOpen)
-									}
+									onClick={() => setIsSpacesSheetOpen(!isSpacesSheetOpen)}
 									className={cn(
 										"text-sm cursor-pointer transition-colors hidden group-has-data-[collapsible=icon]/sidebar-wrapper:flex",
-										isSpacesSheetOpen &&
-											"bg-muted-foreground/10",
+										isSpacesSheetOpen && "bg-muted-foreground/10",
 									)}
 								>
 									<LayoutGrid className="h-4 w-4" />
 								</SidebarMenuButton>
 							</SidebarMenuItem>
-							{Array.from({ length: 3 }).map((_, index) => (
-								<SpaceNavCard key={index} typeNav />
-							))}
+							{workspaces.length > 0 ? (
+								workspaces.map((workspace) => (
+									<SpaceNavCard
+										key={workspace.id}
+										workspace={workspace}
+										projectId={currentProject?.id}
+										typeNav
+									/>
+								))
+							) : (
+								<SidebarMenuItem>
+									<div className="text-xs text-muted-foreground px-2 py-1">
+										No workspaces yet
+									</div>
+								</SidebarMenuItem>
+							)}
 						</SidebarMenu>
 					</SidebarGroup>
 				</SidebarContent>
@@ -301,9 +317,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								className="w-48"
 							>
 								<DropdownMenuItem
-									onClick={() =>
-										setIsCreateSpaceModalOpen(true)
-									}
+									onClick={() => setIsCreateSpaceModalOpen(true)}
 									className="cursor-pointer"
 								>
 									<Plus className="h-4 w-4" />
@@ -333,9 +347,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					</div>
 				</SidebarGroupLabel>
 				<div className="flex flex-col gap-1">
-					{Array.from({ length: 3 }).map((_, index) => (
-						<SpaceNavCard key={index} />
-					))}
+					{workspaces.length > 0 ? (
+						workspaces.map((workspace) => (
+							<SpaceNavCard
+								key={workspace.id}
+								workspace={workspace}
+								projectId={currentProject?.id}
+							/>
+						))
+					) : (
+						<div className="text-xs text-muted-foreground px-2 py-1">
+							No workspaces yet. Create one to get started.
+						</div>
+					)}
 				</div>
 			</aside>
 			<CreateSpaceModal
@@ -429,9 +453,7 @@ function ProjectSwitcher({ projects, currentProject }: ProjectSwitcherProps) {
 											"currentProject",
 											JSON.stringify(project),
 										);
-										router.push(
-											`/projects/${project.id}/home`,
-										);
+										router.push(`/projects/${project.id}/home`);
 									}}
 									className="gap-2 cursor-pointer transition-colors"
 								>
@@ -444,10 +466,7 @@ function ProjectSwitcher({ projects, currentProject }: ProjectSwitcherProps) {
 											className="rounded-md"
 										/>
 									) : (
-										renderProjectIcon(
-											projectName,
-											project.color,
-										)
+										renderProjectIcon(projectName, project.color)
 									)}
 
 									{projectName}

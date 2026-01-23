@@ -2,37 +2,53 @@
 
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { HandFist, MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
+import { IWorkspaceResponse } from "@/types/project.interface";
 
 interface SpaceNavCardProps {
 	typeNav?: boolean;
+	workspace?: IWorkspaceResponse;
+	projectId?: string;
 }
 
-export const SpaceNavCard = ({ typeNav = false }: SpaceNavCardProps) => {
+export const SpaceNavCard = ({
+	typeNav = false,
+	workspace,
+	projectId,
+}: SpaceNavCardProps) => {
 	const pathname = usePathname();
+
+	if (!workspace || !projectId) {
+		return null;
+	}
 
 	return (
 		<SidebarMenuItem>
 			<SidebarMenuButton
 				className={cn(
 					"text-sm cursor-pointer transition-colors flex items-center group",
-					pathname.includes("board") &&
-						"bg-muted-foreground/5 hover:bg-muted-foreground/10 font-medium",
-					typeNav &&
-						"group-has-data-[collapsible=icon]/sidebar-wrapper:hidden",
+					pathname.includes(
+						`/projects/${projectId}/workspaces/${workspace.id}`,
+					) && "bg-muted-foreground/5 hover:bg-muted-foreground/10 font-medium",
+					typeNav && "group-has-data-[collapsible=icon]/sidebar-wrapper:hidden",
 				)}
 				asChild
 			>
 				<div className="flex items-center justify-between group/line">
 					<Link
-						href={`board`}
-						className="flex items-center gap-2 truncate"
+						href={`/projects/${projectId}/workspaces/${workspace.id}`}
+						className="flex items-center gap-2 truncate flex-1"
 					>
-						<HandFist className="h-4 w-4" />
-						Genshin Impact
+						<div
+							className="h-4 w-4 rounded flex items-center justify-center text-[10px] font-bold text-white"
+							style={{ backgroundColor: workspace.color || "#6366f1" }}
+						>
+							{workspace.key}
+						</div>
+						<span className="truncate">{workspace.name}</span>
 					</Link>
 					<div className="flex items-center gap-1 opacity-0 group-hover/line:opacity-100">
 						<Button

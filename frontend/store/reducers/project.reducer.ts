@@ -1,14 +1,21 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IProjectResponse } from "@/types/project.interface";
+import {
+	IProjectResponse,
+	IWorkspaceResponse,
+} from "@/types/project.interface";
 
 interface ProjectState {
 	projects: IProjectResponse[];
 	currentProject: IProjectResponse | null;
+	workspaces: IWorkspaceResponse[];
+	currentWorkspace: IWorkspaceResponse | null;
 }
 
 const initialState: ProjectState = {
 	projects: [],
 	currentProject: null,
+	workspaces: [],
+	currentWorkspace: null,
 };
 
 const projectSlice = createSlice({
@@ -27,6 +34,18 @@ const projectSlice = createSlice({
 		clearCurrentProject: (state) => {
 			state.currentProject = null;
 		},
+		setWorkspaces: (state, action: PayloadAction<IWorkspaceResponse[]>) => {
+			state.workspaces = action.payload;
+		},
+		addWorkspace: (state, action: PayloadAction<IWorkspaceResponse>) => {
+			state.workspaces = [...state.workspaces, action.payload];
+		},
+		setCurrentWorkspace: (state, action: PayloadAction<IWorkspaceResponse>) => {
+			state.currentWorkspace = action.payload;
+		},
+		clearCurrentWorkspace: (state) => {
+			state.currentWorkspace = null;
+		},
 		clearProjects: () => ({ ...initialState }),
 	},
 });
@@ -36,6 +55,10 @@ export const {
 	addProject,
 	setCurrentProject,
 	clearCurrentProject,
+	setWorkspaces,
+	addWorkspace,
+	setCurrentWorkspace,
+	clearCurrentWorkspace,
 	clearProjects,
 } = projectSlice.actions;
 
