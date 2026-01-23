@@ -39,7 +39,7 @@ export const SpaceNavCard = ({
 			>
 				<div className="flex items-center justify-between group/line">
 					<Link
-						href={`/projects/${projectId}/workspaces/${workspace.id}`}
+						href={`/projects/${projectId}/workspaces/${workspace.id}/board`}
 						className="flex items-center gap-2 truncate flex-1"
 					>
 						<div
