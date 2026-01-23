@@ -23,7 +23,7 @@ import projectReducer from "./reducers/project.reducer";
 const persistConfig = {
 	key: "root",
 	storage,
-	blacklist: ["clientApi", "_persist", "project", "auth", "user"],
+	blacklist: ["clientApi", "_persist"],
 };
 
 const rootReducer = combineReducers({

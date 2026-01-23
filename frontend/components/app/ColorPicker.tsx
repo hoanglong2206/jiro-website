@@ -30,6 +30,11 @@ const colorList: ColorOption[] = [
 	{ label: "Pink", value: "#fca5a5" },
 	{ label: "Green", value: "#94e2cd" },
 	{ label: "Teal", value: "#2dd4bf" },
+	{ label: "Indigo", value: "#818cf8" },
+	{ label: "Sky", value: "#38bdf8" },
+	{ label: "Lime", value: "#a3e635" },
+	{ label: "Amber", value: "#fbbf24" },
+	{ label: "Rose", value: "#fb7185" },
 ];
 
 export const ColorPicker = ({ value = "", onChange }: ColorPickerProps) => {

@@ -37,9 +37,7 @@ import {
 	SidebarGroupLabel,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { useGetProjectsQuery } from "@/services/project.service";
 import {
-	setProjects,
 	setCurrentProject,
 	clearCurrentProject,
 } from "@/store/reducers/project.reducer";
@@ -79,16 +77,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const pathname = usePathname();
 	const dispatch = useAppDispatch();
 	const { projects: projectItems } = useAppSelector((state) => state.project);
-	const { data, isFetching } = useGetProjectsQuery(undefined, {
-		refetchOnMountOrArgChange: true,
-	});
-
-	useEffect(() => {
-		if (!data?.projects) {
-			return;
-		}
-		dispatch(setProjects(data.projects));
-	}, [data, dispatch]);
 
 	const memoizedMenuItems = useMemo(
 		() =>
@@ -161,10 +149,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		<>
 			<Sidebar collapsible="icon" {...props}>
 				<SidebarHeader>
-					<ProjectSwitcher
-						projects={projectItems}
-						isLoading={isFetching}
-					/>
+					<ProjectSwitcher projects={projectItems} />
 				</SidebarHeader>
 				<SidebarContent>
 					<SidebarGroup>
@@ -321,10 +306,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 interface ProjectSwitcherProps {
 	projects: IProjectResponse[];
-	isLoading: boolean;
 }
 
-function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
+function ProjectSwitcher({ projects }: ProjectSwitcherProps) {
 	const { isMobile } = useSidebar();
 	const dispatch = useAppDispatch();
 	const { currentProject } = useAppSelector((state) => state.project);
@@ -429,11 +413,6 @@ function ProjectSwitcher({ projects, isLoading }: ProjectSwitcherProps) {
 						<DropdownMenuLabel className="text-muted-foreground text-xs">
 							Project
 						</DropdownMenuLabel>
-						{isLoading && (
-							<DropdownMenuItem className="p-2 text-sm text-muted-foreground">
-								Loading projects...
-							</DropdownMenuItem>
-						)}
 						{projects.map((project) => {
 							const projectName = project.name;
 							return (
