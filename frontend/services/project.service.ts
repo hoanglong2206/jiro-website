@@ -19,6 +19,10 @@ export const projectApi = api.injectEndpoints({
 			query: () => "project/getAll",
 			providesTags: ["Project"],
 		}),
+		getProjectById: build.query<IProjectDetailResponse, string>({
+			query: (projectId) => `project/${projectId}`,
+			providesTags: ["Project"],
+		}),
 		createProject: build.mutation<
 			{ message: string; project: IProjectResponse },
 			ICreateProjectPayload
@@ -29,10 +33,6 @@ export const projectApi = api.injectEndpoints({
 				body,
 			}),
 			invalidatesTags: ["Project"],
-		}),
-		getProjectById: build.query<IProjectDetailResponse, string>({
-			query: (projectId) => `project/${projectId}`,
-			providesTags: ["Project"],
 		}),
 		updateProject: build.mutation<
 			{ message: string; project: IProjectResponse },
@@ -141,8 +141,8 @@ export const projectApi = api.injectEndpoints({
 
 export const {
 	useGetProjectsQuery,
-	useCreateProjectMutation,
 	useGetProjectByIdQuery,
+	useCreateProjectMutation,
 	useUpdateProjectMutation,
 	useDeleteProjectMutation,
 	useCreateWorkspaceMutation,

@@ -84,7 +84,8 @@ class ProjectService {
 	): Promise<ProjectRecord> {
 		return db.transaction(async (trx) => {
 			const normalizedDescription =
-				payload.description !== undefined && payload.description !== null
+				payload.description !== undefined &&
+				payload.description !== null
 					? payload.description.trim() || null
 					: null;
 			const normalizedIcon =
@@ -186,10 +187,6 @@ class ProjectService {
 		userId: string,
 		payload: IUpdateProjectPayload,
 	): Promise<ProjectRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
 		return db.transaction(async (trx) => {
 			await this.ensureProjectAccess(trx, projectId, userId, {
 				allowedRoles: ["owner", "admin"],
@@ -239,7 +236,9 @@ class ProjectService {
 					if (isUploadSuccess(uploadResult)) {
 						updates.icon = uploadResult.secure_url;
 					} else {
-						throw new Error(uploadResult.message || "Failed to upload icon");
+						throw new Error(
+							uploadResult.message || "Failed to upload icon",
+						);
 					}
 				}
 			}
@@ -332,37 +331,10 @@ class ProjectService {
 		userId: string,
 		payload: ICreateWorkspacePayload,
 	): Promise<WorkspaceRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
-		if (!userId) {
-			throw new Error("User ID is required");
-		}
-
 		const normalizedName = payload.name?.trim() ?? "";
-		if (!normalizedName.length) {
-			throw new Error("Workspace name is required");
-		}
-		if (normalizedName.length < 2) {
-			throw new Error("Workspace name must be at least 2 characters long");
-		}
-		if (normalizedName.length > 120) {
-			throw new Error("Workspace name must be at most 120 characters long");
-		}
-
-		const normalizedKey = (payload.key ?? "").replace(/\s+/g, "").toUpperCase();
-		if (!normalizedKey.length) {
-			throw new Error("Workspace key is required");
-		}
-		if (normalizedKey.length < 2 || normalizedKey.length > 10) {
-			throw new Error("Workspace key must be between 2 and 10 characters long");
-		}
-		if (!/^[A-Z0-9][A-Z0-9_-]*$/.test(normalizedKey)) {
-			throw new Error(
-				"Workspace key must start with an alphanumeric character and contain only letters, numbers, hyphens, or underscores",
-			);
-		}
+		const normalizedKey = (payload.key ?? "")
+			.replace(/\s+/g, "")
+			.toUpperCase();
 
 		const normalizedColor =
 			payload.color !== undefined && payload.color !== null
@@ -386,7 +358,9 @@ class ProjectService {
 				)
 				.limit(1);
 			if (existingKey[0]) {
-				throw new Error("Workspace key already exists for this project");
+				throw new Error(
+					"Workspace key already exists for this project",
+				);
 			}
 
 			const workspaceToInsert: NewWorkspaceRecord = {
@@ -417,18 +391,6 @@ class ProjectService {
 		userId: string,
 		payload: IUpdateWorkspacePayload,
 	): Promise<WorkspaceRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
-		if (!workspaceId) {
-			throw new Error("Workspace ID is required");
-		}
-
-		if (!userId) {
-			throw new Error("User ID is required");
-		}
-
 		return db.transaction(async (trx) => {
 			await this.ensureProjectAccess(trx, projectId, userId, {
 				allowedRoles: ["owner", "admin"],
@@ -455,33 +417,13 @@ class ProjectService {
 
 			if (payload.name !== undefined) {
 				const trimmedName = payload.name.trim();
-				if (!trimmedName.length) {
-					throw new Error("Workspace name cannot be empty");
-				}
-				if (trimmedName.length < 2) {
-					throw new Error("Workspace name must be at least 2 characters long");
-				}
-				if (trimmedName.length > 120) {
-					throw new Error("Workspace name must be at most 120 characters long");
-				}
 				updates.name = trimmedName;
 			}
 
 			if (payload.key !== undefined) {
-				const normalizedKey = payload.key.replace(/\s+/g, "").toUpperCase();
-				if (!normalizedKey.length) {
-					throw new Error("Workspace key cannot be empty");
-				}
-				if (normalizedKey.length < 2 || normalizedKey.length > 10) {
-					throw new Error(
-						"Workspace key must be between 2 and 10 characters long",
-					);
-				}
-				if (!/^[A-Z0-9][A-Z0-9_-]*$/.test(normalizedKey)) {
-					throw new Error(
-						"Workspace key must start with an alphanumeric character and contain only letters, numbers, hyphens, or underscores",
-					);
-				}
+				const normalizedKey = payload.key
+					.replace(/\s+/g, "")
+					.toUpperCase();
 
 				const keyConflict = await trx
 					.select({ id: workspaces.id })
@@ -494,7 +436,9 @@ class ProjectService {
 					)
 					.limit(1);
 				if (keyConflict[0] && keyConflict[0].id !== workspaceId) {
-					throw new Error("Workspace key already exists for this project");
+					throw new Error(
+						"Workspace key already exists for this project",
+					);
 				}
 
 				updates.key = normalizedKey;
@@ -532,37 +476,10 @@ class ProjectService {
 		userId: string,
 		payload: ICreateBoardPayload,
 	): Promise<BoardRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
-		if (!workspaceId) {
-			throw new Error("Workspace ID is required");
-		}
-
-		if (!userId) {
-			throw new Error("User ID is required");
-		}
-
 		const normalizedName = payload.name?.trim() ?? "";
-		if (!normalizedName.length) {
-			throw new Error("Board name is required");
-		}
-		if (normalizedName.length < 2) {
-			throw new Error("Board name must be at least 2 characters long");
-		}
-		if (normalizedName.length > 120) {
-			throw new Error("Board name must be at most 120 characters long");
-		}
 
 		let normalizedPosition: number | undefined;
 		if (payload.position !== undefined) {
-			if (!Number.isInteger(payload.position)) {
-				throw new Error("Board position must be an integer");
-			}
-			if (payload.position < 0) {
-				throw new Error("Board position must be zero or greater");
-			}
 			normalizedPosition = payload.position;
 		}
 
@@ -626,22 +543,6 @@ class ProjectService {
 		userId: string,
 		payload: IUpdateBoardPayload,
 	): Promise<BoardRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
-		if (!workspaceId) {
-			throw new Error("Workspace ID is required");
-		}
-
-		if (!boardId) {
-			throw new Error("Board ID is required");
-		}
-
-		if (!userId) {
-			throw new Error("User ID is required");
-		}
-
 		return db.transaction(async (trx) => {
 			await this.ensureProjectAccess(trx, projectId, userId, {
 				allowedRoles: ["owner", "admin"],
@@ -669,15 +570,6 @@ class ProjectService {
 
 			if (payload.name !== undefined) {
 				const trimmedName = payload.name.trim();
-				if (!trimmedName.length) {
-					throw new Error("Board name cannot be empty");
-				}
-				if (trimmedName.length < 2) {
-					throw new Error("Board name must be at least 2 characters long");
-				}
-				if (trimmedName.length > 120) {
-					throw new Error("Board name must be at most 120 characters long");
-				}
 				updates.name = trimmedName;
 			}
 
@@ -686,12 +578,6 @@ class ProjectService {
 			}
 
 			if (payload.position !== undefined) {
-				if (!Number.isInteger(payload.position)) {
-					throw new Error("Board position must be an integer");
-				}
-				if (payload.position < 0) {
-					throw new Error("Board position must be zero or greater");
-				}
 				updates.position = payload.position;
 			}
 
@@ -721,14 +607,6 @@ class ProjectService {
 		projectId: string,
 		userId: string,
 	): Promise<ProjectRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
-		if (!userId) {
-			throw new Error("User ID is required");
-		}
-
 		return db.transaction(async (trx) => {
 			await this.ensureProjectAccess(trx, projectId, userId, {
 				allowedRoles: ["owner"],
@@ -754,18 +632,6 @@ class ProjectService {
 		workspaceId: string,
 		userId: string,
 	): Promise<WorkspaceRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
-		if (!workspaceId) {
-			throw new Error("Workspace ID is required");
-		}
-
-		if (!userId) {
-			throw new Error("User ID is required");
-		}
-
 		return db.transaction(async (trx) => {
 			await this.ensureProjectAccess(trx, projectId, userId, {
 				allowedRoles: ["owner", "admin"],
@@ -797,22 +663,6 @@ class ProjectService {
 		boardId: string,
 		userId: string,
 	): Promise<BoardRecord> {
-		if (!projectId) {
-			throw new Error("Project ID is required");
-		}
-
-		if (!workspaceId) {
-			throw new Error("Workspace ID is required");
-		}
-
-		if (!boardId) {
-			throw new Error("Board ID is required");
-		}
-
-		if (!userId) {
-			throw new Error("User ID is required");
-		}
-
 		return db.transaction(async (trx) => {
 			await this.ensureProjectAccess(trx, projectId, userId, {
 				allowedRoles: ["owner", "admin"],
