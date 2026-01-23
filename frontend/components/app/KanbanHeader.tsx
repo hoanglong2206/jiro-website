@@ -1,6 +1,7 @@
 "use client";
 
 import { CheckCheck, MoreHorizontal, Pen, Target, Trash2 } from "lucide-react";
+import type { HTMLAttributes } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -19,16 +20,21 @@ interface KanbanHeaderProps {
 	title: string;
 	color?: string | null;
 	taskCount: number;
+	dragHandleProps?: HTMLAttributes<HTMLDivElement>;
 }
 
 export const KanbanHeader = ({
 	title,
 	color,
 	taskCount,
+	dragHandleProps,
 }: KanbanHeaderProps) => {
 	return (
 		<div className="px-3 py-2 flex items-center justify-between bg-sidebar rounded-md">
-			<div className="flex items-center gap-x-2">
+			<div
+				className="flex flex-1 items-center gap-x-2 cursor-grab active:cursor-grabbing"
+				{...dragHandleProps}
+			>
 				<span
 					className="h-2.5 w-2.5 rounded-full"
 					style={{ backgroundColor: color || "#d1d5db" }}

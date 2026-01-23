@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode, type HTMLAttributes } from "react";
 import {
 	DndContext,
 	closestCenter,
@@ -28,22 +28,37 @@ interface KanbanBoardProps {
 	isLoading?: boolean;
 }
 
-export function KanbanBoard({ boards = [], isLoading = false }: KanbanBoardProps) {
+export function KanbanBoard({
+	boards = [],
+	isLoading = false,
+}: KanbanBoardProps) {
 	const [activeId, setActiveId] = useState<string | null>(null);
-	const [boardOrder, setBoardOrder] = useState<IBoardResponse[]>([]);
+	const [customOrderIds, setCustomOrderIds] = useState<string[] | null>(null);
 
-	useEffect(() => {
-		if (!boards.length) {
-			setBoardOrder([]);
-			return;
-		}
-		const sortedBoards = [...boards].sort(
-			(a, b) => (a.position ?? 0) - (b.position ?? 0),
-		);
-		setBoardOrder(sortedBoards);
+	const sortedBoards = useMemo(() => {
+		return [...boards].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 	}, [boards]);
 
-	const boardIds = useMemo(() => boardOrder.map((board) => board.id), [boardOrder]);
+	const orderedBoards = useMemo(() => {
+		if (!customOrderIds) return sortedBoards;
+		const map = new Map(sortedBoards.map((board) => [board.id, board]));
+		const result: IBoardResponse[] = [];
+		customOrderIds.forEach((id) => {
+			const board = map.get(id);
+			if (board) result.push(board);
+		});
+		sortedBoards.forEach((board) => {
+			if (!customOrderIds.includes(board.id)) {
+				result.push(board);
+			}
+		});
+		return result;
+	}, [sortedBoards, customOrderIds]);
+
+	const boardIds = useMemo(
+		() => orderedBoards.map((board) => board.id),
+		[orderedBoards],
+	);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -79,10 +94,11 @@ export function KanbanBoard({ boards = [], isLoading = false }: KanbanBoardProps
 		}
 
 		if (activeContainer === "boards" && overContainer === "boards") {
-			const activeIndex = boardOrder.findIndex((board) => board.id === activeId);
-			const overIndex = boardOrder.findIndex((board) => board.id === overId);
+			const activeIndex = boardIds.indexOf(activeId);
+			const overIndex = boardIds.indexOf(overId);
 			if (activeIndex !== overIndex) {
-				setBoardOrder(arrayMove(boardOrder, activeIndex, overIndex));
+				const nextOrder = arrayMove(boardIds, activeIndex, overIndex);
+				setCustomOrderIds(nextOrder);
 			}
 			return;
 		}
@@ -112,27 +128,45 @@ export function KanbanBoard({ boards = [], isLoading = false }: KanbanBoardProps
 				>
 					<div className="flex gap-2 overflow-x-auto p-4 h-full">
 						{isLoading ? (
-							<div className="text-sm text-muted-foreground">Loading boards...</div>
-						) : boardOrder.length ? (
-							boardOrder.map((board) => (
-								<SortableColumn key={board.id} id={board.id}>
-									<KanbanHeader
-										title={board.name}
-										color={board.color}
-										taskCount={0}
-									/>
+							<div className="text-sm text-muted-foreground">
+								Loading boards...
+							</div>
+						) : orderedBoards.length ? (
+							<>
+								{orderedBoards.map((board) => (
+									<SortableColumn key={board.id} id={board.id}>
+										{({ handleProps }) => (
+											<>
+												<KanbanHeader
+													title={board.name}
+													color={board.color}
+													taskCount={0}
+													dragHandleProps={handleProps}
+												/>
 
-									<div className="max-h-145 p-1.5 overflow-auto bg-sidebar no-scrollbar rounded-b-md shadow-xs">
-										<Button
-											variant="ghost"
-											className="w-full justify-start cursor-pointer gap-1"
-										>
-											<Plus className="size-4" />
-											Add task
-										</Button>
-									</div>
-								</SortableColumn>
-							))
+												<div className="max-h-145 p-1.5 overflow-auto bg-sidebar no-scrollbar rounded-b-md shadow-xs">
+													<Button
+														variant="ghost"
+														className="w-full justify-start cursor-pointer gap-1"
+													>
+														<Plus className="size-4" />
+														Add task
+													</Button>
+												</div>
+											</>
+										)}
+									</SortableColumn>
+								))}
+								<div className="flex-1 min-w-70 max-w-80 rounded-md">
+									<Button
+										variant="ghost"
+										className="w-full justify-start cursor-pointer gap-1"
+									>
+										<Plus className="size-4" />
+										Add board
+									</Button>
+								</div>
+							</>
 						) : (
 							<div className="text-sm text-muted-foreground">
 								No boards found for this workspace.
@@ -140,18 +174,16 @@ export function KanbanBoard({ boards = [], isLoading = false }: KanbanBoardProps
 						)}
 					</div>
 				</SortableContext>
-				<DragOverlay
-					dropAnimation={{ duration: 200, easing: "ease-out" }}
-				>
+				<DragOverlay dropAnimation={{ duration: 200, easing: "ease-out" }}>
 					{activeId && boardIds.includes(activeId) ? (
 						<div className="min-w-70 max-w-80 rounded-md shadow-xl bg-background">
 							<KanbanHeader
 								title={
-									boardOrder.find((board) => board.id === activeId)?.name ||
+									orderedBoards.find((board) => board.id === activeId)?.name ||
 									"Board"
 								}
 								color={
-									boardOrder.find((board) => board.id === activeId)?.color
+									orderedBoards.find((board) => board.id === activeId)?.color
 								}
 								taskCount={0}
 							/>
@@ -163,7 +195,15 @@ export function KanbanBoard({ boards = [], isLoading = false }: KanbanBoardProps
 	);
 }
 
-function SortableColumn({ id, children }: { id: string; children: ReactNode }) {
+type SortableRenderProps = { handleProps: HTMLAttributes<HTMLDivElement> };
+
+function SortableColumn({
+	id,
+	children,
+}: {
+	id: string;
+	children: ReactNode | ((props: SortableRenderProps) => ReactNode);
+}) {
 	const {
 		attributes,
 		listeners,
@@ -184,12 +224,15 @@ function SortableColumn({ id, children }: { id: string; children: ReactNode }) {
 		<div
 			ref={setNodeRef}
 			style={style}
-			{...attributes}
 			className={`flex-1 min-w-70 max-w-80 rounded-md transition-shadow ${
 				isDragging ? "shadow-xs z-50" : ""
 			}`}
 		>
-			<div {...listeners}>{children}</div>
+			{typeof children === "function"
+				? (children as (props: SortableRenderProps) => ReactNode)({
+						handleProps: { ...listeners, ...attributes },
+					})
+				: children}
 		</div>
 	);
 }
