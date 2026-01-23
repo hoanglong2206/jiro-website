@@ -7,7 +7,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
 	Calendar,
 	Fullscreen,
@@ -27,7 +27,6 @@ import {
 	Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Project } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -36,15 +35,25 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAppSelector } from "@/store/store";
 
-interface ProjectHeaderProps {
-	project: Project;
-}
-
-export function ProjectHeader({ project }: ProjectHeaderProps) {
+export function WorkspaceHeader() {
 	const pathname = usePathname();
-	const baseUrl = `/projects/${project.id}`;
 	const [isStarred, setIsStarred] = useState(true);
+	const { currentProject: project, currentWorkspace: workspace } =
+		useAppSelector((state) => state.project);
+
+	const baseUrl = useMemo(() => {
+		if (project?.id && workspace?.id) {
+			return `/projects/${project.id}/workspaces/${workspace.id}`;
+		}
+		return "#";
+	}, [project?.id, workspace?.id]);
+
+	const badgeContent = workspace?.key?.toUpperCase().slice(0, 3) || "SP";
+	const badgeColor = workspace?.color || project?.color || "#9ca3af";
+	const headerTitle = workspace?.name || project?.name || "Workspace";
+	const iconFallback = project?.icon || badgeContent;
 
 	const tabs = [
 		{ name: "Summary", href: `${baseUrl}/summary`, icon: LineChart },
@@ -64,19 +73,12 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 					<div className="flex items-center gap-2">
 						<span
 							className="flex h-7 w-7 items-center justify-center rounded text-sm"
-							style={{ backgroundColor: project.color }}
+							style={{ backgroundColor: badgeColor }}
 						>
-							{project.icon}
+							{iconFallback}
 						</span>
-						<h1 className="text-xl font-semibold">
-							{" "}
-							{project.name}
-						</h1>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="cursor-pointer"
-						>
+						<h1 className="text-xl font-semibold">{headerTitle}</h1>
+						<Button variant="ghost" size="icon" className="cursor-pointer">
 							<Users className="h-5 w-5" />
 						</Button>
 
@@ -98,19 +100,14 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 								</TooltipContent>
 							</Tooltip>
 							<DropdownMenuContent align="start" className="w-56">
-								<DropdownMenuItem
-									onClick={() => setIsStarred(!isStarred)}
-								>
+								<DropdownMenuItem onClick={() => setIsStarred(!isStarred)}>
 									<Star
 										className={cn(
 											"mr-2 h-4 w-4",
-											isStarred &&
-												"fill-yellow-400 text-yellow-400"
+											isStarred && "fill-yellow-400 text-yellow-400",
 										)}
 									/>
-									{isStarred
-										? "Remove from starred"
-										: "Add to starred"}
+									{isStarred ? "Remove from starred" : "Add to starred"}
 								</DropdownMenuItem>
 								<DropdownMenuItem>
 									<UserPlus className="mr-2 h-4 w-4" />
@@ -137,11 +134,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 				<div className="flex items-center gap-2">
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="cursor-pointer"
-							>
+							<Button variant="ghost" size="icon" className="cursor-pointer">
 								<Share2 className="h-4 w-4" />
 							</Button>
 						</TooltipTrigger>
@@ -151,11 +144,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 					</Tooltip>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="cursor-pointer"
-							>
+							<Button variant="ghost" size="icon" className="cursor-pointer">
 								<Zap className="h-4 w-4" />
 							</Button>
 						</TooltipTrigger>
@@ -165,11 +154,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 					</Tooltip>
 					<Tooltip>
 						<TooltipTrigger asChild>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="cursor-pointer"
-							>
+							<Button variant="ghost" size="icon" className="cursor-pointer">
 								<Fullscreen className="h-4 w-4" />
 							</Button>
 						</TooltipTrigger>
@@ -193,7 +178,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
 								"flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors",
 								isActive
 									? "border-primary text-primary"
-									: "border-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground"
+									: "border-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground",
 							)}
 						>
 							<Icon className="h-4 w-4" />

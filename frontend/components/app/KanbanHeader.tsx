@@ -1,15 +1,6 @@
-'use client";';
+"use client";
 
-import { TaskStatus } from "@/lib/data";
-import {
-	CheckCheck,
-	CircleDashedIcon,
-	MoreHorizontal,
-	Pen,
-	Target,
-	Trash2,
-} from "lucide-react";
-import { ReactNode } from "react";
+import { CheckCheck, MoreHorizontal, Pen, Target, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Tooltip,
@@ -25,29 +16,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface KanbanHeaderProps {
-	board: TaskStatus;
+	title: string;
+	color?: string | null;
 	taskCount: number;
 }
 
-const statusLabels: Record<TaskStatus, ReactNode> = {
-	[TaskStatus.TODO]: <CircleDashedIcon className="size-4 text-red-400" />,
-	[TaskStatus.IN_PROGRESS]: (
-		<CircleDashedIcon className="size-4 text-yellow-400" />
-	),
-	[TaskStatus.IN_REVIEW]: (
-		<CircleDashedIcon className="size-4 text-blue-400" />
-	),
-	[TaskStatus.DONE]: <CircleDashedIcon className="size-4 text-green-400" />,
-};
-export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {
-	const icon = statusLabels[board];
+export const KanbanHeader = ({
+	title,
+	color,
+	taskCount,
+}: KanbanHeaderProps) => {
 	return (
 		<div className="px-3 py-2 flex items-center justify-between bg-sidebar rounded-md">
 			<div className="flex items-center gap-x-2">
-				{icon}
-				<h2 className="text-sm font-medium capitalize">
-					{board.replace(/_/g, " ").toLowerCase()}
-				</h2>
+				<span
+					className="h-2.5 w-2.5 rounded-full"
+					style={{ backgroundColor: color || "#d1d5db" }}
+				/>
+				<h2 className="text-sm font-medium capitalize">{title}</h2>
 				<div className="size-5 flex items-center justify-center rounded-full text-xs bg-neutral-200 text-neutral-800 font-medium">
 					{taskCount}
 				</div>
@@ -56,10 +42,7 @@ export const KanbanHeader = ({ board, taskCount }: KanbanHeaderProps) => {
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<DropdownMenuTrigger asChild>
-							<Button
-								variant="ghost"
-								className="cursor-pointer size-7"
-							>
+							<Button variant="ghost" className="cursor-pointer size-7">
 								<MoreHorizontal className="h-4 w-4" />
 							</Button>
 						</DropdownMenuTrigger>

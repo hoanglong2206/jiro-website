@@ -1,20 +1,14 @@
 import type React from "react";
-import { projects } from "@/lib/data";
-import { ProjectHeader } from "@/components/app";
+import { WorkspaceHeader } from "@/components/app";
 
-export default async function ProjectLayout({
+export default function ProjectLayout({
 	children,
-	params,
 }: {
 	children: React.ReactNode;
-	params: Promise<{ id: string }>;
 }) {
-	const { id } = await params;
-	const project = projects.find((p) => p.id === id) || projects[0];
-
 	return (
 		<div className="flex flex-1 flex-col overflow-hidden">
-			<ProjectHeader project={project} />
+			<WorkspaceHeader />
 			<div className="flex-1 bg-background">{children}</div>
 		</div>
 	);

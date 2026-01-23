@@ -7,6 +7,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "../ui/button";
 import { IWorkspaceResponse } from "@/types/project.interface";
+import { useAppDispatch } from "@/store/store";
+import { setCurrentWorkspace } from "@/store/reducers/project.reducer";
 
 interface SpaceNavCardProps {
 	typeNav?: boolean;
@@ -20,6 +22,7 @@ export const SpaceNavCard = ({
 	projectId,
 }: SpaceNavCardProps) => {
 	const pathname = usePathname();
+	const dispatch = useAppDispatch();
 
 	if (!workspace || !projectId) {
 		return null;
@@ -40,6 +43,7 @@ export const SpaceNavCard = ({
 				<div className="flex items-center justify-between group/line">
 					<Link
 						href={`/projects/${projectId}/workspaces/${workspace.id}/board`}
+						onClick={() => dispatch(setCurrentWorkspace(workspace))}
 						className="flex items-center gap-2 truncate flex-1"
 					>
 						<div

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Task, TaskStatus } from "@/lib/data";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
 	DndContext,
 	closestCenter,
@@ -15,35 +14,36 @@ import {
 	arrayMove,
 	SortableContext,
 	sortableKeyboardCoordinates,
-	verticalListSortingStrategy,
 	horizontalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { KanbanHeader, KanbanCard } from "@/components/app";
-import { TaskModal } from "./TaskModal";
-import { ReactNode } from "react";
+import { KanbanHeader } from "@/components/app";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
+import { IBoardResponse } from "@/types/project.interface";
 
 interface KanbanBoardProps {
-	tasks: Task[];
+	boards?: IBoardResponse[];
+	isLoading?: boolean;
 }
 
-const initialBoards: TaskStatus[] = [
-	TaskStatus.TODO,
-	TaskStatus.IN_PROGRESS,
-	TaskStatus.IN_REVIEW,
-	TaskStatus.DONE,
-];
-
-type TaskState = {
-	[Key in TaskStatus]: Task[];
-};
-
-export function KanbanBoard({ tasks }: KanbanBoardProps) {
+export function KanbanBoard({ boards = [], isLoading = false }: KanbanBoardProps) {
 	const [activeId, setActiveId] = useState<string | null>(null);
-	const [boardOrder, setBoardOrder] = useState<TaskStatus[]>(initialBoards);
+	const [boardOrder, setBoardOrder] = useState<IBoardResponse[]>([]);
+
+	useEffect(() => {
+		if (!boards.length) {
+			setBoardOrder([]);
+			return;
+		}
+		const sortedBoards = [...boards].sort(
+			(a, b) => (a.position ?? 0) - (b.position ?? 0),
+		);
+		setBoardOrder(sortedBoards);
+	}, [boards]);
+
+	const boardIds = useMemo(() => boardOrder.map((board) => board.id), [boardOrder]);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),
@@ -53,7 +53,7 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 	);
 
 	const getContainer = (id: string) => {
-		if (boardOrder.includes(id as TaskStatus)) {
+		if (boardIds.includes(id)) {
 			return "boards";
 		}
 
@@ -79,8 +79,8 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 		}
 
 		if (activeContainer === "boards" && overContainer === "boards") {
-			const activeIndex = boardOrder.indexOf(activeId as TaskStatus);
-			const overIndex = boardOrder.indexOf(overId as TaskStatus);
+			const activeIndex = boardOrder.findIndex((board) => board.id === activeId);
+			const overIndex = boardOrder.findIndex((board) => board.id === overId);
 			if (activeIndex !== overIndex) {
 				setBoardOrder(arrayMove(boardOrder, activeIndex, overIndex));
 			}
@@ -90,14 +90,6 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 		if (overContainer === "boards") {
 			return;
 		}
-	};
-
-	const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-
-	const handleCardClick = (task: Task) => {
-		setSelectedTask(task);
-		setIsModalOpen(true);
 	};
 
 	return (
@@ -115,45 +107,58 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
 				onDragCancel={() => setActiveId(null)}
 			>
 				<SortableContext
-					items={boardOrder}
+					items={boardIds}
 					strategy={horizontalListSortingStrategy}
 				>
 					<div className="flex gap-2 overflow-x-auto p-4 h-full">
-						{boardOrder.map((board) => (
-							<SortableColumn key={board} id={board}>
-								<KanbanHeader board={board} taskCount={0} />
+						{isLoading ? (
+							<div className="text-sm text-muted-foreground">Loading boards...</div>
+						) : boardOrder.length ? (
+							boardOrder.map((board) => (
+								<SortableColumn key={board.id} id={board.id}>
+									<KanbanHeader
+										title={board.name}
+										color={board.color}
+										taskCount={0}
+									/>
 
-								<div className="max-h-145 p-1.5 overflow-auto bg-sidebar no-scrollbar rounded-b-md shadow-xs">
-									<Button
-										variant="ghost"
-										className="w-full justify-start cursor-pointer gap-1"
-									>
-										<Plus className="size-4" />
-										Add task
-									</Button>
-								</div>
-							</SortableColumn>
-						))}
+									<div className="max-h-145 p-1.5 overflow-auto bg-sidebar no-scrollbar rounded-b-md shadow-xs">
+										<Button
+											variant="ghost"
+											className="w-full justify-start cursor-pointer gap-1"
+										>
+											<Plus className="size-4" />
+											Add task
+										</Button>
+									</div>
+								</SortableColumn>
+							))
+						) : (
+							<div className="text-sm text-muted-foreground">
+								No boards found for this workspace.
+							</div>
+						)}
 					</div>
 				</SortableContext>
 				<DragOverlay
 					dropAnimation={{ duration: 200, easing: "ease-out" }}
 				>
-					{activeId && boardOrder.includes(activeId as TaskStatus) ? (
+					{activeId && boardIds.includes(activeId) ? (
 						<div className="min-w-70 max-w-80 rounded-md shadow-xl bg-background">
 							<KanbanHeader
-								board={activeId as TaskStatus}
+								title={
+									boardOrder.find((board) => board.id === activeId)?.name ||
+									"Board"
+								}
+								color={
+									boardOrder.find((board) => board.id === activeId)?.color
+								}
 								taskCount={0}
 							/>
 						</div>
 					) : null}
 				</DragOverlay>
 			</DndContext>
-			<TaskModal
-				isOpen={isModalOpen}
-				onClose={() => setIsModalOpen(false)}
-				task={selectedTask}
-			/>
 		</>
 	);
 }
@@ -185,22 +190,6 @@ function SortableColumn({ id, children }: { id: string; children: ReactNode }) {
 			}`}
 		>
 			<div {...listeners}>{children}</div>
-		</div>
-	);
-}
-
-function SortableItem({ id, children }: { id: string; children: ReactNode }) {
-	const { attributes, listeners, setNodeRef, transform, transition } =
-		useSortable({ id });
-
-	const style = {
-		transform: CSS.Transform.toString(transform),
-		transition,
-	};
-
-	return (
-		<div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-			{children}
 		</div>
 	);
 }

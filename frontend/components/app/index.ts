@@ -1,7 +1,7 @@
 export { Header } from "./Header";
 export { AppSidebar } from "./AppSidebar";
 
-export { ProjectHeader } from "./ProjectHeader";
+export { WorkspaceHeader } from "./WorkspaceHeader";
 export { BoardToolbar } from "./BoardToolbar";
 
 export { KanbanBoard } from "./KanbanBoard";
