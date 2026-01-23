@@ -76,7 +76,46 @@ const navigationItems: { label: string; icon: ElementType; href: string }[] = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const pathname = usePathname();
 	const dispatch = useAppDispatch();
-	const { projects: projectItems } = useAppSelector((state) => state.project);
+	const { projects } = useAppSelector((state) => state.project);
+	const { currentProject } = useAppSelector((state) => state.project);
+
+	useEffect(() => {
+		if (!projects.length) {
+			dispatch(clearCurrentProject());
+			return;
+		}
+
+		if (
+			currentProject &&
+			projects.some((item) => item.id === currentProject.id)
+		) {
+			return;
+		}
+
+		const storedProject = (() => {
+			try {
+				return getDataFromLocalStorage(
+					"currentProject",
+				) as IProjectResponse | null;
+			} catch {
+				return null;
+			}
+		})();
+
+		const fallbackProject =
+			storedProject &&
+			projects.some((item) => item.id === storedProject.id)
+				? storedProject
+				: projects[0];
+
+		if (fallbackProject) {
+			dispatch(setCurrentProject(fallbackProject));
+			saveToLocalStorage(
+				"currentProject",
+				JSON.stringify(fallbackProject),
+			);
+		}
+	}, [projects, currentProject, dispatch]);
 
 	const memoizedMenuItems = useMemo(
 		() =>
@@ -149,7 +188,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		<>
 			<Sidebar collapsible="icon" {...props}>
 				<SidebarHeader>
-					<ProjectSwitcher projects={projectItems} />
+					<ProjectSwitcher
+						projects={projects}
+						currentProject={currentProject}
+					/>
 				</SidebarHeader>
 				<SidebarContent>
 					<SidebarGroup>
@@ -299,6 +341,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			<CreateSpaceModal
 				isOpen={isCreateSpaceModalOpen}
 				onClose={() => setIsCreateSpaceModalOpen(false)}
+				projectId={currentProject?.id}
 			/>
 		</>
 	);
@@ -306,51 +349,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 interface ProjectSwitcherProps {
 	projects: IProjectResponse[];
+	currentProject: IProjectResponse | null;
 }
 
-function ProjectSwitcher({ projects }: ProjectSwitcherProps) {
+function ProjectSwitcher({ projects, currentProject }: ProjectSwitcherProps) {
 	const { isMobile } = useSidebar();
-	const dispatch = useAppDispatch();
-	const { currentProject } = useAppSelector((state) => state.project);
 	const router = useRouter();
-
-	useEffect(() => {
-		if (!projects.length) {
-			dispatch(clearCurrentProject());
-			return;
-		}
-
-		if (
-			currentProject &&
-			projects.some((item) => item.id === currentProject.id)
-		) {
-			return;
-		}
-
-		const storedProject = (() => {
-			try {
-				return getDataFromLocalStorage(
-					"currentProject",
-				) as IProjectResponse | null;
-			} catch {
-				return null;
-			}
-		})();
-
-		const fallbackProject =
-			storedProject &&
-			projects.some((item) => item.id === storedProject.id)
-				? storedProject
-				: projects[0];
-
-		if (fallbackProject) {
-			dispatch(setCurrentProject(fallbackProject));
-			saveToLocalStorage(
-				"currentProject",
-				JSON.stringify(fallbackProject),
-			);
-		}
-	}, [projects, currentProject, dispatch]);
+	const dispatch = useAppDispatch();
 
 	const renderProjectIcon = (name: string, color?: string | null) => {
 		const initials = name

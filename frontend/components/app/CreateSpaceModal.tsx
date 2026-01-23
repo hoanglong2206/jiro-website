@@ -19,17 +19,25 @@ import {
 	CardDescription,
 } from "@/components/ui/card";
 import { ArrowRight, Circle, HelpCircle } from "lucide-react";
-import { Badge } from "../ui/badge";
-import { Separator } from "../ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { WORKFLOW_CONFIG } from "@/types/project.interface";
+import {
+	useCreateWorkspaceMutation,
+	useCreateBoardMutation,
+} from "@/services/project.service";
+import { Progress } from "@/components/ui/progress";
+import { toast } from "sonner";
 
 export const CreateSpaceModal = ({
 	isOpen,
 	onClose,
+	projectId,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
+	projectId: string | undefined;
 }) => {
 	const [spaceForm, setSpaceForm] = useState<{
 		name: string;
@@ -40,30 +48,53 @@ export const CreateSpaceModal = ({
 		key: "",
 		isKeyAuto: true,
 	});
-	const [workflowType, setWorkflowType] = useState<
-		| "starter"
-		| "marketing-teams"
-		| "project-management"
-		| "product-engineering"
-	>("starter");
+	const [workflowType, setWorkflowType] =
+		useState<keyof typeof WORKFLOW_CONFIG>("starter");
+	const [createWorkspace, { isLoading: isCreatingWorkspace }] =
+		useCreateWorkspaceMutation();
+	const [createBoard, { isLoading: isCreatingBoard }] =
+		useCreateBoardMutation();
 
-	const handleFinish = () => {
-		const space = {
-			name: spaceForm.name.trim(),
-			key: spaceForm.key.trim(),
-		};
+	const isFinishing: boolean = isCreatingWorkspace || isCreatingBoard;
 
-		const boards = WORKFLOW_CONFIG[workflowType].map((b, index) => ({
-			label: b.label,
-			color: b.color,
-			position: index + 1,
-		}));
+	const handleFinish = async () => {
+		try {
+			if (projectId === undefined) {
+				return;
+			}
 
-		const payload = {
-			space,
-			boards,
-		};
-		console.log(payload);
+			const workspaceRes = await createWorkspace({
+				projectId,
+				workspace: {
+					name: spaceForm.name.trim(),
+					key: spaceForm.key.replace(/\s+/g, "").toUpperCase(),
+				},
+			}).unwrap();
+
+			const workspaceId = workspaceRes.workspace.id;
+
+			const boards = WORKFLOW_CONFIG[workflowType].map((b, index) => ({
+				name: b.label,
+				color: b.color,
+				position: index + 1,
+			}));
+
+			await Promise.all(
+				boards.map((board) =>
+					createBoard({
+						projectId,
+						workspaceId,
+						board,
+					}).unwrap(),
+				),
+			);
+
+			toast.success("Space created successfully");
+			onClose();
+		} catch (error) {
+			console.error(error);
+			toast.error("Something went wrong");
+		}
 	};
 
 	return (
@@ -72,6 +103,7 @@ export const CreateSpaceModal = ({
 			open={isOpen}
 			onClose={onClose}
 			onFinish={handleFinish}
+			finishLoading={isFinishing}
 			componentList={[
 				{
 					title: "Create Space",
@@ -153,7 +185,7 @@ function StepCreateSpace({
 				<Input
 					className="h-9"
 					id="name"
-					placeholder="Project name"
+					placeholder="Space name"
 					value={value.name}
 					onChange={(e) => handleNameChange(e.target.value)}
 				/>
@@ -244,11 +276,7 @@ function StepWorkflow({
 }) {
 	const workflows: {
 		label: string;
-		value:
-			| "starter"
-			| "marketing-teams"
-			| "project-management"
-			| "product-engineering";
+		value: keyof typeof WORKFLOW_CONFIG;
 		description: string;
 	}[] = [
 		{

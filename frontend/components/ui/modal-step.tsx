@@ -8,7 +8,7 @@ import {
 	Transition,
 	TransitionChild,
 } from "@headlessui/react";
-import { X } from "lucide-react";
+import { Loader, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface StepItem {
@@ -25,6 +25,7 @@ interface ModalStepProps {
 	componentList: StepItem[];
 	initialStep?: number;
 	onFinish?: () => void;
+	finishLoading?: boolean;
 	size?: string;
 }
 
@@ -34,6 +35,7 @@ export const ModalStep = ({
 	componentList,
 	initialStep = 0,
 	onFinish,
+	finishLoading = false,
 	size,
 }: ModalStepProps) => {
 	const [currentStep, setCurrentStep] = useState(initialStep);
@@ -135,6 +137,7 @@ export const ModalStep = ({
 															(s) => s - 1,
 														)
 													}
+													className="cursor-pointer"
 												>
 													Back
 												</Button>
@@ -149,6 +152,7 @@ export const ModalStep = ({
 														step.canNext ===
 															false || loading
 													}
+													className="cursor-pointer"
 												>
 													{loading
 														? "Checking..."
@@ -156,12 +160,22 @@ export const ModalStep = ({
 												</Button>
 											) : (
 												<Button
-													disabled={loading}
+													disabled={finishLoading}
 													onClick={
 														onFinish ?? onClose
 													}
+													className="cursor-pointer"
 												>
-													Finish
+													{finishLoading ? (
+														<>
+															<Loader className="size-4 animate-spin" />
+															<span className="ml-2">
+																Loading...
+															</span>
+														</>
+													) : (
+														"Finish"
+													)}
 												</Button>
 											)}
 										</div>
