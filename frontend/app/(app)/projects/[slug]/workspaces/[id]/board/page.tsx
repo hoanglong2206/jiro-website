@@ -5,9 +5,11 @@ import { KanbanBoard, BoardToolbar } from "@/components/app";
 import {
 	useGetBoardsByWorkspaceIdQuery,
 	useCreateBoardMutation,
+	useUpdateBoardMutation,
 } from "@/services/project.service";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { setCurrentWorkspace } from "@/store/reducers/project.reducer";
+import type { IUpdateBoardPayload } from "@/types/project.interface";
 
 type BoardPageParams = {
 	slug: string;
@@ -39,6 +41,7 @@ export default function BoardPage({
 	);
 
 	const [createBoard] = useCreateBoardMutation();
+	const [updateBoard] = useUpdateBoardMutation();
 
 	const handleCreateBoard = async ({
 		name,
@@ -59,6 +62,21 @@ export default function BoardPage({
 		}).unwrap();
 	};
 
+	const handleUpdateBoard = async (
+		boardId: string,
+		payload: IUpdateBoardPayload,
+	) => {
+		if (!slug || !id) {
+			return;
+		}
+		await updateBoard({
+			projectId: slug,
+			workspaceId: id,
+			boardId,
+			board: payload,
+		}).unwrap();
+	};
+
 	return (
 		<div className="flex h-full flex-col">
 			<BoardToolbar />
@@ -66,6 +84,7 @@ export default function BoardPage({
 				boards={data?.boards || []}
 				isLoading={isLoading}
 				onCreateBoard={handleCreateBoard}
+				onUpdateBoard={handleUpdateBoard}
 			/>
 		</div>
 	);

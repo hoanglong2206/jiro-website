@@ -1,6 +1,12 @@
 "use client";
 
-import { useMemo, useState, type ReactNode, type HTMLAttributes } from "react";
+import {
+	useMemo,
+	useState,
+	useCallback,
+	type ReactNode,
+	type HTMLAttributes,
+} from "react";
 import {
 	DndContext,
 	closestCenter,
@@ -9,6 +15,7 @@ import {
 	DragOverlay,
 	useSensor,
 	useSensors,
+	type DragEndEvent,
 } from "@dnd-kit/core";
 import {
 	arrayMove,
@@ -22,7 +29,10 @@ import { KanbanHeader, InputWithColorPicker } from "@/components/app";
 import { Button } from "../ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
-import { IBoardResponse } from "@/types/project.interface";
+import type {
+	IBoardResponse,
+	IUpdateBoardPayload,
+} from "@/types/project.interface";
 
 interface KanbanBoardProps {
 	boards?: IBoardResponse[];
@@ -32,12 +42,17 @@ interface KanbanBoardProps {
 		color?: string;
 		position?: number;
 	}) => Promise<void> | void;
+	onUpdateBoard?: (
+		boardId: string,
+		payload: IUpdateBoardPayload,
+	) => Promise<void> | void;
 }
 
 export function KanbanBoard({
 	boards = [],
 	isLoading = false,
 	onCreateBoard,
+	onUpdateBoard,
 }: KanbanBoardProps) {
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [customOrderIds, setCustomOrderIds] = useState<string[] | null>(null);
@@ -82,12 +97,12 @@ export function KanbanBoard({
 		return null;
 	};
 
-	const handleDragEnd = (event: any) => {
+	const handleDragEnd = async (event: DragEndEvent) => {
 		const { active, over } = event;
 		if (!over) return;
 
-		const activeId = active.id;
-		const overId = over.id;
+		const activeId = String(active.id);
+		const overId = String(over.id);
 
 		if (activeId === overId) return;
 
@@ -104,8 +119,15 @@ export function KanbanBoard({
 			const activeIndex = boardIds.indexOf(activeId);
 			const overIndex = boardIds.indexOf(overId);
 			if (activeIndex !== overIndex) {
+				const previousOrderState = customOrderIds ? [...customOrderIds] : null;
 				const nextOrder = arrayMove(boardIds, activeIndex, overIndex);
 				setCustomOrderIds(nextOrder);
+				try {
+					await persistBoardOrder(nextOrder);
+				} catch (error) {
+					console.error("Failed to persist board order", error);
+					setCustomOrderIds(previousOrderState);
+				}
 			}
 			return;
 		}
@@ -119,6 +141,23 @@ export function KanbanBoard({
 	const [newBoardTitle, setNewBoardTitle] = useState<string>("");
 	const [newBoardColor, setNewBoardColor] = useState<string>("");
 	const [isCreatingBoard, setIsCreatingBoard] = useState<boolean>(false);
+	const [pendingBoardMap, setPendingBoardMap] = useState<
+		Record<string, number>
+	>({});
+
+	const setBoardPending = useCallback((boardId: string, pending: boolean) => {
+		setPendingBoardMap((prev) => {
+			const currentCount = prev[boardId] ?? 0;
+			if (pending) {
+				return { ...prev, [boardId]: currentCount + 1 };
+			}
+			if (currentCount <= 1) {
+				const { [boardId]: _removed, ...rest } = prev;
+				return rest;
+			}
+			return { ...prev, [boardId]: currentCount - 1 };
+		});
+	}, []);
 
 	const handleStartAddingBoard = () => {
 		setIsAddingBoard(true);
@@ -163,17 +202,76 @@ export function KanbanBoard({
 		}
 	};
 
+	const handleUpdateBoard = useCallback(
+		async (boardId: string, payload: IUpdateBoardPayload) => {
+			if (!onUpdateBoard) {
+				return;
+			}
+			try {
+				setBoardPending(boardId, true);
+				await onUpdateBoard(boardId, payload);
+			} catch (error) {
+				throw error;
+			} finally {
+				setBoardPending(boardId, false);
+			}
+		},
+		[onUpdateBoard, setBoardPending],
+	);
+
+	const persistBoardOrder = useCallback(
+		async (orderedIds: string[]) => {
+			if (!onUpdateBoard) {
+				return;
+			}
+			const updates = orderedIds
+				.map((boardId, index) => {
+					const board = sortedBoards.find((item) => item.id === boardId);
+					if (!board) {
+						return null;
+					}
+					const currentPosition = board.position ?? index;
+					if (currentPosition === index) {
+						return null;
+					}
+					return { boardId, position: index };
+				})
+				.filter(
+					(update): update is { boardId: string; position: number } =>
+						update !== null,
+				);
+			if (!updates.length) {
+				return;
+			}
+			const results = await Promise.allSettled(
+				updates.map(({ boardId, position }) =>
+					handleUpdateBoard(boardId, { position }),
+				),
+			);
+			const hasFailure = results.some((result) => result.status === "rejected");
+			if (hasFailure) {
+				results.forEach((result) => {
+					if (result.status === "rejected") {
+						console.error("Failed to update board position", result.reason);
+					}
+				});
+				throw new Error("Failed to update board positions");
+			}
+		},
+		[handleUpdateBoard, onUpdateBoard, sortedBoards],
+	);
+
 	return (
 		<>
 			<DndContext
 				sensors={sensors}
 				collisionDetection={closestCenter}
-				onDragEnd={(e) => {
-					handleDragEnd(e);
+				onDragEnd={async (e) => {
+					await handleDragEnd(e);
 					setActiveId(null);
 				}}
 				onDragStart={(e) => {
-					setActiveId(e.active.id as string);
+					setActiveId(String(e.active.id));
 				}}
 				onDragCancel={() => setActiveId(null)}
 			>
@@ -218,6 +316,10 @@ export function KanbanBoard({
 													color={board.color}
 													taskCount={0}
 													dragHandleProps={handleProps}
+													onUpdate={(payload) =>
+														handleUpdateBoard(board.id, payload)
+													}
+													isUpdating={Boolean(pendingBoardMap[board.id])}
 												/>
 
 												<div className="max-h-145 p-1.5 overflow-auto bg-sidebar no-scrollbar rounded-b-md shadow-xs">

@@ -23,6 +23,11 @@ interface KanbanHeaderProps {
 	color?: string | null;
 	taskCount: number;
 	dragHandleProps?: HTMLAttributes<HTMLDivElement>;
+	onUpdate?: (payload: {
+		name?: string;
+		color?: string | null;
+	}) => Promise<void> | void;
+	isUpdating?: boolean;
 }
 
 export const KanbanHeader = ({
@@ -30,30 +35,64 @@ export const KanbanHeader = ({
 	color,
 	taskCount,
 	dragHandleProps,
+	onUpdate,
+	isUpdating = false,
 }: KanbanHeaderProps) => {
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const [draftTitle, setDraftTitle] = useState<string>(title);
 	const [draftColor, setDraftColor] = useState<string>(color ?? "");
+	const [isSaving, setIsSaving] = useState<boolean>(false);
 
 	const handleStartEditing = () => {
+		if (isUpdating) {
+			return;
+		}
 		setDraftTitle(title);
 		setDraftColor(color ?? "");
 		setIsEditing(true);
 	};
 
 	const handleCancelEditing = () => {
+		if (isSaving) {
+			return;
+		}
 		setDraftTitle(title);
 		setDraftColor(color ?? "");
 		setIsEditing(false);
 	};
 
-	const handleSubmit = () => {
+	const handleSubmit = async () => {
 		const trimmedTitle = draftTitle.trim();
 		if (!trimmedTitle) {
 			return;
 		}
-		setDraftTitle(trimmedTitle);
-		setIsEditing(false);
+		const normalizedColor = draftColor.trim() ? draftColor.trim() : "";
+		const currentColor = color ?? "";
+		const hasChanges =
+			trimmedTitle !== title || normalizedColor !== currentColor;
+		if (!onUpdate) {
+			setDraftTitle(trimmedTitle);
+			setIsEditing(false);
+			return;
+		}
+		if (!hasChanges) {
+			setIsEditing(false);
+			return;
+		}
+		try {
+			setIsSaving(true);
+			await onUpdate({
+				name: trimmedTitle,
+				color: normalizedColor ? normalizedColor : null,
+			});
+			setDraftTitle(trimmedTitle);
+			setDraftColor(normalizedColor);
+			setIsEditing(false);
+		} catch (error) {
+			console.error("Failed to update board", error);
+		} finally {
+			setIsSaving(false);
+		}
 	};
 	return (
 		<div className="px-3 py-2 flex items-center justify-between bg-sidebar rounded-md">
@@ -64,9 +103,12 @@ export const KanbanHeader = ({
 					onValueChange={setDraftTitle}
 					color={draftColor}
 					onColorChange={setDraftColor}
-					onSubmit={handleSubmit}
+					onSubmit={() => {
+						void handleSubmit();
+					}}
 					onCancel={handleCancelEditing}
 					placeholder="Board name"
+					isSubmitting={isSaving || isUpdating}
 				/>
 			) : (
 				<div
@@ -89,7 +131,10 @@ export const KanbanHeader = ({
 						<DropdownMenuTrigger asChild>
 							<Button
 								variant="ghost"
-								className={cn("cursor-pointer size-7", isEditing && "hidden")}
+								className={cn(
+									"cursor-pointer size-7",
+									(isEditing || isSaving || isUpdating) && "hidden",
+								)}
 							>
 								<MoreHorizontal className="h-4 w-4" />
 							</Button>
