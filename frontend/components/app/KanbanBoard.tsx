@@ -18,7 +18,7 @@ import {
 } from "@dnd-kit/sortable";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { KanbanHeader } from "@/components/app";
+import { KanbanHeader, InputWithColorPicker } from "@/components/app";
 import { Button } from "../ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
@@ -109,6 +109,43 @@ export function KanbanBoard({
 		}
 	};
 
+	const [isAddingBoard, setIsAddingBoard] = useState<boolean>(false);
+	const [newBoardTitle, setNewBoardTitle] = useState<string>("");
+	const [newBoardColor, setNewBoardColor] = useState<string>("");
+	const [isCreatingBoard, setIsCreatingBoard] = useState<boolean>(false);
+
+	const handleStartAddingBoard = () => {
+		setIsAddingBoard(true);
+		setNewBoardTitle("");
+		setNewBoardColor("");
+	};
+
+	const handleCancelAddingBoard = () => {
+		if (isCreatingBoard) {
+			return;
+		}
+		setIsAddingBoard(false);
+		setNewBoardTitle("");
+		setNewBoardColor("");
+	};
+
+	const handleCreateBoard = async () => {
+		const trimmedTitle = newBoardTitle.trim();
+		if (!trimmedTitle || isCreatingBoard) {
+			return;
+		}
+		try {
+			setIsCreatingBoard(true);
+			setIsAddingBoard(false);
+			setNewBoardTitle("");
+			setNewBoardColor("");
+		} catch (error) {
+			console.error("Failed to create board", error);
+		} finally {
+			setIsCreatingBoard(false);
+		}
+	};
+
 	return (
 		<>
 			<DndContext
@@ -180,13 +217,30 @@ export function KanbanBoard({
 									</SortableColumn>
 								))}
 								<div className="flex-1 min-w-70 max-w-80 rounded-md">
-									<Button
-										variant="ghost"
-										className="w-full justify-start cursor-pointer gap-1"
-									>
-										<Plus className="size-4" />
-										Add board
-									</Button>
+									{isAddingBoard ? (
+										<InputWithColorPicker
+											autoFocus
+											value={newBoardTitle}
+											onValueChange={setNewBoardTitle}
+											color={newBoardColor}
+											onColorChange={setNewBoardColor}
+											onSubmit={() => {
+												void handleCreateBoard();
+											}}
+											onCancel={handleCancelAddingBoard}
+											placeholder="Board name"
+											isSubmitting={isCreatingBoard}
+										/>
+									) : (
+										<Button
+											onClick={handleStartAddingBoard}
+											variant="ghost"
+											className="w-full justify-start cursor-pointer gap-1"
+										>
+											<Plus className="size-4" />
+											Add board
+										</Button>
+									)}
 								</div>
 							</>
 						) : (

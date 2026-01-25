@@ -51,9 +51,7 @@ const ProjectsPage = () => {
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [currentProject, setCurrentProject] = useState<IProjectResponse>();
-	const [iconPictureValue, setIconPictureValue] = useState<string | null>(
-		null,
-	);
+	const [iconPictureValue, setIconPictureValue] = useState<string | null>(null);
 	const [iconPicturePreview, setIconPicturePreview] = useState<string | null>(
 		null,
 	);
@@ -76,34 +74,6 @@ const ProjectsPage = () => {
 			dispatch(setProjects(data.projects));
 		}
 	}, [data, dispatch]);
-
-	useEffect(() => {
-		if (!projects.length) {
-			setCurrentProject(undefined);
-			return;
-		}
-
-		const syncTarget = currentProject
-			? projects.find((project) => project.id === currentProject.id)
-			: projects[0];
-
-		if (!syncTarget) {
-			return;
-		}
-
-		if (syncTarget !== currentProject) {
-			setCurrentProject(syncTarget);
-		}
-
-		setFormValues({
-			name: syncTarget.name,
-			description: syncTarget.description ?? "",
-			type: syncTarget.type,
-			accessLevel: syncTarget.accessLevel,
-			color: syncTarget.color ?? "",
-			icon: syncTarget.icon ?? "",
-		});
-	}, [projects, currentProject]);
 
 	const handleSelectProject = (project: IProjectResponse) => {
 		setCurrentProject(project);
@@ -212,10 +182,7 @@ const ProjectsPage = () => {
 			}).unwrap();
 			toast.success(response.message || "Project updated successfully");
 		} catch (error) {
-			const message = extractErrorMessage(
-				error,
-				"Failed to update project",
-			);
+			const message = extractErrorMessage(error, "Failed to update project");
 			toast.error(message);
 		}
 	};
@@ -231,9 +198,7 @@ const ProjectsPage = () => {
 	if (isError) {
 		return (
 			<div className="p-6 space-y-3 flex flex-col items-center justify-center">
-				<div className="text-sm text-red-500">
-					Unable to load projects.
-				</div>
+				<div className="text-sm text-red-500">Unable to load projects.</div>
 				<Button size="sm" variant="outline" onClick={() => refetch()}>
 					Retry
 				</Button>
@@ -275,28 +240,19 @@ const ProjectsPage = () => {
 						<div className="col-span-1 mt-2">
 							<Card>
 								<CardHeader>
-									<h1 className="text-xl font-semibold">
-										My Settings
-									</h1>
+									<h1 className="text-xl font-semibold">My Settings</h1>
 								</CardHeader>
 								<CardContent>
 									<form onSubmit={handleSubmit}>
 										<div className="flex border rounded-t-md py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Avatar
-											</Label>
+											<Label className="font-medium">Avatar</Label>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<div className="cursor-pointer">
 														{formValues.icon ? (
 															<Image
-																src={
-																	formValues.icon
-																}
-																alt={
-																	formValues.name ||
-																	""
-																}
+																src={formValues.icon}
+																alt={formValues.name || ""}
 																width={40}
 																height={40}
 																className="rounded-md"
@@ -305,20 +261,12 @@ const ProjectsPage = () => {
 															<span
 																className="font-medium text-background size-10 flex aspect-square items-center justify-center rounded-lg "
 																style={{
-																	backgroundColor:
-																		formValues.color ||
-																		"",
+																	backgroundColor: formValues.color || "",
 																}}
 															>
-																{(
-																	formValues.name ||
-																	""
-																)
+																{(formValues.name || "")
 																	.split(" ")
-																	.map(
-																		(x) =>
-																			x[0],
-																	)
+																	.map((x) => x[0])
 																	.join("")}
 															</span>
 														)}
@@ -336,19 +284,15 @@ const ProjectsPage = () => {
 													<ColorPicker
 														value={formValues.color}
 														onChange={(value) =>
-															setFormValues(
-																(prev) => ({
-																	...prev,
-																	color: value,
-																}),
-															)
+															setFormValues((prev) => ({
+																...prev,
+																color: value,
+															}))
 														}
 													/>
 													<DropdownMenuSeparator />
 													<DropdownMenuItem
-														onClick={() =>
-															setIsModalOpen(true)
-														}
+														onClick={() => setIsModalOpen(true)}
 														className="gap-2 p-2 cursor-pointer"
 													>
 														<Upload className="size-4" />
@@ -360,49 +304,40 @@ const ProjectsPage = () => {
 											</DropdownMenu>
 										</div>
 										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Name
-											</Label>
+											<Label className="font-medium">Name</Label>
 											<Input
 												value={formValues.name}
 												onChange={(event) =>
 													setFormValues((prev) => ({
 														...prev,
-														name: event.target
-															.value,
+														name: event.target.value,
 													}))
 												}
 												className="max-w-80"
 											/>
 										</div>
 										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Description
-											</Label>
+											<Label className="font-medium">Description</Label>
 											<Textarea
 												value={formValues.description}
 												onChange={(event) =>
 													setFormValues((prev) => ({
 														...prev,
-														description:
-															event.target.value,
+														description: event.target.value,
 													}))
 												}
 												className="max-w-80"
 											/>
 										</div>
 										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Type
-											</Label>
+											<Label className="font-medium">Type</Label>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<Button
 														className="px-4 py-1.5 cursor-pointer min-w-48 capitalize flex items-center justify-start gap-2 focus-visible:ring-0"
 														variant="secondary"
 													>
-														{formValues.type ===
-														"personal" ? (
+														{formValues.type === "personal" ? (
 															<UsersRound className="h-4 w-4" />
 														) : (
 															<Warehouse className="h-4 w-4" />
@@ -426,23 +361,16 @@ const ProjectsPage = () => {
 															icon: Warehouse,
 														},
 													].map((option) => {
-														const OptionIcon =
-															option.icon;
+														const OptionIcon = option.icon;
 														return (
 															<DropdownMenuItem
-																key={
-																	option.value
-																}
+																key={option.value}
 																className="cursor-pointer flex items-center gap-2 hover:bg-muted/90 transition-colors"
 																onClick={() =>
-																	setFormValues(
-																		(
-																			prev,
-																		) => ({
-																			...prev,
-																			type: option.value as ProjectType,
-																		}),
-																	)
+																	setFormValues((prev) => ({
+																		...prev,
+																		type: option.value as ProjectType,
+																	}))
 																}
 															>
 																<OptionIcon className="h-4 w-4" />
@@ -454,17 +382,14 @@ const ProjectsPage = () => {
 											</DropdownMenu>
 										</div>
 										<div className="flex border border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Access Level
-											</Label>
+											<Label className="font-medium">Access Level</Label>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<Button
 														className="px-4 py-1.5 cursor-pointer min-w-48 capitalize flex items-center justify-start gap-2 focus-visible:ring-0"
 														variant="secondary"
 													>
-														{formValues.accessLevel ===
-														"private" ? (
+														{formValues.accessLevel === "private" ? (
 															<Lock className="h-4 w-4" />
 														) : (
 															<LockOpen className="h-4 w-4" />
@@ -488,24 +413,17 @@ const ProjectsPage = () => {
 															icon: LockOpen,
 														},
 													].map((option) => {
-														const OptionIcon =
-															option.icon;
+														const OptionIcon = option.icon;
 														return (
 															<DropdownMenuItem
-																key={
-																	option.value
-																}
+																key={option.value}
 																className="cursor-pointer flex items-center gap-2 hover:bg-muted/90 transition-colors"
 																onClick={() =>
-																	setFormValues(
-																		(
-																			prev,
-																		) => ({
-																			...prev,
-																			accessLevel:
-																				option.value as ProjectAccessLevel,
-																		}),
-																	)
+																	setFormValues((prev) => ({
+																		...prev,
+																		accessLevel:
+																			option.value as ProjectAccessLevel,
+																	}))
 																}
 															>
 																<OptionIcon className="h-4 w-4" />
@@ -517,26 +435,20 @@ const ProjectsPage = () => {
 											</DropdownMenu>
 										</div>
 										<div className="flex border rounded-b-md border-t-0 py-2 px-4 justify-between items-center gap-4">
-											<Label className="font-medium">
-												Owner
-											</Label>
+											<Label className="font-medium">Owner</Label>
 											<div className="flex items-center gap-2">
 												<Avatar className="h-8 w-8">
 													<AvatarImage
 														src={
-															currentProject?.ownerProfilePicture ||
-															undefined
+															currentProject?.ownerProfilePicture || undefined
 														}
-														alt={
-															currentProject?.ownerFullname
-														}
+														alt={currentProject?.ownerFullname}
 													/>
 													<AvatarFallback
 														className="text-white tracking-wider"
 														style={{
 															backgroundColor:
-																currentProject?.ownerColorAvatar ||
-																"",
+																currentProject?.ownerColorAvatar || "",
 														}}
 													>
 														{currentProject?.ownerFullname
@@ -547,14 +459,10 @@ const ProjectsPage = () => {
 												</Avatar>
 												<div className="">
 													<p className="font-semibold">
-														{
-															currentProject?.ownerFullname
-														}
+														{currentProject?.ownerFullname}
 													</p>
 													<p className="text-xs text-muted-foreground">
-														{
-															currentProject?.ownerEmail
-														}
+														{currentProject?.ownerEmail}
 													</p>
 												</div>
 											</div>
@@ -562,10 +470,7 @@ const ProjectsPage = () => {
 										<div className="flex items-center justify-end mt-4">
 											<Button
 												className="gap-2 cursor-pointer"
-												disabled={
-													isUpdating ||
-													!currentProject
-												}
+												disabled={isUpdating || !currentProject}
 												type="submit"
 											>
 												{isUpdating && (
@@ -607,10 +512,7 @@ const ProjectsPage = () => {
 							)}
 						</div>
 						<div className="space-y-2">
-							<Label
-								className="block text-sm font-medium"
-								htmlFor="icon"
-							>
+							<Label className="block text-sm font-medium" htmlFor="icon">
 								Upload icon picture
 							</Label>
 							<Input

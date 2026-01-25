@@ -23,3 +23,4 @@ export { CreateSpaceModal } from "./CreateSpaceModal";
 export { SpaceNavCard } from "./SpaceNavCard";
 
 export { ColorPicker } from "./ColorPicker";
+export { InputWithColorPicker } from "./InputWithColorPicker";
