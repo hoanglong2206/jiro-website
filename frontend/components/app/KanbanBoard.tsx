@@ -20,6 +20,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { KanbanHeader } from "@/components/app";
 import { Button } from "../ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Plus } from "lucide-react";
 import { IBoardResponse } from "@/types/project.interface";
 
@@ -128,9 +129,30 @@ export function KanbanBoard({
 				>
 					<div className="flex gap-2 overflow-x-auto p-4 h-full">
 						{isLoading ? (
-							<div className="text-sm text-muted-foreground">
-								Loading boards...
-							</div>
+							<>
+								{Array.from({ length: 3 }).map((_, index) => (
+									<div
+										key={index}
+										className="flex-1 min-w-70 max-w-80 rounded-md bg-sidebar shadow-xs"
+									>
+										<div className="border-b p-3">
+											<Skeleton className="h-5 w-28" />
+										</div>
+										<div className="space-y-3 p-3">
+											{Array.from({ length: 2 }).map((__, skeletonIdx) => (
+												<Skeleton
+													key={skeletonIdx}
+													className="h-16 rounded-md"
+												/>
+											))}
+											<Skeleton className="h-10 rounded-md" />
+										</div>
+									</div>
+								))}
+								<div className="flex-1 min-w-70 max-w-80 rounded-md">
+									<Skeleton className="h-10 w-full rounded-md" />
+								</div>
+							</>
 						) : orderedBoards.length ? (
 							<>
 								{orderedBoards.map((board) => (

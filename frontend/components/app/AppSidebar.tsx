@@ -35,6 +35,7 @@ import {
 	SidebarMenuItem,
 	SidebarGroup,
 	SidebarGroupLabel,
+	SidebarMenuSkeleton,
 	useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -51,6 +52,7 @@ import {
 	getDataFromLocalStorage,
 } from "@/services/utils.service";
 import { SpaceNavCard, CreateSpaceModal } from "@/components/app";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useGetWorkspacesByProjectIdQuery } from "@/services/project.service";
 
 const navigationItems: { label: string; icon: ElementType; href: string }[] = [
@@ -84,12 +86,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { workspaces = [] } = useAppSelector((state) => state.project);
 
 	// Fetch workspaces when currentProject changes
-	const { data: workspacesData } = useGetWorkspacesByProjectIdQuery(
-		currentProject?.id || "",
-		{
-			skip: !currentProject?.id,
-		},
-	);
+	const {
+		data: workspacesData,
+		isFetching: isWorkspacesFetching,
+		isLoading: isWorkspacesLoading,
+	} = useGetWorkspacesByProjectIdQuery(currentProject?.id || "", {
+		skip: !currentProject?.id,
+	});
+
+	const isWorkspacesPending = isWorkspacesLoading || isWorkspacesFetching;
+	const shouldShowWorkspaceSkeleton = isWorkspacesPending && !workspaces.length;
 
 	// Update workspaces in Redux when data changes
 	useEffect(() => {
@@ -274,7 +280,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									<LayoutGrid className="h-4 w-4" />
 								</SidebarMenuButton>
 							</SidebarMenuItem>
-							{workspaces.length > 0 ? (
+							{shouldShowWorkspaceSkeleton ? (
+								Array.from({ length: 3 }).map((_, index) => (
+									<SidebarMenuItem key={`workspace-skeleton-${index}`}>
+										<SidebarMenuSkeleton showIcon />
+									</SidebarMenuItem>
+								))
+							) : workspaces.length > 0 ? (
 								workspaces.map((workspace) => (
 									<SpaceNavCard
 										key={workspace.id}
@@ -352,7 +364,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					</div>
 				</SidebarGroupLabel>
 				<div className="flex flex-col gap-1">
-					{workspaces.length > 0 ? (
+					{shouldShowWorkspaceSkeleton ? (
+						Array.from({ length: 4 }).map((_, index) => (
+							<div
+								key={`workspace-sheet-skeleton-${index}`}
+								className="rounded-md border border-border bg-sidebar p-3"
+							>
+								<Skeleton className="h-4 w-32" />
+								<Skeleton className="mt-2 h-3 w-20" />
+							</div>
+						))
+					) : workspaces.length > 0 ? (
 						workspaces.map((workspace) => (
 							<SpaceNavCard
 								key={workspace.id}

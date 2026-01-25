@@ -51,9 +51,8 @@ export function WorkspaceHeader() {
 	}, [project?.id, workspace?.id]);
 
 	const badgeContent = workspace?.key?.toUpperCase().slice(0, 3) || "SP";
-	const badgeColor = workspace?.color || project?.color || "#9ca3af";
-	const headerTitle = workspace?.name || project?.name || "Workspace";
-	const iconFallback = project?.icon || badgeContent;
+	const badgeColor = workspace?.color || "#9ca3af";
+	const headerTitle = workspace?.name || "Workspace";
 
 	const tabs = [
 		{ name: "Summary", href: `${baseUrl}/summary`, icon: LineChart },
@@ -72,10 +71,10 @@ export function WorkspaceHeader() {
 					</div>
 					<div className="flex items-center gap-2">
 						<span
-							className="flex h-7 w-7 items-center justify-center rounded text-sm"
+							className="flex h-7 w-7 text-background font-semibold items-center justify-center rounded text-sm"
 							style={{ backgroundColor: badgeColor }}
 						>
-							{iconFallback}
+							{badgeContent}
 						</span>
 						<h1 className="text-xl font-semibold">{headerTitle}</h1>
 						<Button variant="ghost" size="icon" className="cursor-pointer">

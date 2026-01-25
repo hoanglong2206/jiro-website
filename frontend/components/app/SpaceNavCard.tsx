@@ -47,8 +47,8 @@ export const SpaceNavCard = ({
 						className="flex items-center gap-2 truncate flex-1"
 					>
 						<div
-							className="h-4 w-4 rounded flex items-center justify-center text-[10px] font-bold text-white"
-							style={{ backgroundColor: workspace.color || "#6366f1" }}
+							className="h-6 w-6 rounded flex items-center justify-center text-xs font-semibold text-background"
+							style={{ backgroundColor: workspace.color || "#9ca3af" }}
 						>
 							{workspace.key}
 						</div>
