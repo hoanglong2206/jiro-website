@@ -27,11 +27,17 @@ import { IBoardResponse } from "@/types/project.interface";
 interface KanbanBoardProps {
 	boards?: IBoardResponse[];
 	isLoading?: boolean;
+	onCreateBoard?: (payload: {
+		name: string;
+		color?: string;
+		position?: number;
+	}) => Promise<void> | void;
 }
 
 export function KanbanBoard({
 	boards = [],
 	isLoading = false,
+	onCreateBoard,
 }: KanbanBoardProps) {
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [customOrderIds, setCustomOrderIds] = useState<string[] | null>(null);
@@ -134,8 +140,19 @@ export function KanbanBoard({
 		if (!trimmedTitle || isCreatingBoard) {
 			return;
 		}
+		const lastSortedBoard = sortedBoards[sortedBoards.length - 1];
+		const basePosition =
+			lastSortedBoard && lastSortedBoard.position !== undefined
+				? lastSortedBoard.position
+				: sortedBoards.length - 1;
+		const nextPosition = basePosition + 1;
 		try {
 			setIsCreatingBoard(true);
+			await onCreateBoard?.({
+				name: trimmedTitle,
+				color: newBoardColor || undefined,
+				position: Number.isFinite(nextPosition) ? nextPosition : undefined,
+			});
 			setIsAddingBoard(false);
 			setNewBoardTitle("");
 			setNewBoardColor("");

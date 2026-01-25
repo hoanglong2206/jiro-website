@@ -2,7 +2,10 @@
 
 import { useEffect, use } from "react";
 import { KanbanBoard, BoardToolbar } from "@/components/app";
-import { useGetBoardsByWorkspaceIdQuery } from "@/services/project.service";
+import {
+	useGetBoardsByWorkspaceIdQuery,
+	useCreateBoardMutation,
+} from "@/services/project.service";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { setCurrentWorkspace } from "@/store/reducers/project.reducer";
 
@@ -35,10 +38,35 @@ export default function BoardPage({
 		{ skip: !slug || !id },
 	);
 
+	const [createBoard] = useCreateBoardMutation();
+
+	const handleCreateBoard = async ({
+		name,
+		color,
+		position,
+	}: {
+		name: string;
+		color?: string;
+		position?: number;
+	}) => {
+		if (!slug || !id) {
+			return;
+		}
+		await createBoard({
+			projectId: slug,
+			workspaceId: id,
+			board: { name, color, position },
+		}).unwrap();
+	};
+
 	return (
 		<div className="flex h-full flex-col">
 			<BoardToolbar />
-			<KanbanBoard boards={data?.boards || []} isLoading={isLoading} />
+			<KanbanBoard
+				boards={data?.boards || []}
+				isLoading={isLoading}
+				onCreateBoard={handleCreateBoard}
+			/>
 		</div>
 	);
 }
