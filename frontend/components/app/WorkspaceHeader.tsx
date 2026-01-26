@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
 	Tooltip,
 	TooltipContent,
@@ -35,13 +35,27 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAppSelector } from "@/store/store";
+import { useAppDispatch, useAppSelector } from "@/store/store";
+import { toast } from "sonner";
+import { extractErrorMessage } from "@/services/utils.service";
+import { useDeleteWorkspaceMutation } from "@/services/project.service";
+import {
+	clearCurrentWorkspace,
+	setWorkspaces,
+} from "@/store/reducers/project.reducer";
 
 export function WorkspaceHeader() {
 	const pathname = usePathname();
 	const [isStarred, setIsStarred] = useState(true);
-	const { currentProject: project, currentWorkspace: workspace } =
-		useAppSelector((state) => state.project);
+	const {
+		currentProject: project,
+		currentWorkspace: workspace,
+		workspaces,
+	} = useAppSelector((state) => state.project);
+	const dispatch = useAppDispatch();
+	const router = useRouter();
+	const [deleteWorkspaceMutation, { isLoading: isDeletingWorkspace }] =
+		useDeleteWorkspaceMutation();
 
 	const baseUrl = useMemo(() => {
 		if (project?.id && workspace?.id) {
@@ -61,6 +75,32 @@ export function WorkspaceHeader() {
 		{ name: "Calendar", href: `${baseUrl}/calendar`, icon: Calendar },
 		{ name: "Timeline", href: `${baseUrl}/timeline`, icon: Timer },
 	];
+
+	const handleDeleteWorkspace = async () => {
+		if (!project?.id || !workspace?.id || isDeletingWorkspace) {
+			return;
+		}
+		try {
+			await deleteWorkspaceMutation({
+				projectId: project.id,
+				workspaceId: workspace.id,
+			}).unwrap();
+
+			dispatch(
+				setWorkspaces(workspaces.filter((item) => item.id !== workspace.id)),
+			);
+			dispatch(clearCurrentWorkspace());
+			if (project.id) {
+				router.push(`/projects/${project.id}/home`);
+			} else {
+				router.push("/projects");
+			}
+			toast.success("Workspace deleted successfully");
+		} catch (error) {
+			console.error("Failed to delete workspace", error);
+			toast.error(extractErrorMessage(error, "Failed to delete workspace"));
+		}
+	};
 
 	return (
 		<div className="border-b border-border bg-card">
@@ -121,7 +161,13 @@ export function WorkspaceHeader() {
 									Space settings
 								</DropdownMenuItem>
 								<DropdownMenuSeparator />
-								<DropdownMenuItem className="text-destructive focus:text-destructive">
+								<DropdownMenuItem
+									disabled={isDeletingWorkspace}
+									onSelect={() => {
+										void handleDeleteWorkspace();
+									}}
+									className="text-destructive focus:text-destructive"
+								>
 									<Trash2 className="mr-2 h-4 w-4" />
 									Delete space
 								</DropdownMenuItem>

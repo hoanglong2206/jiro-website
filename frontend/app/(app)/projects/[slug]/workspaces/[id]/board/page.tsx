@@ -6,6 +6,7 @@ import {
 	useGetBoardsByWorkspaceIdQuery,
 	useCreateBoardMutation,
 	useUpdateBoardMutation,
+	useDeleteBoardMutation,
 } from "@/services/project.service";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import { setCurrentWorkspace } from "@/store/reducers/project.reducer";
@@ -42,6 +43,7 @@ export default function BoardPage({
 
 	const [createBoard] = useCreateBoardMutation();
 	const [updateBoard] = useUpdateBoardMutation();
+	const [deleteBoard] = useDeleteBoardMutation();
 
 	const handleCreateBoard = async ({
 		name,
@@ -77,6 +79,17 @@ export default function BoardPage({
 		}).unwrap();
 	};
 
+	const handleDeleteBoard = async (boardId: string) => {
+		if (!slug || !id) {
+			return;
+		}
+		await deleteBoard({
+			projectId: slug,
+			workspaceId: id,
+			boardId,
+		}).unwrap();
+	};
+
 	return (
 		<div className="flex h-full flex-col">
 			<BoardToolbar />
@@ -85,6 +98,7 @@ export default function BoardPage({
 				isLoading={isLoading}
 				onCreateBoard={handleCreateBoard}
 				onUpdateBoard={handleUpdateBoard}
+				onDeleteBoard={handleDeleteBoard}
 			/>
 		</div>
 	);

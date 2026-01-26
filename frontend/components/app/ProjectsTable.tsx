@@ -44,9 +44,16 @@ import Image from "next/image";
 interface ProjectsTableProps {
 	data: IProjectResponse[];
 	onSelectProject: (project: IProjectResponse) => void;
+	onDeleteProject?: (project: IProjectResponse) => Promise<void> | void;
+	deletingProjectId?: string | null;
 }
 
-export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
+export function ProjectsTable({
+	data,
+	onSelectProject,
+	onDeleteProject,
+	deletingProjectId,
+}: ProjectsTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
 	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 8 });
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -60,8 +67,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 						<Checkbox
 							checked={
 								table.getIsAllPageRowsSelected() ||
-								(table.getIsSomePageRowsSelected() &&
-									"indeterminate")
+								(table.getIsSomePageRowsSelected() && "indeterminate")
 							}
 							onCheckedChange={(value) =>
 								table.toggleAllPageRowsSelected(!!value)
@@ -74,9 +80,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 					<div className="flex items-center justify-center">
 						<Checkbox
 							checked={row.getIsSelected()}
-							onCheckedChange={(value) =>
-								row.toggleSelected(!!value)
-							}
+							onCheckedChange={(value) => row.toggleSelected(!!value)}
 							aria-label="Select row"
 						/>
 					</div>
@@ -115,9 +119,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 									{initial}
 								</div>
 							)}
-							<p className="font-medium text-foreground">
-								{project.name}
-							</p>
+							<p className="font-medium text-foreground">{project.name}</p>
 						</div>
 					);
 				},
@@ -146,10 +148,8 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 					<Badge
 						className={cn(
 							"capitalize",
-							row.original.accessLevel === "private" &&
-								"bg-emerald-500",
-							row.original.accessLevel === "public" &&
-								"bg-pink-500",
+							row.original.accessLevel === "private" && "bg-emerald-500",
+							row.original.accessLevel === "public" && "bg-pink-500",
 						)}
 					>
 						{row.original.accessLevel}
@@ -164,17 +164,13 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 					<div className="flex items-center gap-2">
 						<Avatar className="h-8 w-8">
 							<AvatarImage
-								src={
-									row.original.ownerProfilePicture ||
-									undefined
-								}
+								src={row.original.ownerProfilePicture || undefined}
 								alt={row.original.ownerFullname}
 							/>
 							<AvatarFallback
 								className="text-white tracking-wider"
 								style={{
-									backgroundColor:
-										row.original.ownerColorAvatar || "",
+									backgroundColor: row.original.ownerColorAvatar || "",
 								}}
 							>
 								{row.original.ownerFullname
@@ -184,9 +180,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 							</AvatarFallback>
 						</Avatar>
 						<div className="">
-							<p className="font-semibold">
-								{row.original.ownerFullname}
-							</p>
+							<p className="font-semibold">{row.original.ownerFullname}</p>
 							<p className="text-xs text-muted-foreground">
 								{row.original.ownerEmail}
 							</p>
@@ -197,7 +191,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 			{
 				id: "actions",
 				size: 50,
-				cell: () => (
+				cell: ({ row }) => (
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button
@@ -210,7 +204,14 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 							</Button>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-32">
-							<DropdownMenuItem className="cursor-pointer">
+							<DropdownMenuItem
+								disabled={deletingProjectId === row.original.id}
+								onSelect={(event) => {
+									event.preventDefault();
+									void onDeleteProject?.(row.original);
+								}}
+								className="cursor-pointer"
+							>
 								<Trash className="w-3 h-3 text-destructive" />
 								<span className="text-destructive">Delete</span>
 							</DropdownMenuItem>
@@ -219,7 +220,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 				),
 			},
 		],
-		[],
+		[deletingProjectId, onDeleteProject],
 	);
 
 	const table = useReactTable({
@@ -244,14 +245,9 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 			<div className="flex items-center justify-start">
 				<Input
 					placeholder="Filter name..."
-					value={
-						(table.getColumn("name")?.getFilterValue() as string) ??
-						""
-					}
+					value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
 					onChange={(event) =>
-						table
-							.getColumn("name")
-							?.setFilterValue(event.target.value)
+						table.getColumn("name")?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm"
 				/>
@@ -270,8 +266,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 										{header.isPlaceholder
 											? null
 											: flexRender(
-													header.column.columnDef
-														.header,
+													header.column.columnDef.header,
 													header.getContext(),
 												)}
 									</TableHead>
@@ -283,13 +278,9 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 						{table.getRowModel().rows.length ? (
 							table.getRowModel().rows.map((row) => (
 								<TableRow
-									onClick={() =>
-										onSelectProject(row.original)
-									}
+									onClick={() => onSelectProject(row.original)}
 									key={row.id}
-									data-state={
-										row.getIsSelected() && "selected"
-									}
+									data-state={row.getIsSelected() && "selected"}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell
@@ -321,8 +312,8 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 			</div>
 			<div className="flex items-center justify-between gap-4">
 				<div className="text-sm text-muted-foreground">
-					{table.getState().pagination.pageIndex + 1} of{" "}
-					{table.getPageCount()} pages
+					{table.getState().pagination.pageIndex + 1} of {table.getPageCount()}{" "}
+					pages
 				</div>
 				<div className="flex items-center gap-2">
 					<Button
@@ -357,9 +348,7 @@ export function ProjectsTable({ data, onSelectProject }: ProjectsTableProps) {
 						variant="outline"
 						size="icon"
 						className="hidden h-8 w-8 p-0 lg:flex"
-						onClick={() =>
-							table.setPageIndex(table.getPageCount() - 1)
-						}
+						onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 						disabled={!table.getCanNextPage()}
 					>
 						<span className="sr-only">Go to last page</span>

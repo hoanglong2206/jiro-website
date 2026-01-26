@@ -7,8 +7,14 @@ import { CreateProjectModal } from "@/components/app/CreateProjectModal";
 import {
 	useGetProjectsQuery,
 	useUpdateProjectMutation,
+	useDeleteProjectMutation,
 } from "@/services/project.service";
-import { setProjects } from "@/store/reducers/project.reducer";
+import {
+	setProjects,
+	clearCurrentProject,
+	clearCurrentWorkspace,
+	setWorkspaces,
+} from "@/store/reducers/project.reducer";
 import { useAppDispatch, useAppSelector } from "@/store/store";
 import {
 	IProjectResponse,
@@ -45,9 +51,20 @@ import { extractErrorMessage } from "@/services/utils.service";
 import { IUser } from "@/types/user.interface";
 import { ColorPicker } from "@/components/app";
 
+const createEmptyProjectForm = (): IUpdateProjectPayload => ({
+	name: "",
+	description: "",
+	type: "personal",
+	accessLevel: "private",
+	color: "",
+	icon: "",
+});
+
 const ProjectsPage = () => {
 	const dispatch = useAppDispatch();
-	const { projects } = useAppSelector((state) => state.project);
+	const { projects, currentProject: activeProject } = useAppSelector(
+		(state) => state.project,
+	);
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 	const [currentProject, setCurrentProject] = useState<IProjectResponse>();
@@ -55,19 +72,18 @@ const ProjectsPage = () => {
 	const [iconPicturePreview, setIconPicturePreview] = useState<string | null>(
 		null,
 	);
-	const [formValues, setFormValues] = useState<IUpdateProjectPayload>({
-		name: "",
-		description: "",
-		type: "personal",
-		accessLevel: "private",
-		color: "",
-		icon: "",
-	});
+	const [formValues, setFormValues] = useState<IUpdateProjectPayload>(() =>
+		createEmptyProjectForm(),
+	);
+	const [deletingProjectId, setDeletingProjectId] = useState<string | null>(
+		null,
+	);
 	const userInfo: IUser = useAppSelector((state) => state.user);
 
 	const { data, isFetching, isError, refetch } = useGetProjectsQuery();
 	const [updateProjectMutation, { isLoading: isUpdating }] =
 		useUpdateProjectMutation();
+	const [deleteProjectMutation] = useDeleteProjectMutation();
 
 	useEffect(() => {
 		if (data?.projects) {
@@ -85,6 +101,38 @@ const ProjectsPage = () => {
 			color: project.color ?? "",
 			icon: project.icon ?? "",
 		});
+	};
+
+	const resetFormState = () => {
+		setCurrentProject(undefined);
+		setFormValues(createEmptyProjectForm());
+		setIconPictureValue(null);
+		setIconPicturePreview(null);
+	};
+
+	const handleDeleteProject = async (project: IProjectResponse) => {
+		if (!project?.id || deletingProjectId) {
+			return;
+		}
+		setDeletingProjectId(project.id);
+		try {
+			const response = await deleteProjectMutation(project.id).unwrap();
+			dispatch(setProjects(projects.filter((item) => item.id !== project.id)));
+			if (activeProject?.id === project.id) {
+				dispatch(clearCurrentProject());
+				dispatch(clearCurrentWorkspace());
+				dispatch(setWorkspaces([]));
+			}
+			if (currentProject?.id === project.id) {
+				resetFormState();
+			}
+			toast.success(response.message || "Project deleted successfully");
+		} catch (error) {
+			console.error("Failed to delete project", error);
+			toast.error(extractErrorMessage(error, "Failed to delete project"));
+		} finally {
+			setDeletingProjectId(null);
+		}
 	};
 
 	const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -235,6 +283,8 @@ const ProjectsPage = () => {
 							<ProjectsTable
 								data={projects}
 								onSelectProject={handleSelectProject}
+								onDeleteProject={handleDeleteProject}
+								deletingProjectId={deletingProjectId}
 							/>
 						</div>
 						<div className="col-span-1 mt-2">

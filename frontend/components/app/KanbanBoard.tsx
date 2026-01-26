@@ -4,6 +4,7 @@ import {
 	useMemo,
 	useState,
 	useCallback,
+	useEffect,
 	type ReactNode,
 	type HTMLAttributes,
 } from "react";
@@ -46,6 +47,7 @@ interface KanbanBoardProps {
 		boardId: string,
 		payload: IUpdateBoardPayload,
 	) => Promise<void> | void;
+	onDeleteBoard?: (boardId: string) => Promise<void> | void;
 }
 
 export function KanbanBoard({
@@ -53,9 +55,11 @@ export function KanbanBoard({
 	isLoading = false,
 	onCreateBoard,
 	onUpdateBoard,
+	onDeleteBoard,
 }: KanbanBoardProps) {
 	const [activeId, setActiveId] = useState<string | null>(null);
 	const [customOrderIds, setCustomOrderIds] = useState<string[] | null>(null);
+	const [hiddenBoardIds, setHiddenBoardIds] = useState<string[]>([]);
 
 	const sortedBoards = useMemo(() => {
 		return [...boards].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
@@ -74,8 +78,14 @@ export function KanbanBoard({
 				result.push(board);
 			}
 		});
-		return result;
-	}, [sortedBoards, customOrderIds]);
+		return result.filter((board) => !hiddenBoardIds.includes(board.id));
+	}, [sortedBoards, customOrderIds, hiddenBoardIds]);
+
+	useEffect(() => {
+		setHiddenBoardIds((prev) =>
+			prev.filter((id) => boards.some((board) => board.id === id)),
+		);
+	}, [boards]);
 
 	const boardIds = useMemo(
 		() => orderedBoards.map((board) => board.id),
@@ -219,6 +229,28 @@ export function KanbanBoard({
 		[onUpdateBoard, setBoardPending],
 	);
 
+	const handleDeleteBoard = useCallback(
+		async (boardId: string) => {
+			if (!onDeleteBoard) {
+				return;
+			}
+			setHiddenBoardIds((prev) =>
+				prev.includes(boardId) ? prev : [...prev, boardId],
+			);
+			try {
+				setBoardPending(boardId, true);
+				await onDeleteBoard(boardId);
+			} catch (error) {
+				console.error("Failed to delete board", error);
+				setHiddenBoardIds((prev) => prev.filter((id) => id !== boardId));
+				throw error;
+			} finally {
+				setBoardPending(boardId, false);
+			}
+		},
+		[onDeleteBoard, setBoardPending],
+	);
+
 	const persistBoardOrder = useCallback(
 		async (orderedIds: string[]) => {
 			if (!onUpdateBoard) {
@@ -319,6 +351,7 @@ export function KanbanBoard({
 													onUpdate={(payload) =>
 														handleUpdateBoard(board.id, payload)
 													}
+													onDelete={() => handleDeleteBoard(board.id)}
 													isUpdating={Boolean(pendingBoardMap[board.id])}
 												/>
 

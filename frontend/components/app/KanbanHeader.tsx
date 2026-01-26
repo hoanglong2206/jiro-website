@@ -27,6 +27,7 @@ interface KanbanHeaderProps {
 		name?: string;
 		color?: string | null;
 	}) => Promise<void> | void;
+	onDelete?: () => Promise<void> | void;
 	isUpdating?: boolean;
 }
 
@@ -36,6 +37,7 @@ export const KanbanHeader = ({
 	taskCount,
 	dragHandleProps,
 	onUpdate,
+	onDelete,
 	isUpdating = false,
 }: KanbanHeaderProps) => {
 	const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -94,6 +96,18 @@ export const KanbanHeader = ({
 			setIsSaving(false);
 		}
 	};
+
+	const handleDelete = async () => {
+		if (!onDelete || isSaving || isUpdating) {
+			return;
+		}
+		setIsEditing(false);
+		try {
+			await onDelete();
+		} catch (error) {
+			console.error("Failed to delete board", error);
+		}
+	};
 	return (
 		<div className="px-3 py-2 flex items-center justify-between bg-sidebar rounded-md">
 			{isEditing ? (
@@ -146,7 +160,10 @@ export const KanbanHeader = ({
 				</Tooltip>
 				<DropdownMenuContent
 					align="start"
-					className={cn("w-40", isEditing && "hidden")}
+					className={cn(
+						"w-40",
+						(isEditing || isSaving || isUpdating) && "hidden",
+					)}
 				>
 					<DropdownMenuItem onSelect={handleStartEditing}>
 						<Pen className="h-4 w-4" />
@@ -161,7 +178,13 @@ export const KanbanHeader = ({
 						Edit status
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem className="text-destructive focus:text-destructive">
+					<DropdownMenuItem
+						onSelect={(event) => {
+							event.preventDefault();
+							void handleDelete();
+						}}
+						className="text-destructive focus:text-destructive"
+					>
 						<Trash2 className="h-4 w-4" />
 						Delete
 					</DropdownMenuItem>

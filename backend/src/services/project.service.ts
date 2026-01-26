@@ -704,6 +704,9 @@ class ProjectService {
 				deniedMessage: "Only the project owner can delete the project",
 			});
 
+			await trx.delete(boards).where(eq(boards.projectId, projectId));
+			await trx.delete(workspaces).where(eq(workspaces.projectId, projectId));
+
 			const deletedRows = await trx
 				.delete(projectTable)
 				.where(eq(projectTable.id, projectId))
@@ -728,6 +731,15 @@ class ProjectService {
 				allowedRoles: ["owner", "admin"],
 				action: "delete workspaces",
 			});
+
+			await trx
+				.delete(boards)
+				.where(
+					and(
+						eq(boards.workspaceId, workspaceId),
+						eq(boards.projectId, projectId),
+					),
+				);
 
 			const deletedRows = await trx
 				.delete(workspaces)
