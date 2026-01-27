@@ -19,6 +19,7 @@ import authReducer from "./reducers/auth.reducer";
 import userReducer from "./reducers/user.reducer";
 import logoutReducer from "./reducers/logout.reducer";
 import projectReducer from "./reducers/project.reducer";
+import taskReducer from "./reducers/task.reducer";
 
 const persistConfig = {
 	key: "root",
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
 	user: userReducer,
 	logout: logoutReducer,
 	project: projectReducer,
+	task: taskReducer,
 });
 
 type RootStateType = ReturnType<typeof rootReducer>;
@@ -57,14 +59,7 @@ export const store = configureStore({
 	middleware: (getDefaultMiddleware) =>
 		getDefaultMiddleware({
 			serializableCheck: {
-				ignoredActions: [
-					FLUSH,
-					REHYDRATE,
-					PAUSE,
-					PERSIST,
-					PURGE,
-					REGISTER,
-				],
+				ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
 			},
 		}).concat(api.middleware),
 });
