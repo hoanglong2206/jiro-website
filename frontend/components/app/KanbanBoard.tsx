@@ -4,7 +4,6 @@ import {
 	useMemo,
 	useState,
 	useCallback,
-	useEffect,
 	type ReactNode,
 	type HTMLAttributes,
 } from "react";
@@ -61,36 +60,37 @@ export function KanbanBoard({
 	const [customOrderIds, setCustomOrderIds] = useState<string[] | null>(null);
 	const [hiddenBoardIds, setHiddenBoardIds] = useState<string[]>([]);
 
-	const sortedBoards = useMemo(() => {
-		return [...boards].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
-	}, [boards]);
-
-	const orderedBoards = useMemo(() => {
-		if (!customOrderIds) return sortedBoards;
-		const map = new Map(sortedBoards.map((board) => [board.id, board]));
-		const result: IBoardResponse[] = [];
-		customOrderIds.forEach((id) => {
-			const board = map.get(id);
-			if (board) result.push(board);
-		});
-		sortedBoards.forEach((board) => {
-			if (!customOrderIds.includes(board.id)) {
-				result.push(board);
-			}
-		});
-		return result.filter((board) => !hiddenBoardIds.includes(board.id));
-	}, [sortedBoards, customOrderIds, hiddenBoardIds]);
-
-	useEffect(() => {
-		setHiddenBoardIds((prev) =>
-			prev.filter((id) => boards.some((board) => board.id === id)),
+	const { sortedBoards, orderedBoards, boardIds } = useMemo(() => {
+		const sorted = [...boards].sort(
+			(a, b) => (a.position ?? 0) - (b.position ?? 0),
 		);
-	}, [boards]);
 
-	const boardIds = useMemo(
-		() => orderedBoards.map((board) => board.id),
-		[orderedBoards],
-	);
+		let ordered: IBoardResponse[];
+		if (!customOrderIds) {
+			ordered = sorted;
+		} else {
+			const map = new Map(sorted.map((board) => [board.id, board]));
+			const result: IBoardResponse[] = [];
+			customOrderIds.forEach((id) => {
+				const board = map.get(id);
+				if (board) result.push(board);
+			});
+			sorted.forEach((board) => {
+				if (!customOrderIds.includes(board.id)) {
+					result.push(board);
+				}
+			});
+			ordered = result;
+		}
+
+		const hiddenSet = new Set(hiddenBoardIds);
+		const visible = ordered.filter((board) => !hiddenSet.has(board.id));
+		return {
+			sortedBoards: sorted,
+			orderedBoards: visible,
+			boardIds: visible.map((board) => board.id),
+		};
+	}, [boards, customOrderIds, hiddenBoardIds]);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor),

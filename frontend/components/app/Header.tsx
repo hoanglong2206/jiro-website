@@ -29,6 +29,7 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { clearAuthUser } from "@/store/reducers/auth.reducer";
 import { useLogoutMutation } from "@/services/auth.service";
 import { useAppDispatch, useAppSelector, persister } from "@/store/store";
@@ -47,6 +48,15 @@ export function Header() {
 	const [logout] = useLogoutMutation();
 	const dispatch = useAppDispatch();
 	const userInfo: IUser = useAppSelector((state) => state.user);
+
+	const avatarInitials = useMemo(
+		() =>
+			userInfo.fullname
+				.split(" ")
+				.map((x) => x[0])
+				.join(""),
+		[userInfo.fullname],
+	);
 
 	const handleLogout = async (): Promise<void> => {
 		try {
@@ -154,10 +164,7 @@ export function Header() {
 									backgroundColor: userInfo.colorAvatar || "",
 								}}
 							>
-								{userInfo.fullname
-									.split(" ")
-									.map((x) => x[0])
-									.join("")}
+								{avatarInitials}
 							</AvatarFallback>
 						</Avatar>
 					</DropdownMenuTrigger>
@@ -175,10 +182,7 @@ export function Header() {
 											userInfo.colorAvatar || "",
 									}}
 								>
-									{userInfo.fullname
-										.split(" ")
-										.map((x) => x[0])
-										.join("")}
+									{avatarInitials}
 								</AvatarFallback>
 							</Avatar>
 							<div className="space-y-0.5">
