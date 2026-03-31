@@ -1,4 +1,4 @@
-import { and, eq, ExtractTablesWithRelations, desc } from "drizzle-orm";
+import { and, eq, ExtractTablesWithRelations, desc, inArray } from "drizzle-orm";
 import { db } from "../database";
 import { PgTransaction } from "drizzle-orm/pg-core";
 import { PostgresJsQueryResultHKT } from "drizzle-orm/postgres-js";
@@ -189,9 +189,10 @@ class TaskService {
 			return [];
 		}
 
-		const assigneesData = await db.select().from(taskAssignees);
-
-		const commentsData = await db.select().from(taskComments);
+		const [assigneesData, commentsData] = await Promise.all([
+			db.select().from(taskAssignees).where(inArray(taskAssignees.taskId, taskIds)),
+			db.select().from(taskComments).where(inArray(taskComments.taskId, taskIds)),
+		]);
 
 		const assigneesByTask = assigneesData.reduce(
 			(acc, assignee) => {

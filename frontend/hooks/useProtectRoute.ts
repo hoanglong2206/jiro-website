@@ -29,7 +29,6 @@ export const useProtectRoute = (): void => {
 
 	useEffect(() => {
 		if (isUserSuccess && result) {
-			console.log("Fetched user info:", result);
 			dispatch(addAUser({ userInfo: result.user }));
 			saveToLocalStorage("user", JSON.stringify(result));
 		}

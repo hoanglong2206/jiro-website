@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { cn, formatDate } from "@/lib/utils";
-import { ReactNode } from "react";
+import { memo, ReactNode, useMemo } from "react";
 import {
 	Tooltip,
 	TooltipContent,
@@ -44,23 +44,20 @@ const iconDueStatus: Record<string, ReactNode> = {
 	"no-due": <></>,
 };
 
-export const KanbanCard = ({ task }: KanbanCardProps) => {
+export const KanbanCard = memo(function KanbanCard({ task }: KanbanCardProps) {
 	const icon = iconTask[task.type];
-	const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-	const today = new Date();
-	const normalize = (date: Date) =>
-		new Date(date.getFullYear(), date.getMonth(), date.getDate());
-	const dueDiff = dueDate
-		? normalize(dueDate).getTime() - normalize(today).getTime()
-		: null;
-	const dueStatus =
-		dueDiff === null
-			? "no-due"
-			: dueDiff < 0
-			? "overdue"
-			: dueDiff === 0
-			? "due-today"
-			: "upcoming";
+
+	const dueStatus = useMemo(() => {
+		if (!task.dueDate) return "no-due";
+		const dueDate = new Date(task.dueDate);
+		const today = new Date();
+		const normalize = (date: Date) =>
+			new Date(date.getFullYear(), date.getMonth(), date.getDate());
+		const dueDiff =
+			normalize(dueDate).getTime() - normalize(today).getTime();
+		return dueDiff < 0 ? "overdue" : dueDiff === 0 ? "due-today" : "upcoming";
+	}, [task.dueDate]);
+
 	const iconDue = iconDueStatus[dueStatus];
 
 	return (
@@ -139,4 +136,4 @@ export const KanbanCard = ({ task }: KanbanCardProps) => {
 			</div>
 		</div>
 	);
-};
+});

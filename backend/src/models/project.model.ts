@@ -1,4 +1,5 @@
 import {
+	index,
 	pgEnum,
 	pgTable,
 	uuid,
@@ -42,60 +43,78 @@ export const projectTable = pgTable("project", {
 		.$onUpdate(() => new Date()),
 });
 
-export const projectMembersTable = pgTable("project_members", {
-	id: uuid("id").primaryKey().defaultRandom(),
-	projectId: uuid("project_id")
-		.notNull()
-		.references(() => projectTable.id, { onDelete: "cascade" }),
-	userId: uuid("user_id").notNull(),
-	userEmail: varchar("user_email", { length: 255 }),
-	userFullname: varchar("user_fullname", { length: 255 }),
-	userColorAvatar: varchar("user_color_avatar"),
-	userProfilePicture: text("user_profile_picture"),
-	role: projectMemberRoleEnum("role").notNull(), // 'owner', 'admin', 'member', 'viewer'
-	invitedBy: uuid("invited_by"),
-	joinedAt: timestamp("joined_at").defaultNow().notNull(),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at")
-		.defaultNow()
-		.notNull()
-		.$onUpdate(() => new Date()),
-});
+export const projectMembersTable = pgTable(
+	"project_members",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		projectId: uuid("project_id")
+			.notNull()
+			.references(() => projectTable.id, { onDelete: "cascade" }),
+		userId: uuid("user_id").notNull(),
+		userEmail: varchar("user_email", { length: 255 }),
+		userFullname: varchar("user_fullname", { length: 255 }),
+		userColorAvatar: varchar("user_color_avatar"),
+		userProfilePicture: text("user_profile_picture"),
+		role: projectMemberRoleEnum("role").notNull(), // 'owner', 'admin', 'member', 'viewer'
+		invitedBy: uuid("invited_by"),
+		joinedAt: timestamp("joined_at").defaultNow().notNull(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.notNull()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		index("project_members_project_id_idx").on(table.projectId),
+		index("project_members_user_id_idx").on(table.userId),
+	],
+);
 
-export const workspaces = pgTable("workspaces", {
-	id: uuid("id").primaryKey().defaultRandom(),
-	projectId: uuid("project_id")
-		.notNull()
-		.references(() => projectTable.id, { onDelete: "cascade" }),
-	name: varchar("name", { length: 255 }).notNull(),
-	key: varchar("key", { length: 255 }).notNull(),
-	color: varchar("color", { length: 50 }),
-	createdBy: uuid("created_by").notNull(),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at")
-		.defaultNow()
-		.notNull()
-		.$onUpdate(() => new Date()),
-});
+export const workspaces = pgTable(
+	"workspaces",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		projectId: uuid("project_id")
+			.notNull()
+			.references(() => projectTable.id, { onDelete: "cascade" }),
+		name: varchar("name", { length: 255 }).notNull(),
+		key: varchar("key", { length: 255 }).notNull(),
+		color: varchar("color", { length: 50 }),
+		createdBy: uuid("created_by").notNull(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.notNull()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [index("workspaces_project_id_idx").on(table.projectId)],
+);
 
-export const boards = pgTable("boards", {
-	id: uuid("id").primaryKey().defaultRandom(),
-	workspaceId: uuid("workspace_id")
-		.notNull()
-		.references(() => workspaces.id, { onDelete: "cascade" }),
-	projectId: uuid("project_id")
-		.notNull()
-		.references(() => projectTable.id, { onDelete: "cascade" }), // Denormalized for easier queries
-	name: varchar("name", { length: 255 }).notNull(),
-	color: varchar("color", { length: 50 }),
-	position: integer("position").default(0),
-	createdBy: uuid("created_by").notNull(),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at")
-		.defaultNow()
-		.notNull()
-		.$onUpdate(() => new Date()),
-});
+export const boards = pgTable(
+	"boards",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		workspaceId: uuid("workspace_id")
+			.notNull()
+			.references(() => workspaces.id, { onDelete: "cascade" }),
+		projectId: uuid("project_id")
+			.notNull()
+			.references(() => projectTable.id, { onDelete: "cascade" }), // Denormalized for easier queries
+		name: varchar("name", { length: 255 }).notNull(),
+		color: varchar("color", { length: 50 }),
+		position: integer("position").default(0),
+		createdBy: uuid("created_by").notNull(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+		updatedAt: timestamp("updated_at")
+			.defaultNow()
+			.notNull()
+			.$onUpdate(() => new Date()),
+	},
+	(table) => [
+		index("boards_workspace_id_idx").on(table.workspaceId),
+		index("boards_project_id_idx").on(table.projectId),
+	],
+);
 
 export type ProjectRecord = typeof projectTable.$inferSelect;
 export type NewProjectRecord = typeof projectTable.$inferInsert;

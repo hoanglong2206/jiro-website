@@ -43,8 +43,10 @@ class UserService {
 	}
 
 	async createUser(payload: IUser): Promise<void> {
-		const existingEmail = await this.getUserByEmail(payload.email!);
-		const existingUsername = await this.getUserByUsername(payload.username!);
+		const [existingEmail, existingUsername] = await Promise.all([
+			this.getUserByEmail(payload.email!),
+			this.getUserByUsername(payload.username!),
+		]);
 		if (existingUsername) {
 			throw new Error("Username already in use");
 		}
